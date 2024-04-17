@@ -1,0 +1,72 @@
+﻿namespace RoyalCode.SmartProblems;
+
+/// <summary>
+/// The problem categories that the system can handle.
+/// </summary>
+public enum ProblemCategory
+{
+    /// <summary>
+    /// <para>
+    ///     Define a custom problem for the system.
+    /// </para>
+    /// <para>
+    ///     This kind of problem is used when the system needs to define a custom problem
+    ///     that the defaults problems does not have the necessary information to represent.
+    /// </para>
+    /// <para>
+    ///     Problems of this category will require the TypeId and a ProblemDetailsDescription for convert
+    ///     to ProblemDetails.
+    /// </para>
+    /// </summary>
+    CustomProblem,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for a resource that was not found.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 404 (Not Found).
+    /// </para>
+    /// </summary>
+    NotFound,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for an invalid input parameter.
+    /// </para>
+    /// <para>
+    ///    This is equivalent to the HTTP status code 400 (Bad Request).
+    /// </para>
+    /// </summary>
+    InvalidParameter,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for a validation error.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 422 (Unprocessable Entity).
+    /// </para>
+    /// </summary>
+    ValidationError,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for an invalid state of the system or entity.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 409 (Conflict).
+    /// </para>
+    /// </summary>
+    InvalidState,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for an operation that is not allowed to be executed.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 403 (Forbidden).
+    /// </para>
+    /// </summary>
+    NotAllowed,
+}
