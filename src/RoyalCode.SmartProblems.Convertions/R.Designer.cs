@@ -79,11 +79,20 @@ namespace RoyalCode.SmartProblems.Convertions {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid operation, the current state of the data does not allow the operation to be performed.
+        ///   Looks up a localized string similar to Invalid state of the data.
         /// </summary>
         internal static string InvalidStateTitle {
             get {
                 return ResourceManager.GetString("InvalidStateTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Execution was not allowed.
+        /// </summary>
+        internal static string NotAllowedTitle {
+            get {
+                return ResourceManager.GetString("NotAllowedTitle", resourceCulture);
             }
         }
         
@@ -97,7 +106,7 @@ namespace RoyalCode.SmartProblems.Convertions {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Errors occurred in the validation of input parameters.
+        ///   Looks up a localized string similar to Validation of input parameters failed.
         /// </summary>
         internal static string ValidationFailedTitle {
             get {

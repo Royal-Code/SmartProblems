@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.Convertions", "RoyalCode.SmartProblems.Convertions\RoyalCode.SmartProblems.Convertions.csproj", "{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.ProblemDetails", "RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj", "{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

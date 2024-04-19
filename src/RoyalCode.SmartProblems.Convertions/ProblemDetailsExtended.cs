@@ -85,6 +85,11 @@ public class ProblemDetailsExtended : ProblemDetails
         public static string InvalidStateTitle { get; set; } = R.InvalidStateTitle;
 
         /// <summary>
+        /// The default title for the not allowed errors.
+        /// </summary>
+        public static string NotAllowedTitle { get; set; } = R.NotAllowedTitle;
+
+        /// <summary>
         /// Mensagem padrão para erros internos.
         /// </summary>
         public static string InternalServerErrorTitle { get; set; } = R.InternalServerErrorTitle;
@@ -189,6 +194,7 @@ public class ProblemDetailsExtended : ProblemDetails
         {
             bool isInternalError = Status == 500;
             bool isConflict = Status == 409;
+            bool isNotAllowed = Status == 403;
 
             foreach (var errorDetails in Errors)
             {
@@ -198,7 +204,9 @@ public class ProblemDetailsExtended : ProblemDetails
                     ? Problems.InternalError(errorDetails.Detail, property)
                     : isConflict
                         ? Problems.InvalidState(errorDetails.Detail, property)
-                        : Problems.ValidationFailed(errorDetails.Detail, property);
+                        : isNotAllowed
+                            ? Problems.NotAllowed(errorDetails.Detail, property)
+                            : Problems.ValidationFailed(errorDetails.Detail, property);
                 
                 if (errorDetails.Extensions is not null)
                     foreach (var extension in errorDetails.Extensions)
@@ -207,8 +215,13 @@ public class ProblemDetailsExtended : ProblemDetails
                 result += problem;
             }
 
-            if (Title == Titles.InvalidStateTitle || Title == Titles.ValidationFailedTitle || Title == Titles.InternalServerErrorTitle)
+            if (Title == Titles.InvalidStateTitle
+                || Title == Titles.ValidationFailedTitle
+                || Title == Titles.InternalServerErrorTitle
+                || Title == Titles.NotAllowedTitle)
+            {
                 ignoreDetails = true;
+            }
         }
 
         if (InnerProblemDetails is not null)
