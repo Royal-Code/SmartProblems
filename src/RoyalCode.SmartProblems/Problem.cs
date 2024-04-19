@@ -35,4 +35,19 @@ public sealed class Problem
     /// Optional, extra information about the problem.
     /// </summary>
     public IDictionary<string, object>? Extensions { get; set; }
+
+    /// <summary>
+    /// Adds a new key-value pair to the extensions.
+    /// </summary>
+    /// <param name="key">The key of the data.</param>
+    /// <param name="value">The value of the data.</param>
+    /// <returns>
+    ///     The same instance of the problem.
+    /// </returns>
+    public Problem With(string key, object value)
+    {
+        Extensions ??= new Dictionary<string, object>();
+        Extensions[key] = value;
+        return this;
+    }
 }
