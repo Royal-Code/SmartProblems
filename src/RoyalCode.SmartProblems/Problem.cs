@@ -1,6 +1,8 @@
 ﻿namespace RoyalCode.SmartProblems;
 
-
+/// <summary>
+/// An object that represents a problem that occurred in the system, with details and category.
+/// </summary>
 public sealed class Problem
 {
     /// <summary>

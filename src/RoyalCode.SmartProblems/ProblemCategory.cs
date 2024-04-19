@@ -42,13 +42,13 @@ public enum ProblemCategory
     
     /// <summary>
     /// <para>
-    ///     Define a problem for a validation error.
+    ///     Define a problem for when a business rule is violated.
     /// </para>
     /// <para>
     ///     This is equivalent to the HTTP status code 422 (Unprocessable Entity).
     /// </para>
     /// </summary>
-    ValidationError,
+    ValidationFailed,
     
     /// <summary>
     /// <para>
@@ -69,4 +69,14 @@ public enum ProblemCategory
     /// </para>
     /// </summary>
     NotAllowed,
+
+    /// <summary>
+    /// <para>
+    ///     Defines a problem for when an unexpected exception/error occurs in the system.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 500 (Internal Server Error).
+    /// </para>
+    /// </summary>
+    InternalServerError
 }
