@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>RoyalCode.SmartProblems</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />
+	</ItemGroup>
+
+</Project>
