@@ -54,20 +54,22 @@ public sealed class ProduceProblemsAttribute : Attribute
     internal IEnumerable<int> GetStatusCodes()
     {
         if (StatusCodes is not null)
-            for (var i = 0; i < StatusCodes.Length; i++)
-                yield return StatusCodes[i];
+            foreach (var statusCode in StatusCodes)
+                yield return statusCode;
 
-        if (Categories is not null)
-            for (var i = 0; i < Categories.Length; i++)
-                yield return Categories[i] switch
-                {
-                    ProblemCategory.NotFound => 404,
-                    ProblemCategory.InvalidParameter => 400,
-                    ProblemCategory.ValidationFailed => 422,
-                    ProblemCategory.InvalidState => 409,
-                    ProblemCategory.NotAllowed => 405,
-                    ProblemCategory.InternalServerError => 500,
-                    _ => 400
-                };
+        if (Categories is null) 
+            yield break;
+        
+        foreach (var category in Categories)
+            yield return category switch
+            {
+                ProblemCategory.NotFound => 404,
+                ProblemCategory.InvalidParameter => 400,
+                ProblemCategory.ValidationFailed => 422,
+                ProblemCategory.InvalidState => 409,
+                ProblemCategory.NotAllowed => 403,
+                ProblemCategory.InternalServerError => 500,
+                _ => 400
+            };
     }
 }
