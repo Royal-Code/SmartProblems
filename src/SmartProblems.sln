@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.Pro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.ApiResults", "RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj", "{50B8B103-C587-492C-AD6B-C6884F4B75B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.Http", "RoyalCode.SmartProblems.Http\RoyalCode.SmartProblems.Http.csproj", "{0BBF7FA8-6AFE-4A1F-BEEC-4C2BA1E599D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{50B8B103-C587-492C-AD6B-C6884F4B75B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50B8B103-C587-492C-AD6B-C6884F4B75B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50B8B103-C587-492C-AD6B-C6884F4B75B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BBF7FA8-6AFE-4A1F-BEEC-4C2BA1E599D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBF7FA8-6AFE-4A1F-BEEC-4C2BA1E599D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBF7FA8-6AFE-4A1F-BEEC-4C2BA1E599D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBF7FA8-6AFE-4A1F-BEEC-4C2BA1E599D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

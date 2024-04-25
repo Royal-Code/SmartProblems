@@ -145,9 +145,9 @@ public class ProblemDetailsExtended : ProblemDetails
     /// <returns>
     ///     A new instance of <see cref="Result"/> with the <see cref="Problems"/> created from the <see cref="ProblemDetailsExtended"/>.
     /// </returns>
-    public Result ToResult()
+    public Problems ToProblems()
     {
-        Result result = new();
+        Problems problems = new();
 
         bool ignoreDetails = false;
 
@@ -165,7 +165,7 @@ public class ProblemDetailsExtended : ProblemDetails
                     foreach (var extension in invalidParameter.Extensions)
                         problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
 
-                result += problem;
+                problems += problem;
             }
 
             if (Title == Titles.InvalidParametersTitle || Title == Titles.ValidationFailedTitle)
@@ -183,7 +183,7 @@ public class ProblemDetailsExtended : ProblemDetails
                     foreach (var extension in notFoundDetail.Extensions)
                         problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
 
-                result += problem;
+                problems += problem;
             }
 
             if (Title == Titles.NotFoundTitle)
@@ -212,7 +212,7 @@ public class ProblemDetailsExtended : ProblemDetails
                     foreach (var extension in errorDetails.Extensions)
                         AddExtension(problem, extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
 
-                result += problem;
+                problems += problem;
             }
 
             if (Title == Titles.InvalidStateTitle
@@ -226,36 +226,35 @@ public class ProblemDetailsExtended : ProblemDetails
 
         if (InnerProblemDetails is not null)
         {
-            foreach (var innerProblemDetail in InnerProblemDetails)
-            {
-                result += ToProblem(innerProblemDetail);
-            }
+            problems = InnerProblemDetails.Aggregate(
+                problems, 
+                (current, innerProblemDetail) => current + ToProblem(innerProblemDetail));
 
             ignoreDetails = true;
         }
 
         if (ignoreDetails)
         {
-            if (Extensions?.Count > 0)
-            {
-                var problem = result[0];
-                foreach (var extension in Extensions)
-                    problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
-            }
+            if (Extensions.Count is 0) 
+                return problems;
+            
+            var problem = problems[0];
+            foreach (var extension in Extensions)
+                problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
         }
         else
         {
-            result += ToProblem(this);
+            problems += ToProblem(this);
         }
 
-        return result;
+        return problems;
     }
 
     private static Problem ToProblem(ProblemDetails details)
     {
         // obtém a propriedade do problema
         string? property = null;
-        if (details.Extensions is not null && details.Extensions.TryGetValue("property", out var propertyValue))
+        if (details.Extensions.TryGetValue("property", out var propertyValue))
             property = ReadJsonValue(propertyValue) as string;
 
         // obtém a categoria do problema
@@ -286,13 +285,12 @@ public class ProblemDetailsExtended : ProblemDetails
         };
 
         // add the additional information
-        if (details.Extensions is not null)
-            foreach (var extension in details.Extensions)
-            {
-                if (extension.Key == "property")
-                    continue;
-                message.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
-            }
+        foreach (var extension in details.Extensions)
+        {
+            if (extension.Key == "property")
+                continue;
+            message.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+        }
 
         return message;
     }

@@ -125,6 +125,19 @@ public readonly struct Result
 
     #endregion
 
+    #region Factory methods
+
+    /// <summary>
+    /// <para>
+    ///     An elegant way to create a new result of success.
+    /// </para>
+    /// </summary>
+    /// <returns>A new result of success.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result Ok() => new(); 
+
+    #endregion
+    
     private readonly Problems? problems;
 
     /// <summary>
