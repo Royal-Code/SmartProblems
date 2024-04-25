@@ -196,6 +196,7 @@ public readonly struct Result<TValue>
     /// <param name="value">The value.</param>
     public Result(TValue value) 
     {
+        ArgumentNullException.ThrowIfNull(value);
         this.value = value;
     }
 
@@ -205,6 +206,7 @@ public readonly struct Result<TValue>
     /// <param name="problems">The problems.</param>
     public Result(Problems problems)
     {
+        ArgumentNullException.ThrowIfNull(problems);
         this.problems = problems;
     }
 

@@ -8,6 +8,23 @@ namespace RoyalCode.SmartProblems;
 /// </summary>
 public sealed class Problems : ICollection<Problem>
 {
+    #region Global Property
+
+    /// <summary>
+    /// <para>
+    ///     A exception handler to convert exceptions to problems.
+    /// </para>
+    /// <para>
+    ///     Is used in the <see cref="InternalError(Exception)"/> method.
+    /// </para>
+    /// <para>
+    ///     Usefull to customize the creation of problems from exceptions.
+    /// </para>
+    /// </summary>
+    public static IExceptionHandler? ExceptionHandler { get; set; }
+
+    #endregion
+
     #region Factory Methods
 
     /// <summary>
@@ -123,11 +140,19 @@ public sealed class Problems : ICollection<Problem>
     /// <returns>A new problem.</returns>
     public static Problem InternalError(Exception exception)
     {
+        if (ExceptionHandler?.TryHandle(exception, out var problem) is true)
+            return problem;
+
+        var property = exception is ArgumentException argumentException 
+            ? argumentException.ParamName 
+            : null;
+
         return new Problem
         {
             Category = ProblemCategory.InternalServerError,
             Detail = exception.Message,
-            TypeId = exception.GetType().Name
+            TypeId = exception.GetType().Name,
+            Property = property
         };
     }
 

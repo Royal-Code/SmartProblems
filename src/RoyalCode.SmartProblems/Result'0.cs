@@ -151,6 +151,7 @@ public readonly struct Result
     /// <param name="problems">The problems.</param>
     public Result(Problems problems)
     {
+        ArgumentNullException.ThrowIfNull(problems);
         this.problems = problems;
     }
 
