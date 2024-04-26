@@ -1,10 +1,29 @@
-﻿namespace RoyalCode.SmartProblems;
+﻿using System.Runtime.CompilerServices;
+
+namespace RoyalCode.SmartProblems;
 
 /// <summary>
 /// An object that represents a problem that occurred in the system, with details and category.
 /// </summary>
 public sealed class Problem
 {
+    #region implicit operators
+
+    /// <summary>
+    /// Creates a collection of problems with both problems.
+    /// </summary>
+    /// <param name="a">A problem to add.</param>
+    /// <param name="b">Other problem to add.</param>
+    /// <returns>A new instance of the problems collection (<see cref="Problems"/>).</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Problems operator +(Problem a, Problem b)
+    {
+        Problems collection = [a, b];
+        return collection;
+    }
+
+    #endregion
+
     /// <summary>
     /// <para>
     ///     Description of the problem, like a message to the user.

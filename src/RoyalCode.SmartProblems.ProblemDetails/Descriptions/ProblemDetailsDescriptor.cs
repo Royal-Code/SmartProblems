@@ -9,7 +9,7 @@ namespace RoyalCode.SmartProblems.Descriptions;
 public partial class ProblemDetailsDescriptor
 {
     private readonly Dictionary<string, ProblemDetailsDescription> descriptions = DescriptionFactory();
-    private readonly Dictionary<ProblemCategory, ProblemDetailsDescription> genericErrorDescriptions = GenericErrorDescriptionFactory();
+    private readonly Dictionary<ProblemCategory, ProblemDetailsDescription> genericErrorDescriptions = GenericProblemsDescriptionFactory();
 
     /// <summary>
     /// <para>

@@ -28,7 +28,7 @@ public partial class ProblemDetailsDescriptor
         /// <summary>
         /// The Detail field for the validation failed.
         /// </summary>
-        public static string ValidationErrorsMessage { get; set; } = DR.ValidationErrorsMessage;
+        public static string ValidationFailedMessage { get; set; } = DR.ValidationFailedMessage;
 
         /// <summary>
         /// The Detail field for the an not allowed operation.
@@ -96,6 +96,8 @@ public partial class ProblemDetailsDescriptor
 
         public const string InternalServerError = "internal-server-error";
 
+        public const string CustomProblem = "problem-occurred";
+
         /// <summary>
         /// The key for the an aggregation of problems.
         /// </summary>
@@ -120,7 +122,7 @@ public partial class ProblemDetailsDescriptor
     /// <summary>
     /// The factory to create the default descriptions of the problem details for the generic errors.
     /// </summary>
-    public static Dictionary<ProblemCategory, ProblemDetailsDescription> GenericErrorDescriptionFactory() => new()
+    public static Dictionary<ProblemCategory, ProblemDetailsDescription> GenericProblemsDescriptionFactory() => new()
     {
         {
             ProblemCategory.NotFound,
@@ -175,6 +177,14 @@ public partial class ProblemDetailsDescriptor
                 ProblemDetailsExtended.Titles.InternalServerErrorTitle,
                 DR.InternalServerErrorDescription,
                 HttpStatusCode.InternalServerError)
+        },
+        {
+            ProblemCategory.CustomProblem,
+            new ProblemDetailsDescription(
+                GenericProblemsTypeIds.CustomProblem,
+                ProblemDetailsExtended.Titles.DefaultTitle,
+                DR.CustomProblemDescription,
+                HttpStatusCode.BadRequest)
         }
     };
 }

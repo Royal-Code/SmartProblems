@@ -90,9 +90,14 @@ public class ProblemDetailsExtended : ProblemDetails
         public static string NotAllowedTitle { get; set; } = R.NotAllowedTitle;
 
         /// <summary>
-        /// Mensagem padrão para erros internos.
+        /// The default title for internal errors.
         /// </summary>
         public static string InternalServerErrorTitle { get; set; } = R.InternalServerErrorTitle;
+
+        /// <summary>
+        /// The default title for the custom problems that not have a description.
+        /// </summary>
+        public static string DefaultTitle { get; set; } = R.DefaultTitle;
     }
 
     /// <summary>

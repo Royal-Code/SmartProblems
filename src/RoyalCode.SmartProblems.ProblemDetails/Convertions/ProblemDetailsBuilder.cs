@@ -33,11 +33,11 @@ public class ProblemDetailsBuilder
             if (options.Descriptor.TryGetDescription(typeId, out var codeDescription))
                 description = codeDescription;
             else
-                description = options.Descriptor.GetDescriptionByCategory(ProblemCategory.InvalidState);
+                description = options.Descriptor.GetDescriptionByCategory(GetCategory());
         }
 
         var type = description.Type
-            ?? $"{options.TypeComplement}{options.TypeComplement}{description.TypeId}";
+            ?? $"{options.BaseAddress}{options.TypeComplement}{description.TypeId}";
 
         int status = customErrors?.Count > 1
             ? GetAggregateStatus(options)
@@ -57,10 +57,10 @@ public class ProblemDetailsBuilder
     }
 
     /// <summary>
-    /// Verifica se há apenas problemas genéricos e, em caso positivo, retorna a categoria do problema.
+    /// It checks if there are only generic problems and, if so, returns the most severe problem category.
     /// </summary>
-    /// <param name="category">A categoria do problema.</param>
-    /// <returns>Se há apenas problemas genéricos.</returns>
+    /// <param name="category">The problem category.</param>
+    /// <returns>If there are only generic problems.</returns>
     private bool IsGenericProblem([NotNullWhen(true)] out ProblemCategory? category)
     {
         if (customErrors is not null && customErrors.Count > 0)
@@ -100,6 +100,10 @@ public class ProblemDetailsBuilder
         return false;
     }
 
+    /// <summary>
+    /// Get the most appropriate TypeId for the problem.
+    /// </summary>
+    /// <returns>A string that represents the TypeId.</returns>
     private string GetTypeId()
     {
         if (customErrors is not null)
@@ -113,16 +117,34 @@ public class ProblemDetailsBuilder
         return ProblemDetailsDescriptor.Types.AboutBlank;
     }
 
+    /// <summary>
+    /// Obtains the most appropriate status for the problem when there is more than one customised problem.
+    /// </summary>
+    /// <param name="options">The options for the problem details conversion.</param>
+    /// <returns>The HTTP status code.</returns>
     private int GetAggregateStatus(ProblemDetailsOptions options)
     {
         if (customErrors is not null)
         {
             var custom = customErrors[0];
-            var description = GetDescription(options, custom.TypeId, ProblemCategory.InvalidParameter);
+            var description = GetDescription(options, custom.TypeId, GetCategory());
             return (int)description.Status;
         }
 
         return 400;
+    }
+
+    /// <summary>
+    /// Get the appropriate category for the problem when there is no TypeId.
+    /// </summary>
+    /// <returns>The problem category.</returns>
+    private ProblemCategory GetCategory()
+    {
+        return customErrors switch
+        {
+            not null => ProblemCategory.CustomProblem,
+            _ => ProblemCategory.InvalidState,
+        };
     }
 
     /// <summary>
@@ -145,7 +167,7 @@ public class ProblemDetailsBuilder
                 return ProblemDetailsDescriptor.Messages.InvalidStateMessage;
 
             if (withValidationErrors)
-                return ProblemDetailsDescriptor.Messages.ValidationErrorsMessage;
+                return ProblemDetailsDescriptor.Messages.ValidationFailedMessage;
 
             if (withNotAllowedErrors)
                 return ProblemDetailsDescriptor.Messages.NotAllowedMessage;
@@ -202,7 +224,7 @@ public class ProblemDetailsBuilder
     private ProblemDetails ToProblemDetails(CustomDetails problem, ProblemDetailsOptions options)
     {
         return CreateProblemDetails(options,
-            problem.TypeId, ProblemCategory.InvalidState, problem.Detail, problem.Extensions);
+            problem.TypeId, GetCategory(), problem.Detail, problem.Extensions);
     }
 
     private static ProblemDetailsDescription GetDescription(ProblemDetailsOptions options,

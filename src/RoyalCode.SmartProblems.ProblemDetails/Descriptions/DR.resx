@@ -129,6 +129,9 @@
   <data name="AggregateProblemsDetailsTitle" xml:space="preserve">
     <value>Multiples problems</value>
   </data>
+  <data name="CustomProblemDescription" xml:space="preserve">
+    <value>When one or more problems occur during the request (operation) in the system, generic or specific problems can be returned. Specific problems define their own types for ProblemDetails and it is necessary to include a description for these specific types. When descriptions are not provided or found, this type, also generic, is used to describe the specific problem.</value>
+  </data>
   <data name="DefaultMessage" xml:space="preserve">
     <value>An error has occurred</value>
   </data>
@@ -165,10 +168,10 @@
   <data name="ProblemDetailsExceptionMessagePattern" xml:space="preserve">
     <value>Failed to deserialize a collection of ProblemDetailsDescription, type '{0}', message: {1}, JSON:\n{2}</value>
   </data>
-  <data name="ValidationErrorsMessage" xml:space="preserve">
-    <value>Errors occurred in the validation of input parameters</value>
-  </data>
   <data name="ValidationFailedDescription" xml:space="preserve">
     <value>The 422 (Unprocessable Content) status code indicates that the server understands the content type of the request content (hence a 415 (Unsupported Media Type) status code is inappropriate), and the syntax of the request content is correct, but it was unable to process the contained instructions. For example, this status code can be sent if an XML request content contains well-formed (i.e., syntactically correct), but semantically erroneous XML instructions.</value>
+  </data>
+  <data name="ValidationFailedMessage" xml:space="preserve">
+    <value>Errors occurred in the validation of input parameters</value>
   </data>
 </root>

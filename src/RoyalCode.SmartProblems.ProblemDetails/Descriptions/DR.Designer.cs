@@ -97,6 +97,15 @@ namespace RoyalCode.SmartProblems.Descriptions {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to When one or more problems occur during the request (operation) in the system, generic or specific problems can be returned. Specific problems define their own types for ProblemDetails and it is necessary to include a description for these specific types. When descriptions are not provided or found, this type, also generic, is used to describe the specific problem..
+        /// </summary>
+        internal static string CustomProblemDescription {
+            get {
+                return ResourceManager.GetString("CustomProblemDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error has occurred.
         /// </summary>
         internal static string DefaultMessage {
@@ -205,20 +214,20 @@ namespace RoyalCode.SmartProblems.Descriptions {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Errors occurred in the validation of input parameters.
-        /// </summary>
-        internal static string ValidationErrorsMessage {
-            get {
-                return ResourceManager.GetString("ValidationErrorsMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The 422 (Unprocessable Content) status code indicates that the server understands the content type of the request content (hence a 415 (Unsupported Media Type) status code is inappropriate), and the syntax of the request content is correct, but it was unable to process the contained instructions. For example, this status code can be sent if an XML request content contains well-formed (i.e., syntactically correct), but semantically erroneous XML instructions..
         /// </summary>
         internal static string ValidationFailedDescription {
             get {
                 return ResourceManager.GetString("ValidationFailedDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Errors occurred in the validation of input parameters.
+        /// </summary>
+        internal static string ValidationFailedMessage {
+            get {
+                return ResourceManager.GetString("ValidationFailedMessage", resourceCulture);
             }
         }
     }

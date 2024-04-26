@@ -1,10 +1,17 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RoyalCode.SmartProblems.Descriptions;
 using RoyalCode.SmartProblems.Convertions;
 
 namespace RoyalCode.SmartProblems.Tests.Convertions;
 
+/// <summary>
+/// <para>
+///     Tests for the convertion of the problems to ProblemDetails.
+/// </para>
+/// <para>
+///     These tests cover a single problem in a ProblemDetails.
+/// </para>
+/// </summary>
 public class ProblemConvertionTests
 {
     [Fact]
@@ -123,7 +130,32 @@ public class ProblemConvertionTests
         ProblemDetails problemDetails = problem.ToProblemDetails(options);
 
         // Assert
-        Assert.Equal("MyType", problemDetails.Type);
+        Assert.Equal($"tag:problemdetails/.problems#problem-occurred", problemDetails.Type);
+        Assert.Equal(ProblemDetailsExtended.Titles.DefaultTitle, problemDetails.Title);
         Assert.Equal("Custom Problem", problemDetails.Detail);
+        Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest, problemDetails.Status);
+    }
+
+    [Fact]
+    public void Convert_CustomProblem_Described()
+    {
+        // Arrange
+        var options = new ProblemDetailsOptions();
+        options.Descriptor.Add(new ProblemDetailsDescription(
+            "MyType", 
+            "My Custom Problem", 
+            "Used for tests only",
+            System.Net.HttpStatusCode.UnprocessableEntity));
+
+        var problem = Problems.Custom("Custom Problem", "MyType");
+
+        // Act
+        ProblemDetails problemDetails = problem.ToProblemDetails(options);
+
+        // Assert
+        Assert.Equal("tag:problemdetails/.problems#MyType", problemDetails.Type);
+        Assert.Equal("My Custom Problem", problemDetails.Title);
+        Assert.Equal("Custom Problem", problemDetails.Detail);
+        Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, problemDetails.Status);
     }
 }

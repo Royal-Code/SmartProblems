@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace RoyalCode.SmartProblems.Interceptors;
 
 /// <summary>
-/// Internal class to manage the interceptors for the <see cref="ResultErrors"/> and <see cref="ProblemDetails"/>.
+/// Internal class to manage the interceptors for the <see cref="Problems"/> and <see cref="ProblemDetails"/>.
 /// </summary>
 public static class MatchInterceptors
 {
@@ -52,7 +52,7 @@ public static class MatchInterceptors
     private static HasInterceptors TryLoad<T>(IServiceProvider requestServices, out IEnumerable<T> interceptors)
     {
         // get the interceptors from the request services
-        interceptors = requestServices.GetService<IEnumerable<T>>() ?? Enumerable.Empty<T>();
+        interceptors = requestServices.GetService<IEnumerable<T>>() ?? [];
 
         // check if has interceptors
         return interceptors.Any() ? HasInterceptors.True : HasInterceptors.False;

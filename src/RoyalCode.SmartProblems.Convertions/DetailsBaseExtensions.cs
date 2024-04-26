@@ -69,4 +69,16 @@ public static class DetailsBaseExtensions
             ? value as string
             : null;
     }
+
+    /// <summary>
+    /// Try to get the pointer from the extensions dictionary.
+    /// </summary>
+    /// <param name="details">A base class with extensions.</param>
+    /// <returns>The pointer value, or null if not found.</returns>
+    public static string? GetPointer(this DetailsBase details)
+    {
+        return details.Extensions?.TryGetValue("pointer", out var value) ?? false
+            ? value as string
+            : string.Empty;
+    }
 }

@@ -61,6 +61,15 @@ namespace RoyalCode.SmartProblems.Convertions {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to One or more problems occur.
+        /// </summary>
+        internal static string DefaultTitle {
+            get {
+                return ResourceManager.GetString("DefaultTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected error has occurred.
         /// </summary>
         internal static string InternalServerErrorTitle {

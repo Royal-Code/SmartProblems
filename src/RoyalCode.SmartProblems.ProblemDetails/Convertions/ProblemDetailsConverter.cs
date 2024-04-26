@@ -37,7 +37,7 @@ public static class ProblemDetailsConverter
     /// </summary>
     /// <param name="problem">The result message</param>
     /// <param name="options">The options for the conversion.</param>
-    /// <returns>A new instance of <see cref="Microsoft.AspNetCore.Mvc.ProblemDetails"/>.</returns>
+    /// <returns>A new instance of <see cref="ProblemDetails"/>.</returns>
     public static ProblemDetails ToProblemDetails(
        this Problem problem, ProblemDetailsOptions options)
     {

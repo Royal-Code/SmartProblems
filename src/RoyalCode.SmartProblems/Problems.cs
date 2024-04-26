@@ -147,13 +147,16 @@ public sealed class Problems : ICollection<Problem>
             ? argumentException.ParamName 
             : null;
 
-        return new Problem
+        problem = new Problem
         {
             Category = ProblemCategory.InternalServerError,
             Detail = exception.Message,
-            TypeId = exception.GetType().Name,
             Property = property
         };
+
+        problem.With("exception", exception.GetType().Name);
+
+        return problem;
     }
 
     /// <summary>
