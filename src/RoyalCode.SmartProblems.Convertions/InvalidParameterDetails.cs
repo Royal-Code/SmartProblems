@@ -25,6 +25,7 @@ public class InvalidParameterDetails : DetailsBase
     /// Creates a new instance of <see cref="InvalidParameterDetails"/> class.
     /// </summary>
     /// <param name="reason">The reason for the invalid parameter.</param>
+    [JsonConstructor]
     public InvalidParameterDetails(string reason)
     {
         Reason = reason;
@@ -58,7 +59,7 @@ public class InvalidParameterDetails : DetailsBase
         return obj is InvalidParameterDetails details &&
                Name == details.Name &&
                Reason == details.Reason &&
-               EqualityComparer<IDictionary<string, object>?>.Default.Equals(Extensions, details.Extensions);
+               EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />

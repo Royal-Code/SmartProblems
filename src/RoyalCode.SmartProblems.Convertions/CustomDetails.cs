@@ -40,7 +40,7 @@ public class CustomDetails : DetailsBase
         return obj is CustomDetails details &&
                TypeId == details.TypeId &&
                Detail == details.Detail &&
-               EqualityComparer<IDictionary<string, object>?>.Default.Equals(Extensions, details.Extensions);
+               EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />

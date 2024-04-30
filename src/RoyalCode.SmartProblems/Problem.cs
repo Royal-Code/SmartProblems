@@ -53,7 +53,7 @@ public sealed class Problem
     /// <summary>
     /// Optional, extra information about the problem.
     /// </summary>
-    public IDictionary<string, object>? Extensions { get; set; }
+    public IDictionary<string, object?>? Extensions { get; set; }
 
     /// <summary>
     /// Adds a new key-value pair to the extensions.
@@ -65,7 +65,7 @@ public sealed class Problem
     /// </returns>
     public Problem With(string key, object value)
     {
-        Extensions ??= new Dictionary<string, object>();
+        Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         Extensions[key] = value;
         return this;
     }

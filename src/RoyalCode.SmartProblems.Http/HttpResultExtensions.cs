@@ -77,7 +77,10 @@ public static class HttpResultExtensions
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
-    /// <param name="failureTypeReader">A <see cref="FailureTypeReader"/> to read the error content when the status code is not success and the content is not a problem details.</param>
+    /// <param name="failureTypeReader">
+    ///     A <see cref="FailureTypeReader"/> to read the error content when the status code is not success 
+    ///     and the content is not a problem details.
+    /// </param>
     /// <param name="options">
     ///     The <see cref="JsonSerializerOptions"/> for the <typeparamref name="TValue"/>, 
     ///     used when status code is success.

@@ -18,7 +18,7 @@ public abstract class DetailsBase
     /// Additional information about the details of the error.
     /// </summary>
     [JsonExtensionData]
-    public IDictionary<string, object>? Extensions { get; set; }
+    public IDictionary<string, object?>? Extensions { get; set; }
 
     /// <summary>
     /// Converts the details to a JSON string, using the default serializer options.

@@ -1,0 +1,25 @@
+[
+  {
+    "typeId": "my-custom-type",
+    "title": "My custom problem type",
+    "description": "A custom problem type used for testing.",
+    "status": 417
+  },
+  {
+    "typeId": "insufficient-credits",
+    "title": "Insufficient credits",
+    "description": "The partner does not have sufficient credits to obtain the required benefit."
+  },
+  {
+    "typeId": "size-out-of-bounds",
+    "title": "Size out of bounds",
+    "description": "The size of all the items is above the capacity of the container.",
+    "type": "https://example.com/probs/size-out-of-bounds"
+  },
+  {
+    "typeId": "dependencies-not-found",
+    "title": "Dependencies not found",
+    "description": "One or more dependent records were not found",
+    "status": 422
+  }
+]

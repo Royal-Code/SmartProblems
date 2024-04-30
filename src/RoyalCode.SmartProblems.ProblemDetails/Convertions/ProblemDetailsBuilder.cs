@@ -248,7 +248,7 @@ public class ProblemDetailsBuilder
 
     public static ProblemDetails CreateProblemDetails(ProblemDetailsOptions options,
         string? typeId, ProblemCategory problemCategory,
-        string details, IDictionary<string, object>? extensions = null)
+        string details, IDictionary<string, object?>? extensions = null)
     {
         ProblemDetailsDescription description = GetDescription(options, typeId, problemCategory);
 

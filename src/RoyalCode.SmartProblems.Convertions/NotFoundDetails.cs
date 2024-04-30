@@ -29,6 +29,7 @@ public class NotFoundDetails : DetailsBase
     /// Creates a new instance of <see cref="NotFoundDetails"/> with the specified message.
     /// </summary>
     /// <param name="message">The message of the problem.</param>
+    [JsonConstructor]
     public NotFoundDetails(string message)
     {
         Message = message;

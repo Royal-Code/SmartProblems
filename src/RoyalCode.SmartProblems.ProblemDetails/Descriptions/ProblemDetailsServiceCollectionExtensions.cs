@@ -25,6 +25,8 @@ public static class ProblemDetailsServiceCollectionExtensions
     public static IServiceCollection AddProblemDetailsDescriptions(this IServiceCollection services,
         Action<ProblemDetailsOptions>? configureOptions = null)
     {
+        services.AddHttpContextAccessor();
+
         var builder = services.AddOptions<ProblemDetailsOptions>()
             .BindConfiguration("ProblemDetails")
             .PostConfigure<AspNetCore.Http.IHttpContextAccessor>((o, a) =>

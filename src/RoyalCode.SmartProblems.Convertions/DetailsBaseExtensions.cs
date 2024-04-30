@@ -23,7 +23,7 @@ public static class DetailsBaseExtensions
     public static TDetails With<TDetails>(this TDetails details, string key, object value)
         where TDetails : DetailsBase
     {
-        details.Extensions ??= new Dictionary<string, object>();
+        details.Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         details.Extensions.Add(key, value);
         return details;
     }
@@ -37,7 +37,7 @@ public static class DetailsBaseExtensions
     public static TDetails WithProperty<TDetails>(this TDetails details, string property, bool includePointer = false)
         where TDetails : DetailsBase
     {
-        details.Extensions ??= new Dictionary<string, object>();
+        details.Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         details.Extensions.Add("property", property);
 
         return includePointer
@@ -53,7 +53,7 @@ public static class DetailsBaseExtensions
     public static TDetails WithPointer<TDetails>(this TDetails details, string pointer)
         where TDetails : DetailsBase
     {
-        details.Extensions ??= new Dictionary<string, object>();
+        details.Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         details.Extensions.Add("pointer", pointer);
         return details;
     }

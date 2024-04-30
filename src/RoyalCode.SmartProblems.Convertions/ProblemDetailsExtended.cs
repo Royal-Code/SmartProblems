@@ -152,32 +152,9 @@ public class ProblemDetailsExtended : ProblemDetails
     /// </returns>
     public Problems ToProblems()
     {
-        Problems problems = new();
+        Problems problems = [];
 
         bool ignoreDetails = false;
-
-        if (InvalidParameters is not null)
-        {
-            // if status is 400 then use invalid parameters, otherwise use validation failed
-            var useValidation = Status != 400;
-
-            foreach (var invalidParameter in InvalidParameters)
-            {
-                var problem = useValidation
-                    ? Problems.ValidationFailed(invalidParameter.Reason, invalidParameter.Name ?? string.Empty)
-                    : Problems.InvalidParameter(invalidParameter.Reason, invalidParameter.Name ?? string.Empty);
-                if (invalidParameter.Extensions is not null)
-                    foreach (var extension in invalidParameter.Extensions)
-                        problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
-
-                problems += problem;
-            }
-
-            if (Title == Titles.InvalidParametersTitle || Title == Titles.ValidationFailedTitle)
-            {
-                ignoreDetails = true;
-            }
-        }
 
         if (NotFoundDetails is not null)
         {
@@ -195,6 +172,24 @@ public class ProblemDetailsExtended : ProblemDetails
                 ignoreDetails = true;
         }
 
+        if (InvalidParameters is not null)
+        {
+            foreach (var invalidParameter in InvalidParameters)
+            {
+                var problem = Problems.InvalidParameter(invalidParameter.Reason, invalidParameter.Name ?? string.Empty);
+                if (invalidParameter.Extensions is not null)
+                    foreach (var extension in invalidParameter.Extensions)
+                        problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+
+                problems += problem;
+            }
+
+            if (Title == Titles.InvalidParametersTitle || Title == Titles.ValidationFailedTitle)
+            {
+                ignoreDetails = true;
+            }
+        }
+
         if (Errors is not null)
         {
             bool isInternalError = Status == 500;
@@ -203,10 +198,11 @@ public class ProblemDetailsExtended : ProblemDetails
 
             foreach (var errorDetails in Errors)
             {
-                var property = errorDetails.GetProperty();
+                // obtém a propriedade do problema
+                string? property = TryGetProperty(errorDetails.Extensions);
 
                 var problem = isInternalError
-                    ? Problems.InternalError(errorDetails.Detail, property)
+                    ? Problems.InternalError(errorDetails.Detail, property: property)
                     : isConflict
                         ? Problems.InvalidState(errorDetails.Detail, property)
                         : isNotAllowed
@@ -258,9 +254,7 @@ public class ProblemDetailsExtended : ProblemDetails
     private static Problem ToProblem(ProblemDetails details)
     {
         // obtém a propriedade do problema
-        string? property = null;
-        if (details.Extensions.TryGetValue("property", out var propertyValue))
-            property = ReadJsonValue(propertyValue) as string;
+        string? property = TryGetProperty(details.Extensions);
 
         // obtém a categoria do problema
         ProblemCategory category;
@@ -272,7 +266,8 @@ public class ProblemDetailsExtended : ProblemDetails
                 400 => ProblemCategory.InvalidParameter,
                 422 => ProblemCategory.ValidationFailed,
                 409 => ProblemCategory.InvalidState,
-                500 => ProblemCategory.InvalidState,
+                403 => ProblemCategory.NotAllowed,
+                500 => ProblemCategory.InternalServerError,
                 _ => ProblemCategory.CustomProblem,
             };
         }
@@ -282,7 +277,7 @@ public class ProblemDetailsExtended : ProblemDetails
         }
 
         // creates the result message
-        var message = new Problem()
+        var problem = new Problem()
         {
             Category = category,
             Detail = details.Detail ?? string.Empty,
@@ -291,13 +286,9 @@ public class ProblemDetailsExtended : ProblemDetails
 
         // add the additional information
         foreach (var extension in details.Extensions)
-        {
-            if (extension.Key == "property")
-                continue;
-            message.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
-        }
-
-        return message;
+            AddExtension(problem, extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+         
+        return problem;
     }
 
     private static object? ReadJsonValue(object? obj)
@@ -343,7 +334,15 @@ public class ProblemDetailsExtended : ProblemDetails
     {
         if (key == "property")
             return;
-
+        
         problem.With(key, value);
+    }
+
+    private static string? TryGetProperty(IDictionary<string, object?>? extensions)
+    {
+        if (extensions?.TryGetValue("property", out var propertyValue) ?? false)
+            return ReadJsonValue(propertyValue) as string;
+
+        return null;
     }
 }

@@ -41,10 +41,10 @@ public static class ProblemDetailsConverter
     public static ProblemDetails ToProblemDetails(
        this Problem problem, ProblemDetailsOptions options)
     {
-        IDictionary<string, object>? extensions;
+        IDictionary<string, object?>? extensions;
         if (problem.Property is not null)
         {
-            extensions = new Dictionary<string, object>();
+            extensions = new Dictionary<string, object?>(StringComparer.Ordinal);
             if (problem.Extensions is not null)
                 foreach (var (key, value) in problem.Extensions)
                     extensions.Add(key, value);

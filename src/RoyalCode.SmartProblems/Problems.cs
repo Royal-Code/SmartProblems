@@ -122,14 +122,16 @@ public sealed class Problems : ICollection<Problem>
     /// </summary>
     /// <param name="detail">The detail of the problem, a description message for users.</param>
     /// <param name="typeId">Optional, the type id of the problem, related to the problem details type.</param>
+    /// <param name="property">Optional, the property that the problem is related to.</param>
     /// <returns>A new problem.</returns>
-    public static Problem InternalError(string? detail, string? typeId = null)
+    public static Problem InternalError(string? detail, string? typeId = null, string? property = null)
     {
         return new Problem
         {
             Category = ProblemCategory.InternalServerError,
             Detail = detail ?? R.InternalServerErrorMessage,
-            TypeId = typeId
+            TypeId = typeId,
+            Property = property
         };
     }
 

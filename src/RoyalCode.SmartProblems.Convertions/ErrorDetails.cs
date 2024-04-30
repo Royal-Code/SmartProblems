@@ -1,4 +1,6 @@
-﻿namespace RoyalCode.SmartProblems.Convertions;
+﻿using System.Text.Json.Serialization;
+
+namespace RoyalCode.SmartProblems.Convertions;
 
 /// <summary>
 /// A class that represents the details of an error.
@@ -26,6 +28,7 @@ public class ErrorDetails : DetailsBase
     /// Creates a new instance of <see cref="ErrorDetails"/> class.
     /// </summary>
     /// <param name="detail">The detail of the error.</param>
+    [JsonConstructor]
     public ErrorDetails(string detail)
     {
         Detail = detail;
@@ -41,7 +44,7 @@ public class ErrorDetails : DetailsBase
     {
         return obj is ErrorDetails details &&
                Detail == details.Detail &&
-               EqualityComparer<IDictionary<string, object>?>.Default.Equals(Extensions, details.Extensions);
+               EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />
