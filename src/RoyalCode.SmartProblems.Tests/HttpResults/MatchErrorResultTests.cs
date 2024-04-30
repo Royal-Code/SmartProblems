@@ -1,8 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using RoyalCode.SmartProblems.HttpResults;
 using System.Text.Json;
 
@@ -45,7 +42,7 @@ public class MatchErrorResultTests
     public void MatchErrorResult_Implicit_Exception()
     {
         // Arrange
-        Exception ex = new Exception("error");
+        Exception ex = new("error");
 
         // Act
         MatchErrorResult result = ex;

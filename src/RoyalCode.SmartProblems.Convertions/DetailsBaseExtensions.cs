@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using RoyalCode.SmartProblems.Convertions.Internals;
+using System.Text.Json;
 
 namespace RoyalCode.SmartProblems.Convertions;
 
@@ -41,7 +42,7 @@ public static class DetailsBaseExtensions
         details.Extensions.Add("property", property);
 
         return includePointer
-            ? details.WithPointer($"#/{property.Replace('.', '/')}")
+            ? details.WithPointer(property.PropertyToPointer()!)
             : details;
     }
 

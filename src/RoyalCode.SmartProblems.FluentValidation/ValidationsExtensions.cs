@@ -40,7 +40,7 @@ public static class ValidationsExtensions
                         Property = error.PropertyName,
                     };
 
-                    if (error.CustomState is Dictionary<string, object> extensions)
+                    if (error.CustomState is Dictionary<string, object?> extensions)
                     {
                         problem.Extensions = extensions;
                     }
@@ -117,7 +117,7 @@ public static class ValidationsExtensions
         var component = DefaultValidatorOptions.Configurable(rule).Current;
         component.CustomStateProvider = (ctx, prop) =>
         {
-            var extensions = new Dictionary<string, object>();
+            var extensions = new Dictionary<string, object?>(StringComparer.Ordinal);
             action(new ExtensionData(extensions));
             return extensions;
         };

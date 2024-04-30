@@ -52,7 +52,7 @@ public class NotFoundDetails : DetailsBase
         return obj is NotFoundDetails details &&
                Message == details.Message &&
                Property == details.Property &&
-               EqualityComparer<IDictionary<string, object>?>.Default.Equals(Extensions, details.Extensions);
+               EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />

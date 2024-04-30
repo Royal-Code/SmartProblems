@@ -12,13 +12,13 @@ namespace FluentValidation;
 /// </summary>
 public readonly struct ExtensionData
 {
-    private readonly Dictionary<string, object> data;
+    private readonly Dictionary<string, object?> data;
 
     /// <summary>
     /// Create a new instance of <see cref="ExtensionData"/>.
     /// </summary>
     /// <param name="data">The dictionary to add extra data.</param>
-    public ExtensionData(Dictionary<string, object> data)
+    public ExtensionData(Dictionary<string, object?> data)
     {
         this.data = data;
     }
@@ -37,7 +37,7 @@ public readonly struct ExtensionData
     /// <exception cref="AggregateException">
     ///     Case the <paramref name="key"/> already exists in the dictionary.
     /// </exception>
-    public ExtensionData Add(string key, object value)
+    public ExtensionData Add(string key, object? value)
     {
         data.Add(key, value);
         return this;
