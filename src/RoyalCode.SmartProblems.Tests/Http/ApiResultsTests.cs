@@ -5,18 +5,18 @@ namespace RoyalCode.SmartProblems.Tests.Http;
 
 public class ApiResultsTests : IClassFixture<AppFixture>
 {
-    private readonly AppFixture _fixture;
+    private readonly AppFixture fixture;
 
     public ApiResultsTests(AppFixture fixture)
     {
-        _fixture = fixture;
+        this.fixture = fixture;
     }
 
     [Fact]
     public async Task Api_NotFound()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found");
@@ -35,7 +35,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_InvalidParameter()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/invalid-parameter");
@@ -55,7 +55,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_ValidationFailed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/validation-failed");
@@ -75,7 +75,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_InvalidState()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/invalid-state");
@@ -94,7 +94,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotAllowed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-allowed");
@@ -113,7 +113,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_InternalServerError()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/internal-server-error");
@@ -132,7 +132,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_CustomProblem()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/custom-problem");
@@ -151,7 +151,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_NotFound()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-not-found");
@@ -174,7 +174,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_InvalidParameter()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-invalid-parameter");
@@ -200,7 +200,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_ValidationFailed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-validation-failed");
@@ -226,7 +226,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_InvalidState()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-invalid-state");
@@ -249,7 +249,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_NotAllowed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-not-allowed");
@@ -272,7 +272,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_InternalServerError()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-internal-server-error");
@@ -295,7 +295,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_Many_CustomProblem()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/many-custom-problem");
@@ -318,7 +318,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotFound_InvalidParameter()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter");
@@ -341,7 +341,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotFound_InvalidParameter_ValidationFailed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed");
@@ -368,7 +368,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotFound_InvalidParameter_ValidationFailed_InvalidState()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed-invalid-state");
@@ -387,7 +387,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
         Assert.Equal("MyProperty1", problems[1].Property);
         
         Assert.Equal("Validation Failed", problems[2].Detail);
-        Assert.Equal(ProblemCategory.InvalidState, problems[2].Category);
+        Assert.Equal(ProblemCategory.ValidationFailed, problems[2].Category);
         Assert.Equal("MyProperty2", problems[2].Property);
 
         Assert.Equal("Invalid State", problems[3].Detail);
@@ -398,7 +398,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotFound_InvalidParameter_ValidationFailed_InvalidState_NotAllowed()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed-invalid-state-not-allowed");
@@ -417,21 +417,21 @@ public class ApiResultsTests : IClassFixture<AppFixture>
         Assert.Equal("MyProperty1", problems[1].Property);
         
         Assert.Equal("Validation Failed", problems[2].Detail);
-        Assert.Equal(ProblemCategory.InvalidState, problems[2].Category);
+        Assert.Equal(ProblemCategory.ValidationFailed, problems[2].Category);
         Assert.Equal("MyProperty2", problems[2].Property);
 
         Assert.Equal("Invalid State", problems[3].Detail);
         Assert.Equal(ProblemCategory.InvalidState, problems[3].Category);
 
         Assert.Equal("Not Allowed", problems[4].Detail);
-        Assert.Equal(ProblemCategory.InvalidState, problems[4].Category);
+        Assert.Equal(ProblemCategory.NotAllowed, problems[4].Category);
     }
 
     [Fact]
     public async Task Api_NotFound_InvalidParameter_ValidationFailed_InvalidState_NotAllowed_InternalServerError()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed-invalid-state-not-allowed-internal-server-error");
@@ -450,14 +450,14 @@ public class ApiResultsTests : IClassFixture<AppFixture>
         Assert.Equal("MyProperty1", problems[1].Property);
         
         Assert.Equal("Validation Failed", problems[2].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[2].Category);
+        Assert.Equal(ProblemCategory.ValidationFailed, problems[2].Category);
         Assert.Equal("MyProperty2", problems[2].Property);
 
         Assert.Equal("Invalid State", problems[3].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[3].Category);
+        Assert.Equal(ProblemCategory.InvalidState, problems[3].Category);
 
         Assert.Equal("Not Allowed", problems[4].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[4].Category);
+        Assert.Equal(ProblemCategory.NotAllowed, problems[4].Category);
 
         Assert.Equal("Internal Server Error", problems[5].Detail);
         Assert.Equal(ProblemCategory.InternalServerError, problems[5].Category);
@@ -467,7 +467,7 @@ public class ApiResultsTests : IClassFixture<AppFixture>
     public async Task Api_NotFound_InvalidParameter_ValidationFailed_InvalidState_NotAllowed_InternalServerError_CustomProblem()
     {
         // Arrange
-        var client = _fixture.CreateClient();
+        var client = fixture.CreateClient();
 
         // Act
         var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed-invalid-state-not-allowed-internal-server-error-custom-problem");
@@ -486,19 +486,64 @@ public class ApiResultsTests : IClassFixture<AppFixture>
         Assert.Equal("MyProperty1", problems[1].Property);
         
         Assert.Equal("Validation Failed", problems[2].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[2].Category);
+        Assert.Equal(ProblemCategory.ValidationFailed, problems[2].Category);
         Assert.Equal("MyProperty2", problems[2].Property);
 
         Assert.Equal("Invalid State", problems[3].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[3].Category);
+        Assert.Equal(ProblemCategory.InvalidState, problems[3].Category);
 
         Assert.Equal("Not Allowed", problems[4].Detail);
-        Assert.Equal(ProblemCategory.InternalServerError, problems[4].Category);
+        Assert.Equal(ProblemCategory.NotAllowed, problems[4].Category);
 
         Assert.Equal("Internal Server Error", problems[5].Detail);
         Assert.Equal(ProblemCategory.InternalServerError, problems[5].Category);
 
         Assert.Equal("Custom Problem", problems[6].Detail);
         Assert.Equal(ProblemCategory.CustomProblem, problems[6].Category);
+    }
+
+    [Fact]
+    public async Task Api_NotFound_InvalidParameter_ValidationFailed_InvalidState_NotAllowed_InternalServerError_CustomProblem_Many()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/api/problems/not-found-invalid-parameter-validation-failed-invalid-state-not-allowed-internal-server-error-custom-problem-many");
+        var result = await response.ToResultAsync();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.ExpectationFailed, response.StatusCode);
+        Assert.True(result.HasProblems(out var problems));
+        Assert.Equal(9, problems.Count);
+
+        Assert.Equal("Not Found", problems[0].Detail);
+        Assert.Equal(ProblemCategory.NotFound, problems[0].Category);
+
+        Assert.Equal("Invalid Parameter", problems[1].Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problems[1].Category);
+        Assert.Equal("MyProperty1", problems[1].Property);
+        
+        Assert.Equal("Validation Failed", problems[2].Detail);
+        Assert.Equal(ProblemCategory.ValidationFailed, problems[2].Category);
+        Assert.Equal("MyProperty2", problems[2].Property);
+
+        Assert.Equal("Invalid State", problems[3].Detail);
+        Assert.Equal(ProblemCategory.InvalidState, problems[3].Category);
+
+        Assert.Equal("Not Allowed", problems[4].Detail);
+        Assert.Equal(ProblemCategory.NotAllowed, problems[4].Category);
+
+        Assert.Equal("Internal Server Error", problems[5].Detail);
+        Assert.Equal(ProblemCategory.InternalServerError, problems[5].Category);
+
+        Assert.Equal("Custom Problem 1", problems[6].Detail);
+        Assert.Equal(ProblemCategory.CustomProblem, problems[6].Category);
+
+        Assert.Equal("Custom Problem 2", problems[7].Detail);
+        Assert.Equal(ProblemCategory.CustomProblem, problems[7].Category);
+
+        Assert.Equal("Custom Problem 3", problems[8].Detail);
+        Assert.Equal(ProblemCategory.CustomProblem, problems[8].Category);
     }
 }

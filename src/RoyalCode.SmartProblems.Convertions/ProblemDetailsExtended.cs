@@ -192,13 +192,15 @@ public class ProblemDetailsExtended : ProblemDetails
 
         if (Errors is not null)
         {
-            bool isInternalError = Status == 500;
-            bool isConflict = Status == 409;
-            bool isNotAllowed = Status == 403;
-
             foreach (var errorDetails in Errors)
             {
-                // obtém a propriedade do problema
+                int status = GetStatusForError(errorDetails.Extensions, Status ?? default);
+
+                bool isInternalError = status == 500;
+                bool isConflict = status == 409;
+                bool isNotAllowed = status == 403;
+
+                // try get the property from the extensions
                 string? property = TryGetProperty(errorDetails.Extensions);
 
                 var problem = isInternalError
@@ -253,10 +255,10 @@ public class ProblemDetailsExtended : ProblemDetails
 
     private static Problem ToProblem(ProblemDetails details)
     {
-        // obtém a propriedade do problema
+        // try get the property from the extensions
         string? property = TryGetProperty(details.Extensions);
 
-        // obtém a categoria do problema
+        // get the category of the problem
         ProblemCategory category;
         if (details.Type == "about:blank")
         {
@@ -321,7 +323,7 @@ public class ProblemDetailsExtended : ProblemDetails
     private static object ReadJsonObject(JsonElement jsonElement)
     {
         // convert the json element to a object of the correct type
-        var obj = new Dictionary<string, object?>();
+        var obj = new Dictionary<string, object?>(StringComparer.Ordinal);
         foreach (var property in jsonElement.EnumerateObject())
         {
             obj.Add(property.Name, ReadJsonElement(property.Value));
@@ -344,5 +346,18 @@ public class ProblemDetailsExtended : ProblemDetails
             return ReadJsonValue(propertyValue) as string;
 
         return null;
+    }
+
+    private static int GetStatusForError(IDictionary<string, object?>? extensions, int responseStatus)
+    {
+        // try get the status from the extensions
+        if (extensions?.TryGetValue("status", out var statusValue) ?? false)
+        {
+            if (statusValue is int status)
+                return status;
+            if (statusValue is JsonElement element)
+                return element.GetInt32();
+        }
+        return responseStatus;
     }
 }

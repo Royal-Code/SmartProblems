@@ -15,7 +15,8 @@ public class ErrorDetails : DetailsBase
     {
         var error = new ErrorDetails(problem.Detail)
         {
-            Extensions = problem.Extensions
+            Extensions = problem.Extensions,
+            Category = problem.Category
         };
 
         if (!string.IsNullOrEmpty(problem.Property))
@@ -38,6 +39,15 @@ public class ErrorDetails : DetailsBase
     /// Describes the issue in detail.
     /// </summary>
     public string Detail { get; set; }
+
+    /// <summary>
+    /// The category of the problem.
+    /// <br/>
+    /// This is used to determine the status code for the error 
+    /// when the result have multiple errors with different categories.
+    /// </summary>
+    [JsonIgnore]
+    public ProblemCategory Category { get; set; }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

@@ -59,10 +59,14 @@ public enum ProblemCategory
     /// </para>
     /// </summary>
     InvalidState,
-    
+
     /// <summary>
     /// <para>
-    ///     Define a problem for an operation that is not allowed to be executed.
+    ///     Define a problem for a request that is not allowed to be executed.
+    ///     <br/>
+    ///     In these problems there is some reason why execution is not allowed (forbidden) 
+    ///     and it is important to clearly state the reason, 
+    ///     possibly by providing extra data and creating an error type.
     /// </para>
     /// <para>
     ///     This is equivalent to the HTTP status code 403 (Forbidden).

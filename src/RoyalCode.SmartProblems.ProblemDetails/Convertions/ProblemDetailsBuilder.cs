@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using RoyalCode.SmartProblems.Descriptions;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace RoyalCode.SmartProblems.Convertions;
 
@@ -214,11 +216,39 @@ public class ProblemDetailsBuilder
             pdext[ProblemDetailsExtended.Fields.NotFoundExtensionField] = notFoundErrors;
 
         if (errors is not null)
-            pdext[ProblemDetailsExtended.Fields.ErrorsExtensionField] = errors;
+        {
+            // check if there are more than one type of error
+            // the add status code based on the category
+            AddStatusWhenHasManyCategories(options, errors);
 
+            pdext[ProblemDetailsExtended.Fields.ErrorsExtensionField] = errors;
+        }
         if (extensions is not null)
             foreach (var (key, value) in extensions)
                 pdext[key] = value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddStatusWhenHasManyCategories(ProblemDetailsOptions options, IEnumerable<ErrorDetails> errorsDetails)
+    {
+        int count = 0;
+        if (withInternalErrors)
+            count++;
+        if (withInvalidStateErrors)
+            count++;
+        if (withNotAllowedErrors)
+            count++;
+        if (withValidationErrors)
+            count++;
+
+        if (count < 2)
+            return;
+
+        foreach (var details in errorsDetails)
+        {
+            var description = options.Descriptor.GetDescriptionByCategory(details.Category);
+            details.With("status", (int)description.Status);
+        }
     }
 
     private ProblemDetails ToProblemDetails(CustomDetails problem, ProblemDetailsOptions options)
