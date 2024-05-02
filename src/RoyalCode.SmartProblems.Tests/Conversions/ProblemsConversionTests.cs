@@ -34,7 +34,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.NotFoundMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
@@ -63,7 +63,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InvalidParametersMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var invalidParameters);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var invalidParameters);
         Assert.NotNull(invalidParameters);
 
         var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(invalidParameters);
@@ -97,22 +97,19 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.ValidationFailedMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var validationFailed);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var validationFailed);
         Assert.NotNull(validationFailed);
 
         var validationFailedArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(validationFailed);
         Assert.Equal(3, validationFailedArray.Count());
 
         Assert.Equal("Validation Failed 1", validationFailedArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty1", validationFailedArray.ElementAt(0).GetProperty());
         Assert.Equal("#/MyProperty1", validationFailedArray.ElementAt(0).Pointer);
 
         Assert.Equal("Validation Failed 2", validationFailedArray.ElementAt(1).Detail);
-        Assert.Equal("MyProperty2", validationFailedArray.ElementAt(1).GetProperty());
         Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(1).Pointer);
 
         Assert.Equal("Validation Failed 3", validationFailedArray.ElementAt(2).Detail);
-        Assert.Equal("MyProperty3", validationFailedArray.ElementAt(2).GetProperty());
         Assert.Equal("#/MyProperty3", validationFailedArray.ElementAt(2).Pointer);
     }
 
@@ -134,7 +131,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InvalidStateMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var invalidState);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var invalidState);
         Assert.NotNull(invalidState);
 
         var invalidStateArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(invalidState);
@@ -163,7 +160,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.NotAllowedMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var notAllowed);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var notAllowed);
         Assert.NotNull(notAllowed);
 
         var notAllowedArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notAllowed);
@@ -192,7 +189,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InternalErrorMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var internalServerError);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var internalServerError);
         Assert.NotNull(internalServerError);
 
         var internalServerErrorArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(internalServerError);
@@ -221,7 +218,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.AggregateMessage, problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.AggregateExtensionField, out var aggregate);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Aggregate, out var aggregate);
         Assert.NotNull(aggregate);
 
         var aggregateArray = Assert.IsAssignableFrom<IEnumerable<ProblemDetails>>(aggregate);
@@ -256,7 +253,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.AggregateMessage, problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.AggregateExtensionField, out var aggregate);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Aggregate, out var aggregate);
         Assert.NotNull(aggregate);
 
         var aggregateArray = Assert.IsAssignableFrom<IEnumerable<ProblemDetails>>(aggregate);
@@ -295,14 +292,14 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InvalidParametersMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var invalidParameters);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var invalidParameters);
         Assert.NotNull(invalidParameters);
 
         var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(invalidParameters);
@@ -329,14 +326,14 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.ValidationFailedMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
@@ -346,7 +343,6 @@ public class ProblemsConversionTests
         Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
         
         Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(1).GetProperty());
         Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
     }
 
@@ -369,31 +365,26 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InvalidStateMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(2, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(3, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
     }
 
     [Fact]
@@ -416,32 +407,27 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InternalErrorMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(3, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(4, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Internal Server Error", errorsArray.ElementAt(3).Detail);
     }
 
     [Fact]
@@ -465,32 +451,27 @@ public class ProblemsConversionTests
         Assert.Equal("Custom Problem", problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+                problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(3, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(4, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Internal Server Error", errorsArray.ElementAt(3).Detail);
     }
 
     [Fact]
@@ -520,32 +501,27 @@ public class ProblemsConversionTests
         Assert.Equal("Custom Problem", problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(3, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(4, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Internal Server Error", errorsArray.ElementAt(3).Detail);
     }
 
     [Fact]
@@ -571,7 +547,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.AggregateMessage, problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.AggregateExtensionField, out var aggregate);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Aggregate, out var aggregate);
         Assert.NotNull(aggregate);
 
         var aggregateArray = Assert.IsAssignableFrom<IEnumerable<ProblemDetails>>(aggregate);
@@ -581,32 +557,27 @@ public class ProblemsConversionTests
         Assert.Equal("Custom Problem 2", aggregateArray.ElementAt(1).Detail);
         Assert.Equal("Custom Problem 3", aggregateArray.ElementAt(2).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(3, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(4, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Internal Server Error", errorsArray.ElementAt(3).Detail);
     }
 
     [Fact]
@@ -648,7 +619,7 @@ public class ProblemsConversionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.AggregateMessage, problemDetails.Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, problemDetails.Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.AggregateExtensionField, out var aggregate);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Aggregate, out var aggregate);
         Assert.NotNull(aggregate);
 
         var aggregateArray = Assert.IsAssignableFrom<IEnumerable<ProblemDetails>>(aggregate);
@@ -669,31 +640,26 @@ public class ProblemsConversionTests
         Assert.Equal("Custom Problem 3", aggregateArray.ElementAt(2).Detail);
         Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status417ExpectationFailed, aggregateArray.ElementAt(2).Status);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFound, out var notFound);
         Assert.NotNull(notFound);
 
         var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
         Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
-
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.Errors, out var errors);
         Assert.NotNull(errors);
 
         var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
-        Assert.Equal(3, errorsArray.Count());
-        Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
+        Assert.Equal(4, errorsArray.Count());
 
-        Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
-        Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
+
+        Assert.Equal("Invalid State", errorsArray.ElementAt(2).Detail);
+        Assert.Equal("Internal Server Error", errorsArray.ElementAt(3).Detail);
     }
 }

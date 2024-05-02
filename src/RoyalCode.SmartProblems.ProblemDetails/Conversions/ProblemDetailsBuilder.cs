@@ -192,7 +192,7 @@ public class ProblemDetailsBuilder
         {
             if (customErrors.Count > 1)
             {
-                pdext[ProblemDetailsExtended.Fields.AggregateExtensionField] = customErrors
+                pdext[ProblemDetailsExtended.Fields.Aggregate] = customErrors
                     .Select(p => ToProblemDetails(p, options))
                     .ToList();
             }
@@ -204,7 +204,7 @@ public class ProblemDetailsBuilder
         }
 
         if (notFoundErrors is not null)
-            pdext[ProblemDetailsExtended.Fields.NotFoundExtensionField] = notFoundErrors;
+            pdext[ProblemDetailsExtended.Fields.NotFound] = notFoundErrors;
 
         if (errors is not null)
         {
@@ -212,7 +212,7 @@ public class ProblemDetailsBuilder
             // the add status code based on the category
             AddStatusWhenHasManyCategories(options, errors);
 
-            pdext[ProblemDetailsExtended.Fields.ErrorsExtensionField] = errors;
+            pdext[ProblemDetailsExtended.Fields.Errors] = errors;
         }
         if (extensions is not null)
             foreach (var (key, value) in extensions)

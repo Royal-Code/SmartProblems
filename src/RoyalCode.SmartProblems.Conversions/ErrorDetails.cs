@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using RoyalCode.SmartProblems.Conversions.Internals;
 
 namespace RoyalCode.SmartProblems.Conversions;
 
@@ -20,9 +19,6 @@ public class ErrorDetails : DetailsBase
             Category = problem.Category
         };
 
-        if (!string.IsNullOrEmpty(problem.Property))
-            error.WithProperty(problem.Property);
-
         return error;
     }
 
@@ -33,22 +29,9 @@ public class ErrorDetails : DetailsBase
     /// <param name="pointer">The path to the property that caused the error, using JSON Pointer notation.</param>
     [JsonConstructor]
     public ErrorDetails(string detail, string? pointer = null)
-    {
-        Detail = detail;
-        Pointer = pointer;
-    }
+        : base(detail, pointer)
+    { }
 
-    /// <summary>
-    /// Describes the issue in detail.
-    /// </summary>
-    public string Detail { get; }
-
-    /// <summary>
-    /// The path to the property that caused the error, using JSON Pointer notation.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Pointer { get; } 
-    
     /// <summary>
     /// The category of the problem.
     /// <br/>

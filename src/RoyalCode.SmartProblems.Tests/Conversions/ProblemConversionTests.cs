@@ -46,7 +46,7 @@ public class ProblemConversionTests
         Assert.Equal("Invalid Parameter", problemDetails.Detail);
         Assert.Equal(ProblemDetailsExtended.Titles.InvalidParametersTitle, problemDetails.Title);
         Assert.Equal("about:blank", problemDetails.Type);
-        Assert.Equal("MyProperty", problemDetails.Extensions["property"]);
+        Assert.Equal("#/MyProperty", problemDetails.Extensions[ProblemDetailsExtended.Fields.Pointer]);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class ProblemConversionTests
         Assert.Equal("Validation Failed", problemDetails.Detail);
         Assert.Equal(ProblemDetailsExtended.Titles.ValidationFailedTitle, problemDetails.Title);
         Assert.Equal("about:blank", problemDetails.Type);
-        Assert.Equal("MyProperty", problemDetails.Extensions["property"]);
+        Assert.Equal("#/MyProperty", problemDetails.Extensions[ProblemDetailsExtended.Fields.Pointer]);
     }
 
     [Fact]

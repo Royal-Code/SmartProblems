@@ -4,8 +4,6 @@ using RoyalCode.SmartProblems.Conversions.Internals;
 
 namespace RoyalCode.SmartProblems.Conversions;
 
-#pragma warning disable S3358 // Ternary operators should not be nested
-
 /// <summary>
 /// <para>
 ///     A Problem Details with extensions. See <see cref="ProblemDetails"/> for more information.
@@ -37,17 +35,23 @@ public class ProblemDetailsExtended : ProblemDetails
         /// <summary>
         /// Extension field for the <see cref="ProblemDetails"/> that contains the aggregate details.
         /// </summary>
-        public const string AggregateExtensionField = "inner_details";
+        public const string Aggregate = "inner_details";
 
         /// <summary>
         /// Extension field for the <see cref="ProblemDetails"/> that contains generic errors or application errors.
         /// </summary>
-        public const string ErrorsExtensionField = "errors";
+        public const string Errors = "errors";
 
         /// <summary>
         /// Extension field for the <see cref="ProblemDetails"/> that contains the not found details.
         /// </summary>
-        public const string NotFoundExtensionField = "not_found";
+        public const string NotFound = "not_found";
+
+        /// <summary>
+        ///  Extension field for the <see cref="ProblemDetails"/> that contains the pointer to the property,
+        ///  in format of a JSON pointer.
+        /// </summary>
+        public const string Pointer = "pointer";
     }
 
     /// <summary>
@@ -99,7 +103,7 @@ public class ProblemDetailsExtended : ProblemDetails
     ///     Not found errors are added to this property.
     /// </para>
     /// </summary>
-    [JsonPropertyName(Fields.NotFoundExtensionField)]
+    [JsonPropertyName(Fields.NotFound)]
     public IEnumerable<ErrorDetails>? NotFoundDetails { get; set; }
 
     /// <summary>
@@ -110,7 +114,7 @@ public class ProblemDetailsExtended : ProblemDetails
     ///     Internal errors are added to this property.
     /// </para>
     /// </summary>
-    [JsonPropertyName(Fields.ErrorsExtensionField)]
+    [JsonPropertyName(Fields.Errors)]
     public IEnumerable<ErrorDetails>? Errors { get; set; }
 
     /// <summary>
@@ -119,7 +123,7 @@ public class ProblemDetailsExtended : ProblemDetails
     ///     the inner problem details are added to this property.
     /// </para>
     /// </summary>
-    [JsonPropertyName(Fields.AggregateExtensionField)]
+    [JsonPropertyName(Fields.Aggregate)]
     public IEnumerable<ProblemDetails>? InnerProblemDetails { get; set; }
 
     /// <summary>
@@ -140,10 +144,7 @@ public class ProblemDetailsExtended : ProblemDetails
         {
             foreach (var errorDetails in NotFoundDetails)
             {
-                // try to get the property from the extensions
-                string? property = TryGetProperty(errorDetails.Extensions);
-                
-                var problem = Problems.NotFound(errorDetails.Detail, property);
+                var problem = Problems.NotFound(errorDetails.Detail, errorDetails.Pointer.PointerToProperty());
                 if (errorDetails.Extensions is not null)
                     foreach (var extension in errorDetails.Extensions)
                         problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
@@ -158,9 +159,7 @@ public class ProblemDetailsExtended : ProblemDetails
         {
             foreach (var errorDetails in Errors)
             {
-                // try to get the property from the extensions
-                string? property = TryGetProperty(errorDetails.Extensions);
-                
+                string? property = errorDetails.Pointer.PointerToProperty();
                 int status = GetStatusForError(errorDetails.Extensions, Status ?? default);
 
                 var problem = status switch
@@ -216,7 +215,7 @@ public class ProblemDetailsExtended : ProblemDetails
     
     private static Problem ToProblem(ProblemDetails details)
     {
-        // try to get the property from the extensions
+        // try to get the pointer from the extensions and convert to a property
         string? property = TryGetProperty(details.Extensions);
 
         // get the category of the problem and the type id
@@ -283,7 +282,7 @@ public class ProblemDetailsExtended : ProblemDetails
         };
     }
 
-    private static object ReadJsonObject(JsonElement jsonElement)
+    private static Dictionary<string, object?> ReadJsonObject(JsonElement jsonElement)
     {
         // convert the json element to a object of the correct type
         var obj = new Dictionary<string, object?>(StringComparer.Ordinal);
@@ -297,7 +296,7 @@ public class ProblemDetailsExtended : ProblemDetails
 
     private static string? TryGetProperty(IDictionary<string, object?>? extensions)
     {
-        if (extensions?.TryGetValue("pointer", out var propertyValue) ?? false)
+        if (extensions?.TryGetValue(Fields.Pointer, out var propertyValue) ?? false)
             return (ReadJsonValue(propertyValue) as string).PointerToProperty();
 
         return null;

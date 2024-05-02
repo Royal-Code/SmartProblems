@@ -1,4 +1,4 @@
-﻿using RoyalCode.SmartProblems.Conversions.Internals;
+﻿using RoyalCode.SmartProblems.Conversions;
 
 namespace RoyalCode.SmartProblems.Tests.Conversions;
 

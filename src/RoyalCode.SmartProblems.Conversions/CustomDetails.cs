@@ -13,28 +13,33 @@ public class CustomDetails : DetailsBase
     /// <param name="problem">The problem to be converted.</param>
     public static implicit operator CustomDetails(Problem problem)
     {
-        var error = new CustomDetails
+        var error = new CustomDetails(
+            problem.Detail,
+            problem.TypeId ?? "about:blank",
+            problem.Property.PropertyToPointer())
         {
-            TypeId = problem.TypeId ?? "about:blank",
-            Detail = problem.Detail,
             Extensions = problem.Extensions
         };
-
-        if (!string.IsNullOrEmpty(problem.Property))
-            error.WithProperty(problem.Property);
 
         return error;
     }
 
     /// <summary>
-    /// The type id used to identify the problem and generate the <see cref="ProblemDetails.Type"/>.
+    /// Creates a new instance of <see cref="CustomDetails"/> class.
     /// </summary>
-    public required string TypeId { get; init; }
+    /// <param name="detail">The detail of the error.</param>
+    /// <param name="typeId">The type id used to identify the problem and generate the <see cref="ProblemDetails.Type"/>.</param>
+    /// <param name="pointer">The path to the property that caused the error, using JSON Pointer notation.</param>
+    public CustomDetails(string detail, string typeId, string? pointer = null) 
+        : base(detail, pointer)
+    { 
+        TypeId = typeId;
+    }
 
     /// <summary>
-    /// The problem details.
+    /// The type id used to identify the problem and generate the <see cref="ProblemDetails.Type"/>.
     /// </summary>
-    public required string Detail { get; init; }
+    public string TypeId { get; }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
@@ -42,12 +47,13 @@ public class CustomDetails : DetailsBase
         return obj is CustomDetails details &&
                TypeId == details.TypeId &&
                Detail == details.Detail &&
+               Pointer == details.Pointer &&
                EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(TypeId, Detail, Extensions);
+        return HashCode.Combine(TypeId, Detail, Pointer, Extensions);
     }
 }

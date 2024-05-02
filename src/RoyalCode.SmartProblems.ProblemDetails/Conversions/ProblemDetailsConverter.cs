@@ -49,7 +49,7 @@ public static class ProblemDetailsConverter
                 foreach (var (key, value) in problem.Extensions)
                     extensions.Add(key, value);
 
-            extensions.Add("property", problem.Property);
+            extensions.Add(ProblemDetailsExtended.Fields.Pointer, problem.Property.PropertyToPointer());
         }
         else
         {

@@ -125,8 +125,8 @@ public static class HttpResultExtensions
         if (failureTypeReader is not null)
         {
             var result = await failureTypeReader.TryReadAsync(response);
-            if (result)
-                return result;
+            if (result.HasBeenRead)
+                return result.Problems;
         }
 
         // when is not problems, try reads the content as string, if the response has content

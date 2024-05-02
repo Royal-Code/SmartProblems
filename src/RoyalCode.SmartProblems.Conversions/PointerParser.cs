@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace RoyalCode.SmartProblems.Conversions.Internals;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Static methods to parse JSON pointers to C# properties and vice versa.
@@ -24,7 +24,7 @@ public static class PointerParser
     /// </summary>
     /// <param name="pointer">The JSON pointer to convert.</param>
     /// <returns>The C# property converted.</returns>
-    public static string? PointerToProperty([NotNullIfNotNull("pointer")] this string? pointer)
+    public static string? PointerToProperty([NotNullIfNotNull(nameof(pointer))] this string? pointer)
     {
         if (pointer == null)
             return null;
