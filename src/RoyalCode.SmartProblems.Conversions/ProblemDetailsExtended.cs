@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using RoyalCode.SmartProblems.Conversions.Internals;
 
@@ -136,8 +137,11 @@ public class ProblemDetailsExtended : ProblemDetails
     /// </returns>
     public Problems ToProblems()
     {
+        // the list of problems
         Problems problems = [];
 
+        // a flag to determine if the problem details is generic and contains the problems only in the extensions
+        // fields. In this case, the details are ignored and the extensions are added to the first problem.
         bool ignoreDetails = false;
 
         if (NotFoundDetails is not null)
@@ -152,7 +156,7 @@ public class ProblemDetailsExtended : ProblemDetails
                 problems += problem;
             }
 
-            ignoreDetails = Title == Titles.NotFoundTitle;
+            ignoreDetails = Type == "about:blank";
         }
 
         if (Errors is not null)
@@ -164,11 +168,11 @@ public class ProblemDetailsExtended : ProblemDetails
 
                 var problem = status switch
                 {
-                    500 => Problems.InternalError(errorDetails.Detail, property: property),
-                    409 => Problems.InvalidState(errorDetails.Detail, property),
-                    403 => Problems.NotAllowed(errorDetails.Detail, property),
-                    422 => Problems.ValidationFailed(errorDetails.Detail, property),
                     400 => Problems.InvalidParameter(errorDetails.Detail, property),
+                    422 => Problems.ValidationFailed(errorDetails.Detail, property),
+                    403 => Problems.NotAllowed(errorDetails.Detail, property),
+                    409 => Problems.InvalidState(errorDetails.Detail, property),
+                    500 => Problems.InternalError(errorDetails.Detail, property: property),
                     _ => Problems.Custom(errorDetails.Detail, GetTypeId(Type), property)
                 };
                 
@@ -179,12 +183,7 @@ public class ProblemDetailsExtended : ProblemDetails
                 problems += problem;
             }
 
-            ignoreDetails = Type == "about:blank"
-                && (Title == Titles.InvalidParametersTitle
-                    || Title == Titles.ValidationFailedTitle
-                    || Title == Titles.NotAllowedTitle
-                    || Title == Titles.InvalidStateTitle
-                    || Title == Titles.InternalServerErrorTitle);
+            ignoreDetails = Type == "about:blank";
         }
 
         if (InnerProblemDetails is not null)
@@ -203,7 +202,7 @@ public class ProblemDetailsExtended : ProblemDetails
             
             var problem = problems[0];
             foreach (var extension in Extensions)
-                problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+                problem.With(extension.Key, ReadJsonValue(extension.Value));
         }
         else
         {

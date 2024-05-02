@@ -29,12 +29,12 @@ public static class ProblemDetailsServiceCollectionExtensions
 
         var builder = services.AddOptions<ProblemDetailsOptions>()
             .BindConfiguration("ProblemDetails")
-            .PostConfigure<AspNetCore.Http.IHttpContextAccessor>((o, a) =>
+            .PostConfigure<AspNetCore.Http.IHttpContextAccessor>((options, access) =>
             {
-                if (o.BaseAddress == ProblemDetailsOptions.DefaultBaseAddress
-                    && a.HttpContext?.Request is not null)
+                if (options.BaseAddress == ProblemDetailsOptions.DefaultBaseAddress
+                    && access.HttpContext?.Request is not null)
                 {
-                    o.BaseAddress = $"https://{a.HttpContext.Request.Host.Value}/.problems";
+                    options.BaseAddress = $"https://{access.HttpContext.Request.Host.Value}/.problems";
                 }
             })
             .PostConfigure<ILogger<ProblemDetailsOptions>>((o, l) =>

@@ -39,7 +39,7 @@ public static class MatchInterceptors
         foreach (var interceptor in interceptors)
             try
             {
-                interceptor.WritingProblemDetails(problemDetails, problems);
+                interceptor.WritingProblemDetails(httpContext.Request, problemDetails, problems);
             }
             catch (Exception ex)
             {

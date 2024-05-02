@@ -150,14 +150,21 @@ public sealed class Problems : ICollection<Problem>
     /// </summary>
     /// <param name="exception">The exception that occurred.</param>
     /// <returns>A new problem.</returns>
-    public static Problem InternalError(Exception exception)
+    public static Problem InternalError(Exception exception) => InternalError(exception, ExceptionOptions);
+
+    /// <summary>
+    /// Create a new problem of InternalServerError category.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <returns>A new problem.</returns>
+    public static Problem InternalError(Exception exception, ExceptionOptions options)
     {
         if (ExceptionHandler?.TryHandle(exception, out var problem) is true)
             return problem;
 
-        var detail = ExceptionOptions.UseExceptionMessageAsDetail 
+        var detail = options.UseExceptionMessageAsDetail 
             ? exception.Message 
-            : ExceptionOptions.DefaultExceptionMessage;
+            : options.DefaultExceptionMessage;
         
         var property = exception is ArgumentException argumentException 
             ? argumentException.ParamName 
@@ -170,11 +177,11 @@ public sealed class Problems : ICollection<Problem>
             Property = property
         };
 
-        if (ExceptionOptions.IncludeExceptionTypeName)
-            problem.With("exception", exception.GetType().Name);
+        if (options.IncludeExceptionTypeName)
+            problem.With("exception", exception.GetType().FullName);
 
-        if (ExceptionOptions.IncludeStackTrace)
-            problem.With("stackTrace", exception.StackTrace);
+        if (options.IncludeStackTrace)
+            problem.With("stack_trace", exception.StackTrace);
         
         return problem;
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RoyalCode.SmartProblems.Interceptors;
 
@@ -12,5 +13,5 @@ public interface IMatchProblemDetailsInterceptor
     /// </summary>
     /// <param name="problemDetails">The <see cref="ProblemDetails"/> to be writed.</param>
     /// <param name="problems">The <see cref="Problems"/> that contains the errors.</param>
-    void WritingProblemDetails(ProblemDetails problemDetails, Problems problems);
+    void WritingProblemDetails(HttpRequest request, ProblemDetails problemDetails, Problems problems);
 }

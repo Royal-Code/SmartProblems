@@ -62,6 +62,45 @@ public class ProblemsTests
         Assert.Equal(exception.Code, problem.TypeId);
     }
 
+    [Fact]
+    public void Problems_InternalError_DisableExceptionMessage()
+    {
+        // Arrange
+        var options = new ExceptionOptions 
+        { 
+            UseExceptionMessageAsDetail = false
+        };
+
+        // Act
+        var problem = Problems.InternalError(new Exception("This is a message"), options);
+
+        // Assert
+        Assert.Equal(options.DefaultExceptionMessage, problem.Detail);
+    }
+
+    [Fact]
+    public void Problems_InternalError_EnableExceptionTypeAndStackTrace()
+    {
+        // Arrange
+        var options = new ExceptionOptions
+        {
+            IncludeExceptionTypeName = true,
+            IncludeStackTrace = true
+        };
+
+        // Act
+        var problem = Problems.InternalError(new Exception("This is a message"), options);
+
+        // Assert
+        object? exceptionType = null;
+        problem.Extensions?.TryGetValue("exception", out exceptionType);
+        var exceptionName = exceptionType as string;
+        Assert.Contains("System.Exception", exceptionName);
+        
+        var containsStackTrace = problem.Extensions?.ContainsKey("stack_trace") ?? false;
+        Assert.True(containsStackTrace);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -84,6 +123,19 @@ public class ProblemsTests
         {
             act();
         }
+    }
+
+    [Fact]
+    public void Problems_Custom_Must_HaveUriValidTypeId()
+    {
+        // Arrange
+        var typeId = "my type";
+
+        // Act
+        var act = new Action(() => Problems.Custom("Message", typeId));
+
+        // Assert
+        Assert.Throws<ArgumentException>(act);
     }
 
     [Fact]
