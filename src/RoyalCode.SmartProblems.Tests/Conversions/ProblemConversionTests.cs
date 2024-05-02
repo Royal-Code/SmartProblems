@@ -12,7 +12,7 @@ namespace RoyalCode.SmartProblems.Tests.Conversions;
 ///     These tests cover a single problem in a ProblemDetails.
 /// </para>
 /// </summary>
-public class ProblemConvertionTests
+public class ProblemConversionTests
 {
     [Fact]
     public void Convert_NotFount()

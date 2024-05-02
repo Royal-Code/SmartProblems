@@ -5,6 +5,7 @@ namespace RoyalCode.SmartProblems.Conversions;
 /// <summary>
 /// A class that represents the details of an invalid parameter.
 /// </summary>
+[Obsolete]
 public class InvalidParameterDetails : DetailsBase
 {
     /// <summary>

@@ -10,16 +10,16 @@ namespace RoyalCode.SmartProblems.Conversions;
 /// </summary>
 public class ProblemDetailsBuilder
 {
-    private List<InvalidParameterDetails>? invalidParameterErrors;
-    private List<NotFoundDetails>? notFoundErrors;
+    private List<ErrorDetails>? notFoundErrors;
     private List<ErrorDetails>? errors;
     private List<CustomDetails>? customErrors;
 
     private Dictionary<string, object>? extensions;
-    private bool withNotAllowedErrors = false;
-    private bool withValidationErrors = false;
-    private bool withInvalidStateErrors = false;
-    private bool withInternalErrors = false;
+    private bool withInvalidParameterErrors;
+    private bool withValidationErrors;
+    private bool withNotAllowedErrors;
+    private bool withInvalidStateErrors;
+    private bool withInternalErrors;
 
     public ProblemDetails Build(ProblemDetailsOptions options)
     {
@@ -31,10 +31,9 @@ public class ProblemDetailsBuilder
         else
         {
             var typeId = GetTypeId();
-            if (options.Descriptor.TryGetDescription(typeId, out var codeDescription))
-                description = codeDescription;
-            else
-                description = options.Descriptor.GetDescriptionByCategory(GetCategory());
+            description = options.Descriptor.TryGetDescription(typeId, out var codeDescription) 
+                ? codeDescription
+                : options.Descriptor.GetDescriptionByCategory(GetCategory());
         }
 
         var type = description.Type
@@ -86,11 +85,6 @@ public class ProblemDetailsBuilder
             return true;
         }
 
-        if (invalidParameterErrors is not null)
-        {
-            category = ProblemCategory.InvalidParameter;
-            return true;
-        }
         if (notFoundErrors is not null)
         {
             category = ProblemCategory.NotFound;
@@ -157,7 +151,7 @@ public class ProblemDetailsBuilder
         if (customErrors is not null)
             return customErrors.Count > 1
                 ? ProblemDetailsDescriptor.Messages.AggregateMessage
-                : customErrors[0].Detail ?? string.Empty;
+                : customErrors[0].Detail;
 
         if (errors is not null)
         {
@@ -172,10 +166,10 @@ public class ProblemDetailsBuilder
 
             if (withNotAllowedErrors)
                 return ProblemDetailsDescriptor.Messages.NotAllowedMessage;
+            
+            if (withInvalidParameterErrors)
+                return ProblemDetailsDescriptor.Messages.InvalidParametersMessage;    
         }
-
-        if (invalidParameterErrors is not null)
-            return ProblemDetailsDescriptor.Messages.InvalidParametersMessage;
 
         if (notFoundErrors is not null)
             return ProblemDetailsDescriptor.Messages.NotFoundMessage;
@@ -208,8 +202,6 @@ public class ProblemDetailsBuilder
                     pdext[key] = value;
             }
         }
-        if (invalidParameterErrors is not null)
-            pdext[ProblemDetailsExtended.Fields.InvalidParametersExtensionField] = invalidParameterErrors;
 
         if (notFoundErrors is not null)
             pdext[ProblemDetailsExtended.Fields.NotFoundExtensionField] = notFoundErrors;
@@ -238,6 +230,8 @@ public class ProblemDetailsBuilder
         if (withNotAllowedErrors)
             count++;
         if (withValidationErrors)
+            count++;
+        if (withInvalidParameterErrors)
             count++;
 
         if (count < 2)
@@ -302,22 +296,22 @@ public class ProblemDetailsBuilder
     /// <summary>
     /// Add a not found error to the problem details.
     /// </summary>
-    /// <param name="notFoundDetails">The not found details.</param>
-    public void AddNotFound(NotFoundDetails notFoundDetails)
+    /// <param name="details">The not found details.</param>
+    public void AddNotFound(ErrorDetails details)
     {
         notFoundErrors ??= [];
-        notFoundErrors.Add(notFoundDetails);
+        notFoundErrors.Add(details);
     }
 
     /// <summary>
     /// Add a invalid parameter error to the problem details.
     /// </summary>
     /// <param name="details">The invalid parameter details.</param>
-    /// <param name="validationError">If the error is a validation error.</param>
-    public void AddInvalidParameter(InvalidParameterDetails details)
+    public void AddInvalidParameter(ErrorDetails details)
     {
-        invalidParameterErrors ??= [];
-        invalidParameterErrors.Add(details);
+        errors ??= [];
+        errors.Add(details);
+        withInvalidParameterErrors = true;
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ namespace RoyalCode.SmartProblems.Conversions;
 ///     The details of a not found problem.
 /// </para>
 /// </summary>
+[Obsolete]
 public class NotFoundDetails : DetailsBase
 {
     /// <summary>
@@ -44,6 +45,7 @@ public class NotFoundDetails : DetailsBase
     /// The property or parameter name related to the problem.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete]
     public string? Property { get; set; }
 
     /// <inheritdoc />

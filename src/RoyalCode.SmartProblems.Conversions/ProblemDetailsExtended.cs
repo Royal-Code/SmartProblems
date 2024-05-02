@@ -15,10 +15,6 @@ namespace RoyalCode.SmartProblems.Conversions;
 /// </para>
 /// <list type="bullet">
 ///     <item>
-///         <term><see cref="InvalidParameters"/></term> that contains the invalid parameters details, 
-///         like the parameter name, the error message (reason) and additional information.
-///     </item>
-///     <item>
 ///         <term><see cref="NotFoundDetails"/></term> that contains the not found details,
 ///         like the property name and the error message and additional information.
 ///     </item>
@@ -42,11 +38,6 @@ public class ProblemDetailsExtended : ProblemDetails
         /// Extension field for the <see cref="ProblemDetails"/> that contains the aggregate details.
         /// </summary>
         public const string AggregateExtensionField = "inner_details";
-
-        /// <summary>
-        /// Extension field for the <see cref="ProblemDetails"/> that contains the invalid parameters details.
-        /// </summary>
-        public const string InvalidParametersExtensionField = "invalid_params";
 
         /// <summary>
         /// Extension field for the <see cref="ProblemDetails"/> that contains generic errors or application errors.
@@ -105,22 +96,11 @@ public class ProblemDetailsExtended : ProblemDetails
     ///     A human-readable explanation specific to this occurrence of the problem.
     /// </para>
     /// <para>
-    ///     Invalid parameters errors are added to this property.
-    /// </para>
-    /// </summary>
-    [JsonPropertyName(Fields.InvalidParametersExtensionField)]
-    public IEnumerable<InvalidParameterDetails>? InvalidParameters { get; set; }
-
-    /// <summary>
-    /// <para>
-    ///     A human-readable explanation specific to this occurrence of the problem.
-    /// </para>
-    /// <para>
     ///     Not found errors are added to this property.
     /// </para>
     /// </summary>
     [JsonPropertyName(Fields.NotFoundExtensionField)]
-    public IEnumerable<NotFoundDetails>? NotFoundDetails { get; set; }
+    public IEnumerable<ErrorDetails>? NotFoundDetails { get; set; }
 
     /// <summary>
     /// <para>
@@ -158,73 +138,54 @@ public class ProblemDetailsExtended : ProblemDetails
 
         if (NotFoundDetails is not null)
         {
-            foreach (var notFoundDetail in NotFoundDetails)
+            foreach (var errorDetails in NotFoundDetails)
             {
-                var problem = Problems.NotFound(notFoundDetail.Message, notFoundDetail.Property ?? string.Empty);
-                if (notFoundDetail.Extensions is not null)
-                    foreach (var extension in notFoundDetail.Extensions)
+                // try to get the property from the extensions
+                string? property = TryGetProperty(errorDetails.Extensions);
+                
+                var problem = Problems.NotFound(errorDetails.Detail, property);
+                if (errorDetails.Extensions is not null)
+                    foreach (var extension in errorDetails.Extensions)
                         problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
 
                 problems += problem;
             }
 
-            if (Title == Titles.NotFoundTitle)
-                ignoreDetails = true;
-        }
-
-        if (InvalidParameters is not null)
-        {
-            foreach (var invalidParameter in InvalidParameters)
-            {
-                var problem = Problems.InvalidParameter(invalidParameter.Reason, invalidParameter.Name ?? string.Empty);
-                if (invalidParameter.Extensions is not null)
-                    foreach (var extension in invalidParameter.Extensions)
-                        problem.With(extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
-
-                problems += problem;
-            }
-
-            if (Title == Titles.InvalidParametersTitle || Title == Titles.ValidationFailedTitle)
-            {
-                ignoreDetails = true;
-            }
+            ignoreDetails = Title == Titles.NotFoundTitle;
         }
 
         if (Errors is not null)
         {
             foreach (var errorDetails in Errors)
             {
+                // try to get the property from the extensions
+                string? property = TryGetProperty(errorDetails.Extensions);
+                
                 int status = GetStatusForError(errorDetails.Extensions, Status ?? default);
 
-                bool isInternalError = status == 500;
-                bool isConflict = status == 409;
-                bool isNotAllowed = status == 403;
-
-                // try get the property from the extensions
-                string? property = TryGetProperty(errorDetails.Extensions);
-
-                var problem = isInternalError
-                    ? Problems.InternalError(errorDetails.Detail, property: property)
-                    : isConflict
-                        ? Problems.InvalidState(errorDetails.Detail, property)
-                        : isNotAllowed
-                            ? Problems.NotAllowed(errorDetails.Detail, property)
-                            : Problems.ValidationFailed(errorDetails.Detail, property);
+                var problem = status switch
+                {
+                    500 => Problems.InternalError(errorDetails.Detail, property: property),
+                    409 => Problems.InvalidState(errorDetails.Detail, property),
+                    403 => Problems.NotAllowed(errorDetails.Detail, property),
+                    422 => Problems.ValidationFailed(errorDetails.Detail, property),
+                    400 => Problems.InvalidParameter(errorDetails.Detail, property),
+                    _ => Problems.Custom(errorDetails.Detail, GetTypeId(Type), property)
+                };
                 
                 if (errorDetails.Extensions is not null)
                     foreach (var extension in errorDetails.Extensions)
-                        AddExtension(problem, extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+                        problem.With(extension.Key, ReadJsonValue(extension.Value));
 
                 problems += problem;
             }
 
-            if (Title == Titles.InvalidStateTitle
-                || Title == Titles.ValidationFailedTitle
-                || Title == Titles.InternalServerErrorTitle
-                || Title == Titles.NotAllowedTitle)
-            {
-                ignoreDetails = true;
-            }
+            ignoreDetails = Type == "about:blank"
+                && (Title == Titles.InvalidParametersTitle
+                    || Title == Titles.ValidationFailedTitle
+                    || Title == Titles.NotAllowedTitle
+                    || Title == Titles.InvalidStateTitle
+                    || Title == Titles.InternalServerErrorTitle);
         }
 
         if (InnerProblemDetails is not null)
@@ -252,14 +213,15 @@ public class ProblemDetailsExtended : ProblemDetails
 
         return problems;
     }
-
+    
     private static Problem ToProblem(ProblemDetails details)
     {
-        // try get the property from the extensions
+        // try to get the property from the extensions
         string? property = TryGetProperty(details.Extensions);
 
-        // get the category of the problem
+        // get the category of the problem and the type id
         ProblemCategory category;
+        string? typeId = null;
         if (details.Type == "about:blank")
         {
             category = details.Status switch
@@ -267,14 +229,15 @@ public class ProblemDetailsExtended : ProblemDetails
                 404 => ProblemCategory.NotFound,
                 400 => ProblemCategory.InvalidParameter,
                 422 => ProblemCategory.ValidationFailed,
-                409 => ProblemCategory.InvalidState,
                 403 => ProblemCategory.NotAllowed,
+                409 => ProblemCategory.InvalidState,
                 500 => ProblemCategory.InternalServerError,
                 _ => ProblemCategory.CustomProblem,
             };
         }
         else
         {
+            typeId = GetTypeId(details.Type);
             category = ProblemCategory.CustomProblem;
         }
 
@@ -282,26 +245,26 @@ public class ProblemDetailsExtended : ProblemDetails
         var problem = new Problem()
         {
             Category = category,
-            Detail = details.Detail ?? string.Empty,
+            Detail = details.Detail ?? R.DefaultDetail,
             Property = property,
+            TypeId = typeId
         };
 
         // add the additional information
         foreach (var extension in details.Extensions)
-            AddExtension(problem, extension.Key, ReadJsonValue(extension.Value) ?? string.Empty);
+            problem.With(extension.Key, ReadJsonValue(extension.Value));
          
         return problem;
     }
 
     private static object? ReadJsonValue(object? obj)
     {
-        if (obj is null)
-            return null;
-
-        if (obj is JsonElement jsonElement)
-            return ReadJsonElement(jsonElement);
-
-        return obj;
+        return obj switch
+        {
+            null => null,
+            JsonElement jsonElement => ReadJsonElement(jsonElement),
+            _ => obj
+        };
     }
 
     private static object? ReadJsonElement(JsonElement jsonElement)
@@ -332,32 +295,44 @@ public class ProblemDetailsExtended : ProblemDetails
         return obj;
     }
 
-    private static void AddExtension(Problem problem, string key, object value)
-    {
-        if (key == "property")
-            return;
-        
-        problem.With(key, value);
-    }
-
     private static string? TryGetProperty(IDictionary<string, object?>? extensions)
     {
-        if (extensions?.TryGetValue("property", out var propertyValue) ?? false)
-            return ReadJsonValue(propertyValue) as string;
+        if (extensions?.TryGetValue("pointer", out var propertyValue) ?? false)
+            return (ReadJsonValue(propertyValue) as string).PointerToProperty();
 
         return null;
     }
 
     private static int GetStatusForError(IDictionary<string, object?>? extensions, int responseStatus)
     {
-        // try get the status from the extensions
-        if (extensions?.TryGetValue("status", out var statusValue) ?? false)
+        // try to get the status from the extensions
+        if (!(extensions?.TryGetValue("status", out var statusValue) ?? false)) 
+            return responseStatus;
+
+        return statusValue switch
         {
-            if (statusValue is int status)
-                return status;
-            if (statusValue is JsonElement element)
-                return element.GetInt32();
-        }
-        return responseStatus;
+            int status => status,
+            JsonElement element => element.GetInt32(),
+            _ => responseStatus
+        };
+    }
+    
+    private static string GetTypeId(string? type)
+    {
+        if (type is null)
+            return "about:blank";
+        
+        // if contains #, then the typeid is the part after the #
+        var lastIndexOfHash = type.LastIndexOf('#');
+        if (lastIndexOfHash > 0 && type.Length > lastIndexOfHash + 1)
+            return type[(lastIndexOfHash + 1)..];
+        
+        // if contains /, then the typeid is the part after the /
+        var lastIndexOfSlash = type.LastIndexOf('/');
+        if (lastIndexOfSlash > 0 && type.Length > lastIndexOfSlash + 1)
+            return type[(lastIndexOfSlash + 1)..];
+        
+        // otherwise, return the type
+        return type;
     }
 }

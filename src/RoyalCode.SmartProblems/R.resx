@@ -132,4 +132,7 @@
   <data name="TypeIdIsRequired" xml:space="preserve">
     <value>For custom problems, the type id is required.</value>
   </data>
+  <data name="TypeIdMustBeValidUri" xml:space="preserve">
+    <value>TypeId must be a valid part of URI.</value>
+  </data>
 </root>

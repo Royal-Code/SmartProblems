@@ -8,13 +8,13 @@ namespace RoyalCode.SmartProblems.Tests.Conversions;
 
 /// <summary>
 /// <para>
-///     Tests for the convertion of the <see cref="Problems"/> to <see cref="ProblemDetails"/>.
+///     Tests for the conversion of the <see cref="Problems"/> to <see cref="ProblemDetails"/>.
 /// </para>
 /// <para>
 ///     These tests cover a multiple problems in a ProblemDetails.
 /// </para>
 /// </summary>
-public class ProblemsConvertionTests
+public class ProblemsConversionTests
 {
     [Fact]
     public void Convert_Many_NotFount()
@@ -37,12 +37,12 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Equal(3, notFoundArray.Count());
 
-        Assert.Equal("Not Found 1", notFoundArray.ElementAt(0).Message);
-        Assert.Equal("Not Found 2", notFoundArray.ElementAt(1).Message);
-        Assert.Equal("Not Found 3", notFoundArray.ElementAt(2).Message);
+        Assert.Equal("Not Found 1", notFoundArray.ElementAt(0).Detail);
+        Assert.Equal("Not Found 2", notFoundArray.ElementAt(1).Detail);
+        Assert.Equal("Not Found 3", notFoundArray.ElementAt(2).Detail);
     }
 
     [Fact]
@@ -63,20 +63,20 @@ public class ProblemsConvertionTests
         Assert.Equal(ProblemDetailsDescriptor.Messages.InvalidParametersMessage, problemDetails.Detail);
         Assert.Equal("about:blank", problemDetails.Type);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
 
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
+        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(invalidParameters);
         Assert.Equal(3, invalidParametersArray.Count());
 
-        Assert.Equal("Invalid Parameter 1", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
+        Assert.Equal("Invalid Parameter 1", invalidParametersArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", invalidParametersArray.ElementAt(0).Pointer);
 
-        Assert.Equal("Invalid Parameter 2", invalidParametersArray.ElementAt(1).Reason);
-        Assert.Equal("MyProperty2", invalidParametersArray.ElementAt(1).Name);
+        Assert.Equal("Invalid Parameter 2", invalidParametersArray.ElementAt(1).Detail);
+        Assert.Equal("#/MyProperty2", invalidParametersArray.ElementAt(1).Pointer);
 
-        Assert.Equal("Invalid Parameter 3", invalidParametersArray.ElementAt(2).Reason);
-        Assert.Equal("MyProperty3", invalidParametersArray.ElementAt(2).Name);
+        Assert.Equal("Invalid Parameter 3", invalidParametersArray.ElementAt(2).Detail);
+        Assert.Equal("#/MyProperty3", invalidParametersArray.ElementAt(2).Pointer);
     }
 
     [Fact]
@@ -298,17 +298,17 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
 
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
+        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(invalidParameters);
         Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty", invalidParametersArray.ElementAt(0).Name);
+        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty", invalidParametersArray.ElementAt(0).Pointer);
     }
 
     [Fact]
@@ -332,26 +332,22 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
-        Assert.NotNull(invalidParameters);
+        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var errors);
+        Assert.NotNull(errors);
 
-        var invalidParametersArray = Assert.IsAssignableFrom<IEnumerable<InvalidParameterDetails>>(invalidParameters);
-        Assert.Single(invalidParametersArray);
-        Assert.Equal("Invalid Parameter", invalidParametersArray.ElementAt(0).Reason);
-        Assert.Equal("MyProperty1", invalidParametersArray.ElementAt(0).Name);
-
-        problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.ErrorsExtensionField, out var validationFailed);
-        Assert.NotNull(validationFailed);
-
-        var validationFailedArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(validationFailed);
-        Assert.Single(validationFailedArray);
-        Assert.Equal("Validation Failed", validationFailedArray.ElementAt(0).Detail);
-        Assert.Equal("MyProperty2", validationFailedArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(0).Pointer);
+        var errorsArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(errors);
+        Assert.Equal(2, errorsArray.Count());
+        
+        Assert.Equal("Invalid Parameter", errorsArray.ElementAt(0).Detail);
+        Assert.Equal("#/MyProperty1", errorsArray.ElementAt(0).Pointer);
+        
+        Assert.Equal("Validation Failed", errorsArray.ElementAt(1).Detail);
+        Assert.Equal("MyProperty2", errorsArray.ElementAt(1).GetProperty());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(1).Pointer);
     }
 
     [Fact]
@@ -376,9 +372,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
@@ -423,9 +419,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
@@ -472,9 +468,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
@@ -527,9 +523,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
@@ -588,9 +584,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);
@@ -676,9 +672,9 @@ public class ProblemsConvertionTests
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.NotFoundExtensionField, out var notFound);
         Assert.NotNull(notFound);
 
-        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<NotFoundDetails>>(notFound);
+        var notFoundArray = Assert.IsAssignableFrom<IEnumerable<ErrorDetails>>(notFound);
         Assert.Single(notFoundArray);
-        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Message);
+        Assert.Equal("Not Found", notFoundArray.ElementAt(0).Detail);
 
         problemDetails.Extensions.TryGetValue(ProblemDetailsExtended.Fields.InvalidParametersExtensionField, out var invalidParameters);
         Assert.NotNull(invalidParameters);

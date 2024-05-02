@@ -63,7 +63,7 @@ public sealed class Problem
     /// <returns>
     ///     The same instance of the problem.
     /// </returns>
-    public Problem With(string key, object value)
+    public Problem With(string key, object? value)
     {
         Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         Extensions[key] = value;

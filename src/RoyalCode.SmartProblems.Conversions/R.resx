@@ -135,7 +135,7 @@
   <data name="NotFoundTitle" xml:space="preserve">
     <value>Registry not found</value>
   </data>
-  <data name="ValidationFailedTitle" xml:space="preserve">
-    <value>Validation of input parameters failed</value>
+  <data name="DefaultDetail" xml:space="preserve">
+    <value>A problem occurs</value>
   </data>
 </root>

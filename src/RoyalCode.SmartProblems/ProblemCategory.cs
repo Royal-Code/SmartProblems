@@ -52,16 +52,6 @@ public enum ProblemCategory
     
     /// <summary>
     /// <para>
-    ///     Define a problem for an invalid state of the system or entity.
-    /// </para>
-    /// <para>
-    ///     This is equivalent to the HTTP status code 409 (Conflict).
-    /// </para>
-    /// </summary>
-    InvalidState,
-
-    /// <summary>
-    /// <para>
     ///     Define a problem for a request that is not allowed to be executed.
     ///     <br/>
     ///     In these problems there is some reason why execution is not allowed (forbidden) 
@@ -73,6 +63,16 @@ public enum ProblemCategory
     /// </para>
     /// </summary>
     NotAllowed,
+    
+    /// <summary>
+    /// <para>
+    ///     Define a problem for an invalid state of the system or entity.
+    /// </para>
+    /// <para>
+    ///     This is equivalent to the HTTP status code 409 (Conflict).
+    /// </para>
+    /// </summary>
+    InvalidState,
 
     /// <summary>
     /// <para>

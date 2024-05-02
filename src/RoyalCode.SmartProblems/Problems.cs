@@ -12,17 +12,27 @@ public sealed class Problems : ICollection<Problem>
 
     /// <summary>
     /// <para>
-    ///     A exception handler to convert exceptions to problems.
+    ///     An exception handler to convert exceptions to problems.
     /// </para>
     /// <para>
     ///     Is used in the <see cref="InternalError(Exception)"/> method.
     /// </para>
     /// <para>
-    ///     Usefull to customize the creation of problems from exceptions.
+    ///     Useful to customize the creation of problems from exceptions.
     /// </para>
     /// </summary>
     public static IExceptionHandler? ExceptionHandler { get; set; }
 
+    /// <summary>
+    /// <para>
+    ///     Options to customize the creation of problems from exceptions.
+    /// </para>
+    /// <para>
+    ///     Used in the <see cref="InternalError(Exception)"/> method.
+    /// </para>
+    /// </summary>
+    public static ExceptionOptions ExceptionOptions { get; } = new();
+    
     #endregion
 
     #region Factory Methods
@@ -82,24 +92,6 @@ public sealed class Problems : ICollection<Problem>
     }
 
     /// <summary>
-    /// Create a new problem of InvalidState category.
-    /// </summary>
-    /// <param name="detail">The detail of the problem, a description message for users.</param>
-    /// <param name="property">Optional, the property that the problem is related to.</param>
-    /// <param name="typeId">Optional, the type id of the problem, related to the problem details type.</param>
-    /// <returns>A new problem.</returns>
-    public static Problem InvalidState(string detail, string? property = null, string? typeId = null)
-    {
-        return new Problem
-        {
-            Category = ProblemCategory.InvalidState,
-            Detail = detail,
-            Property = property,
-            TypeId = typeId
-        };
-    }
-
-    /// <summary>
     /// Create a new problem of Not Allowed category.
     /// </summary>
     /// <param name="detail">The detail of the problem, a description message for users.</param>
@@ -111,6 +103,24 @@ public sealed class Problems : ICollection<Problem>
         return new Problem
         {
             Category = ProblemCategory.NotAllowed,
+            Detail = detail,
+            Property = property,
+            TypeId = typeId
+        };
+    }
+    
+    /// <summary>
+    /// Create a new problem of InvalidState category.
+    /// </summary>
+    /// <param name="detail">The detail of the problem, a description message for users.</param>
+    /// <param name="property">Optional, the property that the problem is related to.</param>
+    /// <param name="typeId">Optional, the type id of the problem, related to the problem details type.</param>
+    /// <returns>A new problem.</returns>
+    public static Problem InvalidState(string detail, string? property = null, string? typeId = null)
+    {
+        return new Problem
+        {
+            Category = ProblemCategory.InvalidState,
             Detail = detail,
             Property = property,
             TypeId = typeId
@@ -145,6 +155,10 @@ public sealed class Problems : ICollection<Problem>
         if (ExceptionHandler?.TryHandle(exception, out var problem) is true)
             return problem;
 
+        var detail = ExceptionOptions.UseExceptionMessageAsDetail 
+            ? exception.Message 
+            : ExceptionOptions.DefaultExceptionMessage;
+        
         var property = exception is ArgumentException argumentException 
             ? argumentException.ParamName 
             : null;
@@ -152,12 +166,16 @@ public sealed class Problems : ICollection<Problem>
         problem = new Problem
         {
             Category = ProblemCategory.InternalServerError,
-            Detail = exception.Message,
+            Detail = detail,
             Property = property
         };
 
-        problem.With("exception", exception.GetType().Name);
+        if (ExceptionOptions.IncludeExceptionTypeName)
+            problem.With("exception", exception.GetType().Name);
 
+        if (ExceptionOptions.IncludeStackTrace)
+            problem.With("stackTrace", exception.StackTrace);
+        
         return problem;
     }
 
@@ -166,20 +184,28 @@ public sealed class Problems : ICollection<Problem>
     /// </summary>
     /// <param name="detail">The detail of the problem, a description message for users.</param>
     /// <param name="typeId">Required, the type id of the problem, related to the problem details type.</param>
+    /// <param name="property">Optional, the property that the problem is related to.</param>
     /// <returns>A new problem.</returns>
     /// <exception cref="ArgumentException">
     ///     Callers must provide a type id for custom problems.
+    ///     <br/>
+    ///     The type id must be a valid URI part.
     /// </exception>
-    public static Problem Custom(string detail, string typeId)
+    public static Problem Custom(string detail, string typeId, string? property = null)
     {
         if (string.IsNullOrWhiteSpace(typeId))
             throw new ArgumentException(R.TypeIdIsRequired, nameof(typeId));
 
+        // type must be a valid URI part
+        if (!Uri.IsWellFormedUriString(typeId, UriKind.Relative))
+            throw new ArgumentException(R.TypeIdMustBeValidUri, nameof(typeId));
+        
         return new Problem
         {
             Category = ProblemCategory.CustomProblem,
             Detail = detail,
-            TypeId = typeId
+            TypeId = typeId,
+            Property = property
         };
     }
 
