@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RoyalCode.SmartProblems.Convertions\RoyalCode.SmartProblems.Convertions.csproj" />
+      <ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />
     </ItemGroup>
 
 </Project>

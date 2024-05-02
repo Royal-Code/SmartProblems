@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Extension class to convert a status code to a category.

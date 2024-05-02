@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using RoyalCode.SmartProblems.Convertions;
+using RoyalCode.SmartProblems.Conversions;
 using RoyalCode.SmartProblems.Descriptions;
 
 namespace RoyalCode.SmartProblems.MvcResults;

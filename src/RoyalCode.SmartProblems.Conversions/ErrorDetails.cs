@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
+using RoyalCode.SmartProblems.Conversions.Internals;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// A class that represents the details of an error.
@@ -13,14 +14,14 @@ public class ErrorDetails : DetailsBase
     /// <param name="problem">The problem to be converted.</param>
     public static implicit operator ErrorDetails(Problem problem)
     {
-        var error = new ErrorDetails(problem.Detail)
+        var error = new ErrorDetails(problem.Detail, problem.Property.PropertyToPointer())
         {
             Extensions = problem.Extensions,
             Category = problem.Category
         };
 
         if (!string.IsNullOrEmpty(problem.Property))
-            error.WithProperty(problem.Property, true);
+            error.WithProperty(problem.Property);
 
         return error;
     }
@@ -29,17 +30,25 @@ public class ErrorDetails : DetailsBase
     /// Creates a new instance of <see cref="ErrorDetails"/> class.
     /// </summary>
     /// <param name="detail">The detail of the error.</param>
+    /// <param name="pointer">The path to the property that caused the error, using JSON Pointer notation.</param>
     [JsonConstructor]
-    public ErrorDetails(string detail)
+    public ErrorDetails(string detail, string? pointer = null)
     {
         Detail = detail;
+        Pointer = pointer;
     }
 
     /// <summary>
     /// Describes the issue in detail.
     /// </summary>
-    public string Detail { get; set; }
+    public string Detail { get; }
 
+    /// <summary>
+    /// The path to the property that caused the error, using JSON Pointer notation.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Pointer { get; } 
+    
     /// <summary>
     /// The category of the problem.
     /// <br/>
@@ -47,19 +56,21 @@ public class ErrorDetails : DetailsBase
     /// when the result have multiple errors with different categories.
     /// </summary>
     [JsonIgnore]
-    public ProblemCategory Category { get; set; }
+    public ProblemCategory Category { get; init; }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return obj is ErrorDetails details &&
                Detail == details.Detail &&
+               Pointer == details.Pointer &&
+               Category == details.Category &&
                EqualityComparer<IDictionary<string, object?>?>.Default.Equals(Extensions, details.Extensions);
     }
 
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(Detail, Extensions);
+        return HashCode.Combine(Detail, Pointer, Category, Extensions);
     }
 }

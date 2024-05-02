@@ -1,8 +1,8 @@
-﻿using RoyalCode.SmartProblems.Convertions.Internals;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using RoyalCode.SmartProblems.Conversions.Internals;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 #pragma warning disable S3358 // Ternary operators should not be nested
 

@@ -1,7 +1,7 @@
-﻿using RoyalCode.SmartProblems.Convertions.Internals;
+﻿using RoyalCode.SmartProblems.Conversions.Internals;
 using System.Text.Json;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Extension methods for <see cref="DetailsBase"/>.
@@ -33,29 +33,13 @@ public static class DetailsBaseExtensions
     /// Adds a property to the extensions dictionary.
     /// </summary>
     /// <param name="property">The property name.</param>
-    /// <param name="includePointer">A flag that indicates if the pointer should be included.</param>
     /// <returns>The same instance of <see cref="ErrorDetails"/>.</returns>
-    public static TDetails WithProperty<TDetails>(this TDetails details, string property, bool includePointer = false)
+    public static TDetails WithProperty<TDetails>(this TDetails details, string property)
         where TDetails : DetailsBase
     {
         details.Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         details.Extensions.Add("property", property);
-
-        return includePointer
-            ? details.WithPointer(property.PropertyToPointer()!)
-            : details;
-    }
-
-    /// <summary>
-    /// Adds a pointer to the extensions dictionary.
-    /// </summary>
-    /// <param name="pointer">The pointer to the error.</param>
-    /// <returns>The same instance of <see cref="ErrorDetails"/>.</returns>
-    public static TDetails WithPointer<TDetails>(this TDetails details, string pointer)
-        where TDetails : DetailsBase
-    {
-        details.Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
-        details.Extensions.Add("pointer", pointer);
+        
         return details;
     }
 
@@ -69,17 +53,5 @@ public static class DetailsBaseExtensions
         return details.Extensions?.TryGetValue("property", out var value) ?? false
             ? value as string
             : null;
-    }
-
-    /// <summary>
-    /// Try to get the pointer from the extensions dictionary.
-    /// </summary>
-    /// <param name="details">A base class with extensions.</param>
-    /// <returns>The pointer value, or null if not found.</returns>
-    public static string? GetPointer(this DetailsBase details)
-    {
-        return details.Extensions?.TryGetValue("pointer", out var value) ?? false
-            ? value as string
-            : string.Empty;
     }
 }

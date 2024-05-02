@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RoyalCode.SmartProblems.Descriptions;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Converts the <see cref="Problems"/> to <see cref="ProblemDetails"/>.

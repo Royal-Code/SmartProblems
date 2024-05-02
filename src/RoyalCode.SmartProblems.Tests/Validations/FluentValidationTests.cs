@@ -1,6 +1,8 @@
 ﻿
 using FluentValidation;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 namespace RoyalCode.SmartProblems.Tests.Validations;
 
 public class FluentValidationTests
@@ -95,11 +97,11 @@ public class FluentValidationTests
         {
             Description = "Description",
             Count = 4,
-            Simples = new List<SimpleClass>
-            {
+            Simples =
+            [
                 new SimpleClass { Name = "John", Age = 20 },
                 new SimpleClass { Name = "Mary", Age = 21 }
-            }
+            ]
         };
 
         var result = validator.Validate(highComplexClass);
@@ -117,11 +119,11 @@ public class FluentValidationTests
         {
             Description = "",
             Count = 3,
-            Simples = new List<SimpleClass>
-            {
+            Simples =
+            [
                 new SimpleClass { Name = "", Age = 20 },
                 new SimpleClass { Name = "", Age = 18 }
-            }
+            ]
         };
 
         var result = validator.Validate(highComplexClass);
@@ -152,9 +154,9 @@ public class FluentValidationTests
 
 file class SimpleClass
 {
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public int Age { get; set; }
+    public int Age { get; init; }
 }
 
 file class SimpleClassValidator : AbstractValidator<SimpleClass>
@@ -172,11 +174,11 @@ file class SimpleClassValidator : AbstractValidator<SimpleClass>
 
 file class ComplexClass
 {
-    public string Description { get; set; }
+    public string Description { get; init; }
 
-    public int Count { get; set; }
+    public int Count { get; init; }
 
-    public SimpleClass Simple { get; set; }
+    public SimpleClass Simple { get; init; }
 }
 
 file class ComplexClassValidator : AbstractValidator<ComplexClass>
@@ -195,11 +197,11 @@ file class ComplexClassValidator : AbstractValidator<ComplexClass>
 
 file class HighComplexClass
 {
-    public string Description { get; set; }
+    public string Description { get; init; }
 
-    public int Count { get; set; }
+    public int Count { get; init; }
 
-    public List<SimpleClass> Simples { get; set; }
+    public List<SimpleClass> Simples { get; init; }
 }
 
 file class HighComplexClassValidator : AbstractValidator<HighComplexClass>

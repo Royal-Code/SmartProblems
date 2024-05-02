@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using RoyalCode.SmartProblems.Descriptions;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc;
+using RoyalCode.SmartProblems.Descriptions;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Builder for <see cref="ProblemDetails"/> used by <see cref="ProblemDetailsConverter"/>.

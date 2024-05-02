@@ -2,7 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace RoyalCode.SmartProblems.Convertions.Internals;
+namespace RoyalCode.SmartProblems.Conversions.Internals;
 
 /// <summary>
 /// A machine-readable format for specifying errors in HTTP API responses based on

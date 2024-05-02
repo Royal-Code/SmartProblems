@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// A class that represents the details of an invalid parameter.

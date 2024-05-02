@@ -1,6 +1,4 @@
-using System.Text.Json;
-
-namespace System.Net.Http;
+namespace RoyalCode.SmartProblems.Http;
 
 /// <summary>
 /// A component to read the failure type from a <see cref="HttpResponseMessage"/>
@@ -13,7 +11,7 @@ public abstract class FailureTypeReader
     /// </summary>
     /// <param name="response">The response to read.</param>
     /// <returns>
-    ///     A <see cref="ReadResult"/> with the problems read from the response, or <see cref="ReadResult.Readed"/> equals to false.
+    ///     A <see cref="ReadResult"/> with the problems read from the response, or <see cref="ReadResult.HasBeenRead"/> equals to false.
     /// </returns>
     public abstract Task<ReadResult> TryReadAsync(HttpResponseMessage response);
 }

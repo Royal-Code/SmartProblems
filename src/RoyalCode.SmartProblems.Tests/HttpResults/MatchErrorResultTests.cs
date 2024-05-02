@@ -72,7 +72,7 @@ public class MatchErrorResultTests
         Assert.Equal("application/problem+json", context.Response.ContentType);
 
         var json = context.GetBody();
-        var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(json);
+        var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
         Assert.NotNull(problemDetails);
         Assert.Equal(400, problemDetails.Status);

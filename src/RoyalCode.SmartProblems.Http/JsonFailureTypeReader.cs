@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
-using RoyalCode.SmartProblems;
 
-namespace System.Net.Http;
+namespace RoyalCode.SmartProblems.Http;
 
 /// <summary>
 /// A component to read the failure type from a <see cref="HttpResponseMessage"/> when the content is a json.
@@ -33,7 +32,7 @@ public abstract class JsonFailureTypeReader<TResponseType> : FailureTypeReader
         
         return new ReadResult
         {
-            Readed = true,
+            HasBeenRead = true,
             Problems = problems
         };
     }

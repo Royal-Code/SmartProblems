@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems", "RoyalCode.SmartProblems\RoyalCode.SmartProblems.csproj", "{28495A0E-C396-43F5-8707-D5DFAEC49A4B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.Convertions", "RoyalCode.SmartProblems.Convertions\RoyalCode.SmartProblems.Convertions.csproj", "{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.Conversions", "RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj", "{B41C7F09-75D0-4280-ABCA-0545EDE0BF36}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.ProblemDetails", "RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj", "{4684AB13-EAC1-4B99-9FC2-2F73B393EEC2}"
 EndProject

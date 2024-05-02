@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RoyalCode.SmartProblems.Convertions {
+namespace RoyalCode.SmartProblems.Conversions {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace RoyalCode.SmartProblems.Convertions {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RoyalCode.SmartProblems.Convertions.R", typeof(R).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RoyalCode.SmartProblems.Conversions.R", typeof(R).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

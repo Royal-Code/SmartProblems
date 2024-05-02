@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RoyalCode.SmartProblems.Conversions;
 using RoyalCode.SmartProblems.Descriptions;
-using RoyalCode.SmartProblems.Convertions;
 
-namespace RoyalCode.SmartProblems.Tests.Convertions;
+namespace RoyalCode.SmartProblems.Tests.Conversions;
 
 /// <summary>
 /// <para>

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace RoyalCode.SmartProblems.Convertions.Internals;
+namespace RoyalCode.SmartProblems.Conversions.Internals;
 
 /// <summary>
 /// Static methods to parse JSON pointers to C# properties and vice versa.

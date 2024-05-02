@@ -1,9 +1,9 @@
-﻿using RoyalCode.SmartProblems.Convertions.Internals;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using RoyalCode.SmartProblems.Conversions.Internals;
 
-namespace RoyalCode.SmartProblems.Convertions;
+namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// A <see cref="JsonSerializerContext"/> for the <see cref="ProblemDetailsExtended"/>.

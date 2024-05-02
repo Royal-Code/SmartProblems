@@ -1,6 +1,6 @@
-﻿using RoyalCode.SmartProblems.Convertions.Internals;
+﻿using RoyalCode.SmartProblems.Conversions.Internals;
 
-namespace RoyalCode.SmartProblems.Tests.Convertions;
+namespace RoyalCode.SmartProblems.Tests.Conversions;
 
 public class PointerParserTests
 {

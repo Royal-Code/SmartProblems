@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.Convertions\RoyalCode.SmartProblems.Convertions.csproj" />
+    <ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />
     <ProjectReference Include="..\RoyalCode.SmartProblems.FluentValidation\RoyalCode.SmartProblems.FluentValidation.csproj" />
     <ProjectReference Include="..\RoyalCode.SmartProblems.Http\RoyalCode.SmartProblems.Http.csproj" />
     <ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />

@@ -1,9 +1,10 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using RoyalCode.SmartProblems.Conversions;
 using RoyalCode.SmartProblems.Descriptions;
-using RoyalCode.SmartProblems.Convertions;
 
-namespace RoyalCode.SmartProblems.Tests.Convertions;
+// ReSharper disable PossibleMultipleEnumeration
+
+namespace RoyalCode.SmartProblems.Tests.Conversions;
 
 /// <summary>
 /// <para>
@@ -83,7 +84,7 @@ public class ProblemsConvertionTests
     {
         // Arrange
         var options = new ProblemDetailsOptions();
-        Problems problems = Problems.ValidationFailed("Validation Failed 1", "MyProperty1")
+        var problems = Problems.ValidationFailed("Validation Failed 1", "MyProperty1")
             + Problems.ValidationFailed("Validation Failed 2", "MyProperty2")
             + Problems.ValidationFailed("Validation Failed 3", "MyProperty3");
 
@@ -104,15 +105,15 @@ public class ProblemsConvertionTests
 
         Assert.Equal("Validation Failed 1", validationFailedArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty1", validationFailedArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty1", validationFailedArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty1", validationFailedArray.ElementAt(0).Pointer);
 
         Assert.Equal("Validation Failed 2", validationFailedArray.ElementAt(1).Detail);
         Assert.Equal("MyProperty2", validationFailedArray.ElementAt(1).GetProperty());
-        Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(1).GetPointer());
+        Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(1).Pointer);
 
         Assert.Equal("Validation Failed 3", validationFailedArray.ElementAt(2).Detail);
         Assert.Equal("MyProperty3", validationFailedArray.ElementAt(2).GetProperty());
-        Assert.Equal("#/MyProperty3", validationFailedArray.ElementAt(2).GetPointer());
+        Assert.Equal("#/MyProperty3", validationFailedArray.ElementAt(2).Pointer);
     }
 
     [Fact]
@@ -350,7 +351,7 @@ public class ProblemsConvertionTests
         Assert.Single(validationFailedArray);
         Assert.Equal("Validation Failed", validationFailedArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", validationFailedArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", validationFailedArray.ElementAt(0).Pointer);
     }
 
     [Fact]
@@ -394,7 +395,7 @@ public class ProblemsConvertionTests
         Assert.Equal(2, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
     }
@@ -441,7 +442,7 @@ public class ProblemsConvertionTests
         Assert.Equal(3, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
         Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
@@ -490,7 +491,7 @@ public class ProblemsConvertionTests
         Assert.Equal(3, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
         Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
@@ -545,7 +546,7 @@ public class ProblemsConvertionTests
         Assert.Equal(3, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
         Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
@@ -606,7 +607,7 @@ public class ProblemsConvertionTests
         Assert.Equal(3, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
         Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);
@@ -694,7 +695,7 @@ public class ProblemsConvertionTests
         Assert.Equal(3, errorsArray.Count());
         Assert.Equal("Validation Failed", errorsArray.ElementAt(0).Detail);
         Assert.Equal("MyProperty2", errorsArray.ElementAt(0).GetProperty());
-        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).GetPointer());
+        Assert.Equal("#/MyProperty2", errorsArray.ElementAt(0).Pointer);
 
         Assert.Equal("Invalid State", errorsArray.ElementAt(1).Detail);
         Assert.Equal("Internal Server Error", errorsArray.ElementAt(2).Detail);

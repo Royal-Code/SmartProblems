@@ -1,8 +1,11 @@
 ﻿using RoyalCode.SmartProblems;
-using RoyalCode.SmartProblems.Convertions;
+using RoyalCode.SmartProblems.Conversions;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using RoyalCode.SmartProblems.Http;
+
+// ReSharper disable CheckNamespace
 
 namespace System.Net.Http;
 

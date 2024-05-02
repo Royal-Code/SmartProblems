@@ -1,4 +1,4 @@
-﻿namespace RoyalCode.SmartProblems.Convertions;
+﻿namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Custom problem details.

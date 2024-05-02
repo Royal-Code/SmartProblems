@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using RoyalCode.SmartProblems;
 
-namespace System.Net.Http;
+namespace RoyalCode.SmartProblems.Http;
 
 /// <summary>
 /// Result of the attempt to read the response content by <see cref="FailureTypeReader"/>.
@@ -13,7 +12,7 @@ public readonly struct ReadResult
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    public static implicit operator bool(ReadResult result) => result.Readed;
+    public static implicit operator bool(ReadResult result) => result.HasBeenRead;
     
     /// <summary>
     /// Convert the result to <see cref="Problems"/>.
@@ -21,16 +20,16 @@ public readonly struct ReadResult
     /// <param name="result"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static implicit operator Problems(ReadResult result) => result.Problems ?? throw new InvalidOperationException("The result is not readed.");
+    public static implicit operator Problems?(ReadResult result) => result.Problems;
     
     /// <summary>
     /// Determines if the result was readed and the problems was set.
     /// </summary>
     [MemberNotNullWhen(true, nameof(Problems))]
-    public bool Readed { get; init; }
+    public bool HasBeenRead { get; init; }
     
     /// <summary>
-    /// When the result was readed, the problems readed from the response.
+    /// When the result has been read, it contains the problems that have been read from the answer.
     /// </summary>
     public Problems? Problems { get; init; }
 }
