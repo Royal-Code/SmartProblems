@@ -10,39 +10,50 @@ public class FluentValidationTests
     [Fact]
     public void Validation_SimpleClass_Success()
     {
+        // Arrange
         var validator = new SimpleClassValidator();
         var simpleClass = new SimpleClass { Name = "John", Age = 20 };
 
+        // Act
         var result = validator.Validate(simpleClass);
 
         var problems = result.Errors.ToProblems();
 
+        // Assert
         Assert.Empty(problems);
     }
 
     [Fact]
     public void Validation_SimpleClass_Fail()
     {
+        // Arrange
         var validator = new SimpleClassValidator();
         var simpleClass = new SimpleClass { Name = "", Age = 18 };
 
+        // Act
         var result = validator.Validate(simpleClass);
 
         var problems = result.Errors.ToProblems();
 
+        // Assert
         Assert.NotEmpty(problems);
         Assert.Equal(2, problems.Count);
 
         var problem = problems[0];
         Assert.Equal("Name", problem.Property);
+        Assert.NotNull(problem.Extensions);
+        Assert.Contains("error_code", problem.Extensions);
 
         problem = problems[1];
         Assert.Equal("Age", problem.Property);
+        Assert.NotNull(problem.Extensions);
+        Assert.Contains("error_code", problem.Extensions);
     }
 
     [Fact]
     public void Validation_ComplexClass_Success()
     {
+        // Arrange
         var validator = new ComplexClassValidator();
         var complexClass = new ComplexClass
         {
@@ -51,16 +62,19 @@ public class FluentValidationTests
             Simple = new SimpleClass { Name = "John", Age = 20 }
         };
 
+        // Act
         var result = validator.Validate(complexClass);
 
         var problems = result.Errors.ToProblems();
 
+        // Assert
         Assert.Empty(problems);
     }
 
     [Fact]
     public void Validation_ComplexClass_Fail()
     {
+        // Arrange
         var validator = new ComplexClassValidator();
         var complexClass = new ComplexClass
         {
@@ -69,10 +83,12 @@ public class FluentValidationTests
             Simple = new SimpleClass { Name = "", Age = 18 }
         };
 
+        // Act
         var result = validator.Validate(complexClass);
 
         var problems = result.Errors.ToProblems();
 
+        // Assert
         Assert.NotEmpty(problems);
         Assert.Equal(4, problems.Count);
 
@@ -92,6 +108,7 @@ public class FluentValidationTests
     [Fact]
     public void Validation_HighComplexClass_Success()
     {
+        // arrange
         var validator = new HighComplexClassValidator();
         var highComplexClass = new HighComplexClass
         {
@@ -104,16 +121,19 @@ public class FluentValidationTests
             ]
         };
 
+        // act
         var result = validator.Validate(highComplexClass);
 
         var problems = result.Errors.ToProblems();
 
+        // assert
         Assert.Empty(problems);
     }
 
     [Fact]
     public void Validation_HighComplexClass_Fail()
     {
+        // arrange
         var validator = new HighComplexClassValidator();
         var highComplexClass = new HighComplexClass
         {
@@ -126,10 +146,12 @@ public class FluentValidationTests
             ]
         };
 
+        // act
         var result = validator.Validate(highComplexClass);
 
         var problems = result.Errors.ToProblems();
 
+        // assert
         Assert.NotEmpty(problems);
         Assert.Equal(5, problems.Count);
 
@@ -147,6 +169,121 @@ public class FluentValidationTests
 
         problem = problems[4];
         Assert.Equal("Simples[1].Age", problem.Property);
+    }
+
+    [Fact]
+    public void Validation_ValidationResult_HasProblems_Success()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var simpleClass = new SimpleClass { Name = "John", Age = 20 };
+
+        // Act
+        var result = validator.Validate(simpleClass);
+        var hasProblems = result.HasProblems(out var problems);
+
+        // Assert
+        Assert.False(hasProblems);
+        Assert.Null(problems);
+    }
+
+    [Fact]
+    public void Validation_ValidationResult_HasProblems_Fail()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var simpleClass = new SimpleClass { Name = "", Age = 18 };
+
+        // Act
+        var result = validator.Validate(simpleClass);
+        var hasProblems = result.HasProblems(out var problems);
+
+        // Assert
+        Assert.True(hasProblems);
+        Assert.NotNull(problems);
+        Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public void Validation_HasProblems_Success()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var simpleClass = new SimpleClass { Name = "John", Age = 20 };
+
+        // Act
+        var hasProblems = validator.HasProblems(simpleClass, out var problems);
+
+        // Assert
+        Assert.False(hasProblems);
+        Assert.Null(problems);
+    }
+
+    [Fact]
+    public void Validation_HasProblems_Fail()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var simpleClass = new SimpleClass { Name = "", Age = 18 };
+
+        // Act
+        var hasProblems = validator.HasProblems(simpleClass, out var problems);
+
+        // Assert
+        Assert.True(hasProblems);
+        Assert.NotNull(problems);
+        Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public void Validation_ExtensionData()
+    {
+        // Arrange
+        var validator = new ExDataModelValidator();
+        var exDataModel = new ExDataModel { Name = "", Age = 18 };
+
+        // Act
+        validator.HasProblems(exDataModel, out var problems);
+
+        // Assert
+        Assert.NotNull(problems);
+        Assert.Equal(2, problems!.Count);
+
+        var problem = problems[0];
+        Assert.NotNull(problem.Extensions);
+        Assert.Equal(2, problem.Extensions.Count);
+        Assert.Equal("", problem.Extensions["name"]);
+        Assert.NotNull(problem.Extensions["error_code"]);
+
+        problem = problems[1];
+        Assert.NotNull(problem.Extensions);
+        Assert.Equal(3, problem.Extensions.Count);
+        Assert.Equal(18, problem.Extensions["current"]);
+        Assert.Equal(19, problem.Extensions["required"]);
+        Assert.NotNull(problem.Extensions["error_code"]);
+    }
+
+    [Fact]
+    public void Validation_DisableErrorCode()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var simpleClass = new SimpleClass { Name = "", Age = 18 };
+        var options = new ValidationToProblemOptions { IncludeErrorCode = false };
+
+        // Act
+        var result = validator.Validate(simpleClass);
+        var problems = result.Errors.ToProblems(options);
+
+        // Assert
+        Assert.NotEmpty(problems);
+        Assert.Equal(2, problems.Count);
+
+        var problem = problems[0];
+        Assert.Null(problem.Extensions);
+
+        problem = problems[1];
+        Assert.Null(problem.Extensions);
     }
 }
 
@@ -211,6 +348,26 @@ file class HighComplexClassValidator : AbstractValidator<HighComplexClass>
         RuleFor(x => x.Description).NotEmpty();
         RuleFor(x => x.Count).GreaterThan(3);
         RuleForEach(x => x.Simples).SetValidator(new SimpleClassValidator());
+    }
+}
+
+#endregion
+
+#region ExtensionData
+
+file sealed class ExDataModel
+{
+    public string Name { get; init; }
+
+    public int Age { get; init; }
+}
+
+file class ExDataModelValidator : AbstractValidator<ExDataModel>
+{
+    public ExDataModelValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().WithExtension(data => data.Add("name", data.Property));
+        RuleFor(x => x.Age).GreaterThan(18).WithExtension(data => data.Add("current", data.Property).Add("required", 19));
     }
 }
 

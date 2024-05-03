@@ -10,9 +10,9 @@ namespace FluentValidation;
 public static class ValidationsExtensions
 {
     /// <summary>
-    /// The <see cref="ProblemCategory"/> used to convert FluentValidation errors to <see cref="Problem"/>.
+    /// The options to convert FluentValidation errors to <see cref="Problem"/>.
     /// </summary>
-    public static ProblemCategory ProblemCategory { get; set; } = ProblemCategory.InvalidParameter;
+    public static ValidationToProblemOptions Options { get; set; } = new();
 
     /// <summary>
     /// Convert a list fo <see cref="ValidationFailure"/> from FluentValidations to <see cref="Problems"/>.
@@ -20,6 +20,14 @@ public static class ValidationsExtensions
     /// <param name="errors">A list of <see cref="ValidationFailure"/>.</param>
     /// <returns>The <see cref="Problems"/> converted.</returns>
     public static Problems ToProblems(this IList<ValidationFailure> errors)
+        => ToProblems(errors, Options);
+
+    /// <summary>
+    /// Convert a list fo <see cref="ValidationFailure"/> from FluentValidations to <see cref="Problems"/>.
+    /// </summary>
+    /// <param name="errors">A list of <see cref="ValidationFailure"/>.</param>
+    /// <returns>The <see cref="Problems"/> converted.</returns>
+    public static Problems ToProblems(this IList<ValidationFailure> errors, ValidationToProblemOptions options)
     {
         var problems = new Problems();
 
@@ -35,7 +43,7 @@ public static class ValidationsExtensions
 
                     var problem = new Problem()
                     {
-                        Category = ProblemCategory,
+                        Category = options.Category,
                         Detail = error.ErrorMessage,
                         Property = error.PropertyName,
                     };
@@ -45,7 +53,9 @@ public static class ValidationsExtensions
                         problem.Extensions = extensions;
                     }
 
-                    problem.With("error_code", error.ErrorCode);
+                    if (options.IncludeErrorCode)
+                        problem.With(options.ErrorCodeExtensionField, error.ErrorCode);
+
                     problems.Add(problem);
 
                     break;
@@ -112,13 +122,13 @@ public static class ValidationsExtensions
     /// </returns>
     public static IRuleBuilderOptions<T, TProperty> WithExtension<T, TProperty>(
         this IRuleBuilderOptions<T, TProperty> rule,
-        Action<ExtensionData> action)
+        Action<ExtensionData<T, TProperty>> action)
     {
         var component = DefaultValidatorOptions.Configurable(rule).Current;
         component.CustomStateProvider = (ctx, prop) =>
         {
             var extensions = new Dictionary<string, object?>(StringComparer.Ordinal);
-            action(new ExtensionData(extensions));
+            action(new ExtensionData<T, TProperty>(extensions, ctx.InstanceToValidate, prop));
             return extensions;
         };
 
