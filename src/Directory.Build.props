@@ -1,0 +1,18 @@
+<Project>
+	<PropertyGroup>
+		<FrmsVer>net8.0;net7.0</FrmsVer>
+		<TestVer>net8.0</TestVer>
+	</PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<SPVer>1.0.0</SPVer>
+		<SPPreview>-preview-1.0</SPPreview>
+	</PropertyGroup>
+	<PropertyGroup>
+		<FluentValidationVer>11.9.1</FluentValidationVer>
+	</PropertyGroup>
+</Project>

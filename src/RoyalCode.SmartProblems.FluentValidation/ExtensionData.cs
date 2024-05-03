@@ -17,7 +17,7 @@ public readonly struct ExtensionData<TModel, TProperty>
     private readonly Dictionary<string, object?> data;
 
     /// <summary>
-    /// Create a new instance of <see cref="ExtensionData"/>.
+    /// Create a new instance of <see cref="ExtensionData{TModel, TProperty}"/>.
     /// </summary>
     /// <param name="data">The dictionary to add extra data.</param>
     /// <param name="model">The validated model.</param>
@@ -45,7 +45,7 @@ public readonly struct ExtensionData<TModel, TProperty>
     /// <param name="key">The key of the extra data.</param>
     /// <param name="value">The value of the extra data.</param>
     /// <returns>
-    ///     The same instance of <see cref="ExtensionData"/> for chaining.
+    ///     The same instance of <see cref="ExtensionData{TModel, TProperty}"/> for chaining.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     Case the <paramref name="key"/> is null.

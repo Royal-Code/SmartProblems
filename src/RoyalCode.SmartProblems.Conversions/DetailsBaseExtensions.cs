@@ -17,6 +17,7 @@ public static class DetailsBaseExtensions
     /// <summary>
     /// Adds a key-value pair to the extensions dictionary.
     /// </summary>
+    /// <param name="details">The instance of <see cref="DetailsBase"/>.</param>
     /// <param name="key">The key of the extension.</param>
     /// <param name="value">The value of the extension.</param>
     /// <returns>The same instance of <see cref="ErrorDetails"/>.</returns>

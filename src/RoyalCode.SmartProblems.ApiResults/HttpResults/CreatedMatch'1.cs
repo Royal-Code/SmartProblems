@@ -59,7 +59,7 @@ public sealed class CreatedMatch<T> : IResult, INestedHttpResult, IEndpointMetad
     /// <summary>
     /// Creates a new <see cref="IResult"/> for the <see cref="SmartProblems.Result"/>.
     /// </summary>
-    /// <param name="result">The <see cref="OperationResult"/> to be converted.</param>
+    /// <param name="result">The <see cref="Result{TValue}"/> to be converted.</param>
     /// <param name="createdPath">The location of the created resource.</param>
     /// <param name="formatPathWithValue">Indicates if the <paramref name="createdPath"/> should be formatted with the value of the result.</param>
     public CreatedMatch(Result<T> result, string createdPath, bool formatPathWithValue = false)

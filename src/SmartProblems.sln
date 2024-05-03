@@ -21,7 +21,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{626594E9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.Tests", "RoyalCode.SmartProblems.Tests\RoyalCode.SmartProblems.Tests.csproj", "{6A0B6D78-D4C0-4D10-82C5-21A2ED3878E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.TestsApi", "RoyalCode.SmartProblems.TestsApi\RoyalCode.SmartProblems.TestsApi.csproj", "{7F914854-FD2A-4346-9499-A40861C53082}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.TestsApi", "RoyalCode.SmartProblems.TestsApi\RoyalCode.SmartProblems.TestsApi.csproj", "{7F914854-FD2A-4346-9499-A40861C53082}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".items", ".items", "{EA60FB28-F0D1-4989-B693-CF9111D1A02A}"
+	ProjectSection(SolutionItems) = preProject
+		base.targets = base.targets
+		Directory.Build.props = Directory.Build.props
+		tests.targets = tests.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

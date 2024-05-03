@@ -21,6 +21,11 @@ public class ProblemDetailsBuilder
     private bool withInvalidStateErrors;
     private bool withInternalErrors;
 
+    /// <summary>
+    /// Build the <see cref="ProblemDetails"/> based on the errors and custom problems.
+    /// </summary>
+    /// <param name="options">The options for the problem details conversion.</param>
+    /// <returns>A new instance of <see cref="ProblemDetails"/> class.</returns>
     public ProblemDetails Build(ProblemDetailsOptions options)
     {
         ProblemDetailsDescription description;
@@ -269,6 +274,15 @@ public class ProblemDetailsBuilder
         return description;
     }
 
+    /// <summary>
+    /// Static factory method to create a new instance of <see cref="ProblemDetails"/> class.
+    /// </summary>
+    /// <param name="options">The options for the problem details conversion.</param>
+    /// <param name="typeId">The type identifier of the problem.</param>
+    /// <param name="problemCategory">The category of the problem.</param>
+    /// <param name="details">The detail of the problem.</param>
+    /// <param name="extensions">Extensions to be added to the problem details.</param>
+    /// <returns>A new instance of <see cref="ProblemDetails"/> class.</returns>
     public static ProblemDetails CreateProblemDetails(ProblemDetailsOptions options,
         string? typeId, ProblemCategory problemCategory,
         string details, IDictionary<string, object?>? extensions = null)

@@ -12,7 +12,7 @@ public static class ValidationsExtensions
     /// <summary>
     /// The options to convert FluentValidation errors to <see cref="Problem"/>.
     /// </summary>
-    public static ValidationToProblemOptions Options { get; set; } = new();
+    public static ValidationToProblemOptions Options { get; } = new();
 
     /// <summary>
     /// Convert a list fo <see cref="ValidationFailure"/> from FluentValidations to <see cref="Problems"/>.
@@ -26,6 +26,7 @@ public static class ValidationsExtensions
     /// Convert a list fo <see cref="ValidationFailure"/> from FluentValidations to <see cref="Problems"/>.
     /// </summary>
     /// <param name="errors">A list of <see cref="ValidationFailure"/>.</param>
+    /// <param name="options">The options to convert FluentValidation errors to <see cref="Problem"/>.</param>
     /// <returns>The <see cref="Problems"/> converted.</returns>
     public static Problems ToProblems(this IList<ValidationFailure> errors, ValidationToProblemOptions options)
     {

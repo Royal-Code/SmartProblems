@@ -3,6 +3,9 @@ using RoyalCode.SmartProblems;
 
 namespace FluentValidation;
 
+/// <summary>
+/// Options to convert FluentValidation errors to <see cref="Problem"/>.
+/// </summary>
 public sealed class ValidationToProblemOptions
 {
     /// <summary>

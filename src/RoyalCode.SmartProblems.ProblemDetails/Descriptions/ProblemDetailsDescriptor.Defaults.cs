@@ -84,18 +84,39 @@ public partial class ProblemDetailsDescriptor
     /// </summary>
     public static class GenericProblemsTypeIds
     {
+        /// <summary>
+        /// The TypeId for the an entity not found.
+        /// </summary>
         public const string NotFound = "not-found";
 
+        /// <summary>
+        /// The TypeId for the an invalid parameters.
+        /// </summary>
         public const string InvalidParameter = "invalid-parameter";
 
+        /// <summary>
+        /// The TypeId for the an invalid state.
+        /// </summary>
         public const string InvalidState = "invalid-state";
 
+        /// <summary>
+        /// The TypeId for the validation failed.
+        /// </summary>
         public const string ValidationFailed = "validation-failed";
 
+        /// <summary>
+        /// The TypeId for the an not allowed operation (forbidden).
+        /// </summary>
         public const string NotAllowed = "not-allowed";
 
+        /// <summary>
+        /// The TypeId for the an internal error.
+        /// </summary>
         public const string InternalServerError = "internal-server-error";
 
+        /// <summary>
+        /// The TypeId for the an custom problem, when not defined by the other types.
+        /// </summary>
         public const string CustomProblem = "problem-occurred";
 
         /// <summary>

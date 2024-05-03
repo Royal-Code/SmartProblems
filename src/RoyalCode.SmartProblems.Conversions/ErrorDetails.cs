@@ -2,6 +2,10 @@
 
 namespace RoyalCode.SmartProblems.Conversions;
 
+#if NET7_0
+#pragma warning disable SYSLIB1037 // Deserialization of init-only properties is currently not supported in source generation mode.
+#endif
+
 /// <summary>
 /// A class that represents the details of an error.
 /// </summary>
@@ -39,6 +43,7 @@ public class ErrorDetails : DetailsBase
     /// when the result have multiple errors with different categories.
     /// </summary>
     [JsonIgnore]
+
     public ProblemCategory Category { get; init; }
 
     /// <inheritdoc />

@@ -1,46 +1,46 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<PropertyGroup>
+		<TargetFramework>$(TestVer)</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="problem-details.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="problem-details.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="problem-details.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="problem-details.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.5.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="6.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+		<PackageReference Include="xunit" Version="2.5.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.FluentValidation\RoyalCode.SmartProblems.FluentValidation.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.Http\RoyalCode.SmartProblems.Http.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems.TestsApi\RoyalCode.SmartProblems.TestsApi.csproj" />
-    <ProjectReference Include="..\RoyalCode.SmartProblems\RoyalCode.SmartProblems.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.FluentValidation\RoyalCode.SmartProblems.FluentValidation.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.Http\RoyalCode.SmartProblems.Http.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.TestsApi\RoyalCode.SmartProblems.TestsApi.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems\RoyalCode.SmartProblems.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Include="Xunit" />
+	</ItemGroup>
 
 </Project>

@@ -1,5 +1,8 @@
 ﻿namespace RoyalCode.SmartProblems;
 
+/// <summary>
+/// Options for configuring how exceptions are converted to problems.
+/// </summary>
 public sealed class ExceptionOptions
 {
     /// <summary>

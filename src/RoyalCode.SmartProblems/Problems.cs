@@ -156,6 +156,7 @@ public sealed class Problems : ICollection<Problem>
     /// Create a new problem of InternalServerError category.
     /// </summary>
     /// <param name="exception">The exception that occurred.</param>
+    /// <param name="options">The options to customize the creation of problems from exceptions.</param>
     /// <returns>A new problem.</returns>
     public static Problem InternalError(Exception exception, ExceptionOptions options)
     {
