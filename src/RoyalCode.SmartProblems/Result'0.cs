@@ -134,8 +134,8 @@ public readonly struct Result
     /// </summary>
     /// <returns>A new result of success.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Result Ok() => new(); 
-
+    public static Result Ok() => new();
+    
     #endregion
     
     private readonly Problems? problems;

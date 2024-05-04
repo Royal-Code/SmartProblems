@@ -7,13 +7,6 @@ namespace RoyalCode.SmartProblems.Conversions;
 /// </summary>
 public static class DetailsBaseExtensions
 {
-    private static JsonSerializerOptions? serializationOptions;
-    internal static JsonSerializerOptions SerializerOptions => serializationOptions ??= new JsonSerializerOptions
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     /// <summary>
     /// Adds a key-value pair to the extensions dictionary.
     /// </summary>

@@ -4,7 +4,7 @@
 		<TargetFrameworks>$(FrmsVer)</TargetFrameworks>
     </PropertyGroup>
 
-	<Import Project="..\base.targets" />
+	<Import Project="..\libs.targets" />
 	
     <ItemGroup>
       <ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />

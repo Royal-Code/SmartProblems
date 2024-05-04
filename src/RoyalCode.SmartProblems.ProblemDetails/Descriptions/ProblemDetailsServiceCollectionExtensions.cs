@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using RoyalCode.SmartProblems.Descriptions;
 
 namespace Microsoft.Extensions.DependencyInjection;

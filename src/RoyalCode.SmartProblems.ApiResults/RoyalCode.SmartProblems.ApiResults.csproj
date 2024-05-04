@@ -5,7 +5,7 @@
 		<RootNamespace>RoyalCode.SmartProblems</RootNamespace>
 	</PropertyGroup>
 
-	<Import Project="..\base.targets" />
+	<Import Project="..\libs.targets" />
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />

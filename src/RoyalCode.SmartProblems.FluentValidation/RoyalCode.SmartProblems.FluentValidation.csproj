@@ -3,9 +3,11 @@
 	<PropertyGroup>
 		<TargetFrameworks>$(FrmsVer)</TargetFrameworks>
 		<RootNamespace>FluentValidation</RootNamespace>
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
-	<Import Project="..\base.targets" />
+	<Import Project="..\libs.targets" />
 	
 	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="$(FluentValidationVer)" />

@@ -24,4 +24,16 @@ public partial class ProblemDetailsSerializer : JsonSerializerContext
     /// </summary>
     public static JsonTypeInfo<ProblemDetailsExtended> DefaultProblemDetailsExtended 
         => Default.ProblemDetailsExtended;
+    
+    /// <summary>
+    /// The default <see cref="JsonTypeInfo{T}"/> for <see cref="ErrorDetails"/>.
+    /// </summary>
+    public static JsonTypeInfo<ErrorDetails> DefaultErrorDetails 
+        => Default.ErrorDetails;
+    
+    /// <summary>
+    /// The default <see cref="JsonTypeInfo{T}"/> for <see cref="CustomDetails"/>.
+    /// </summary>
+    public static JsonTypeInfo<CustomDetails> DefaultCustomDetails 
+        => Default.CustomDetails;
 }

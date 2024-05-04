@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalCode.SmartProblems.Tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".items", ".items", "{EA60FB28-F0D1-4989-B693-CF9111D1A02A}"
 	ProjectSection(SolutionItems) = preProject
-		base.targets = base.targets
+		libs.targets = libs.targets
 		Directory.Build.props = Directory.Build.props
 		tests.targets = tests.targets
 	EndProjectSection

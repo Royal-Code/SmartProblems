@@ -41,13 +41,4 @@ public abstract class DetailsBase
         Detail = detail;
         Pointer = pointer;
     }
-
-    /// <summary>
-    /// Converts the details to a JSON string, using the default serializer options.
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-        return JsonSerializer.Serialize(this, DetailsBaseExtensions.SerializerOptions);
-    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace RoyalCode.SmartProblems.Conversions;
 
@@ -9,7 +10,7 @@ namespace RoyalCode.SmartProblems.Conversions;
 /// <summary>
 /// A class that represents the details of an error.
 /// </summary>
-public class ErrorDetails : DetailsBase
+public sealed class ErrorDetails : DetailsBase
 {
     /// <summary>
     /// Creates a new instance of <see cref="ErrorDetails"/> class.
@@ -60,5 +61,14 @@ public class ErrorDetails : DetailsBase
     public override int GetHashCode()
     {
         return HashCode.Combine(Detail, Pointer, Category, Extensions);
+    }
+    
+    /// <summary>
+    /// Converts the details to a JSON string, using the default serializer options.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this, ProblemDetailsSerializer.DefaultErrorDetails);
     }
 }

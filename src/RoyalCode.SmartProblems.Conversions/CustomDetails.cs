@@ -1,11 +1,12 @@
-﻿using RoyalCode.SmartProblems.Conversions.Internals;
+﻿using System.Text.Json;
+using RoyalCode.SmartProblems.Conversions.Internals;
 
 namespace RoyalCode.SmartProblems.Conversions;
 
 /// <summary>
 /// Custom problem details.
 /// </summary>
-public class CustomDetails : DetailsBase
+public sealed class CustomDetails : DetailsBase
 {
     /// <summary>
     /// Creates a new instance of <see cref="CustomDetails"/> class.
@@ -55,5 +56,14 @@ public class CustomDetails : DetailsBase
     public override int GetHashCode()
     {
         return HashCode.Combine(TypeId, Detail, Pointer, Extensions);
+    }
+    
+    /// <summary>
+    /// Converts the details to a JSON string, using the default serializer options.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this, ProblemDetailsSerializer.DefaultCustomDetails);
     }
 }

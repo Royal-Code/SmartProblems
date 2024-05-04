@@ -5,7 +5,7 @@
 		<RootNamespace>RoyalCode.SmartProblems</RootNamespace>
 	</PropertyGroup>
 
-	<Import Project="..\base.targets" />
+	<Import Project="..\libs.targets" />
 	
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
