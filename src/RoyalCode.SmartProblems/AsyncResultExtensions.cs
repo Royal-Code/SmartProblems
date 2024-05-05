@@ -5,6 +5,8 @@
 /// </summary>
 public static class AsyncResultExtensions
 {
+    #region Result
+
     /// <summary>
     /// <para>
     ///     Match a function depending on the result, if it is a success or a failure.
@@ -198,4 +200,48 @@ public static class AsyncResultExtensions
         var result = await task;
         return result.OnSuccess(param, action);
     }
+    
+    #endregion
+
+    #region Result<TValue>
+
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async Task<Result<TOther>> MapAsync<TValue, TOther>(this Task<Result<TValue>> task, Func<TValue, TOther> map)
+    {
+        var result = await task;
+        return result.Map(map);
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async Task<Result<TOther>> MapAsync<TValue, TOther>(
+        this ValueTask<Result<TValue>> task,
+        Func<TValue, TOther> map)
+    {
+        var result = await task;
+        return result.Map(map);
+    }
+
+    #endregion
 }
