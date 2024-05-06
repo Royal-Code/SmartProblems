@@ -186,6 +186,8 @@ public readonly struct Result
         }
     }
 
+    #region Match 
+
     /// <summary>
     /// <para>
     ///     Match a function depending on the result, if it is a success or a failure.
@@ -249,6 +251,10 @@ public readonly struct Result
         return IsSuccess ? onSuccess(param) : onFailure(problems);
     }
 
+    #endregion
+
+    #region Has/Is 
+
     /// <summary>
     /// <para>
     ///     Check if the result is a failure and return the problems.
@@ -286,6 +292,10 @@ public readonly struct Result
         problems = this.problems;
         return IsSuccess;
     }
+
+    #endregion
+
+    #region Map/Async
 
     /// <summary>
     /// <para>
@@ -378,13 +388,89 @@ public readonly struct Result
 
     /// <summary>
     /// <para>
+    ///     Map a value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <param name="valueFactory">A function to generate the value.</param>
+    /// <returns>
+    ///     A new result with the value, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result<TValue>> MapAsync<TValue>(Func<Task<TValue>> valueFactory)
+    {
+        return IsSuccess ? new Result<TValue>(await valueFactory()) : new Result<TValue>(problems);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="param">The parameter to pass to the function.</param>
+    /// <param name="valueFactory">A function to generate the value.</param>
+    /// <returns>
+    ///     A new result with the value, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<TValue>> valueFactory)
+    {
+        return IsSuccess ? await valueFactory(param) : new Result<TValue>(problems);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map to a new result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <param name="map">A function to generate the new result.</param>
+    /// <returns>
+    ///     The new result of the function, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result<TValue>> MapAsync<TValue>(Func<Task<Result<TValue>>> map)
+    {
+        return IsSuccess ? await map() : new Result<TValue>(problems);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map to a new result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="param">The parameter to pass to the function.</param>  
+    /// <param name="map">A function to generate the new result.</param>
+    /// <returns>
+    ///     The new result of the function, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<Result<TValue>>> map)
+    {
+        return IsSuccess ? await map(param) : new Result<TValue>(problems);
+    }
+
+    #endregion
+
+    #region Continue/Async
+
+    /// <summary>
+    /// <para>
     ///     Execute an action when the result is a success.
     /// </para>
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result OnSuccess(Action action)
+    public Result Continue(Action action)
     {
         if (IsSuccess)
             action();
@@ -397,16 +483,108 @@ public readonly struct Result
     ///     Execute an action when the result is a success.
     /// </para>
     /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result Continue(Func<Result> action)
+    {
+        return IsSuccess ? action() : this;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result OnSuccess<TParam>(TParam param, Action<TParam> action)
+    public Result Continue<TParam>(TParam param, Action<TParam> action)
     {
         if (IsSuccess)
             action(param);
 
         return this;
     }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result Continue<TParam>(TParam param, Func<TParam, Result> action)
+    {
+        return IsSuccess ? action(param) : this;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result> ContinueAsync(Func<Task> action)
+    {
+        if (IsSuccess)
+            await action();
+
+        return this;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result> ContinueAsync(Func<Task<Result>> action)
+    {
+        return IsSuccess ? await action() : this;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result> ContinueAsync<TParam>(TParam param, Func<TParam, Task> action)
+    {
+        if (IsSuccess)
+            await action(param);
+
+        return this;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public async ValueTask<Result> ContinueAsync<TParam>(TParam param, Func<TParam, Task<Result>> action)
+    {
+        return IsSuccess ? await action(param) : this;
+    }
+
+    #endregion
 }
