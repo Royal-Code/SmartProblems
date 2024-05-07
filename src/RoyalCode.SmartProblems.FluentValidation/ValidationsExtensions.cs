@@ -1,6 +1,7 @@
 ﻿using FluentValidation.Results;
 using RoyalCode.SmartProblems;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace FluentValidation;
 
@@ -28,6 +29,7 @@ public static class ValidationsExtensions
     /// <param name="errors">A list of <see cref="ValidationFailure"/>.</param>
     /// <param name="options">The options to convert FluentValidation errors to <see cref="Problem"/>.</param>
     /// <returns>The <see cref="Problems"/> converted.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Problems ToProblems(this IList<ValidationFailure> errors, ValidationToProblemOptions options)
     {
         var problems = new Problems();
@@ -72,6 +74,7 @@ public static class ValidationsExtensions
     /// </summary>
     /// <param name="result">The <see cref="ValidationResult"/> to convert.</param>
     /// <returns>The <see cref="Result"/> converted.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result ToResult(this ValidationResult result)
     {   
         return result.IsValid
@@ -87,6 +90,7 @@ public static class ValidationsExtensions
     /// <returns>
     ///     True if the <see cref="ValidationResult"/> has is invalid and has problems, otherwise false.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasProblems(this ValidationResult result, [NotNullWhen(true)] out Problems? problems)
     {
         return result.ToResult().HasProblems(out problems);
@@ -102,6 +106,7 @@ public static class ValidationsExtensions
     /// <returns>
     ///     True if the model is invalid and has problems, otherwise false.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasProblems<T>(this AbstractValidator<T> validator, T model, [NotNullWhen(true)] out Problems? problems)
     {
         return validator.Validate(model).ToResult().HasProblems(out problems);
@@ -121,6 +126,7 @@ public static class ValidationsExtensions
     /// <returns>
     ///     The result of the validation, with the model validated when it is valid, or the problems.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T> EnsureIsValid<T>(this AbstractValidator<T> validator, T model)
     {
         return validator.Validate(model).ToResult().Map(model);
@@ -140,11 +146,152 @@ public static class ValidationsExtensions
     /// <returns>
     ///     The result of the validation, with the model validated when it is valid, or the problems.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<T>> EnsureIsValidAsync<T>(this AbstractValidator<T> validator, T model)
     {
         return validator.ValidateAsync(model).ContinueWith((t, o) => t.Result.ToResult().Map((T)o!), model);
     }
 
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="result">The input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static Result<T> Validate<T>(this Result<T> result, AbstractValidator<T> validator)
+    {
+        return result.HasValue(out var model)
+            ? validator.EnsureIsValid(model)
+            : result;
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="task">A task with the input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static async Task<Result<T>> Validate<T>(this Task<Result<T>> task, AbstractValidator<T> validator)
+    {
+        var result = await task;
+        return result.Validate(validator);
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="task">A task with the input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static async Task<Result<T>> Validate<T>(this ValueTask<Result<T>> task, AbstractValidator<T> validator)
+    {
+        var result = await task;
+        return result.Validate(validator);
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="result">The input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static async Task<Result<T>> ValidateAsync<T>(this Result<T> result, AbstractValidator<T> validator)
+    {
+        return result.HasValue(out var model)
+            ? await validator.EnsureIsValidAsync(model)
+            : result;
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="task">A task with the input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static async Task<Result<T>> ValidateAsync<T>(this Task<Result<T>> task, AbstractValidator<T> validator)
+    {
+        var result = await task;
+        return await result.ValidateAsync(validator);
+    }
+    
+    /// <summary>
+    /// <para>
+    ///     Execute the validation of a model and convert to a result.
+    /// </para>
+    /// <para>
+    ///     When the model is valid, it is returned, when it is invalid, the problems are returned.
+    /// </para>
+    /// <para>
+    ///     When the input result is invalid, it is returned without validation.
+    /// </para>
+    /// </summary>
+    /// <param name="task">A task with the input result to validate the model.</param>
+    /// <param name="validator">The model validator.</param>
+    /// <typeparam name="T">The type of the model to validate.</typeparam>
+    /// <returns>
+    ///     The result of the validation, with the model validated when it is valid, or the problems.
+    /// </returns>
+    public static async Task<Result<T>> ValidateAsync<T>(this ValueTask<Result<T>> task, AbstractValidator<T> validator)
+    {
+        var result = await task;
+        return await result.ValidateAsync(validator);
+    }
+    
     /// <summary>
     /// <para>
     ///     Adds extra data to the validation result that will be used to generate problems.
@@ -160,6 +307,7 @@ public static class ValidationsExtensions
     /// <returns>
     ///     The same instance of <paramref name="rule"/> for chaining.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IRuleBuilderOptions<T, TProperty> WithExtension<T, TProperty>(
         this IRuleBuilderOptions<T, TProperty> rule,
         Action<ExtensionData<T, TProperty>> action)

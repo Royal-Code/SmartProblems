@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace RoyalCode.SmartProblems.Tests.UseCasesAsync;
+namespace RoyalCode.SmartProblems.Tests.UseCases;
 
 public class MapAsyncTests
 {
@@ -41,26 +41,7 @@ public class MapAsyncTests
         Assert.Equal(foo.Value + 1, baz.Value);
     }
 
-    [Fact]
-    public void Map_From_EnsureIsValid_Fail()
-    {
-        // Arrange
-        var foo = new Foo() { Value = -1 };
-        var validator = new FooValidator();
-
-        // Act
-        var result = validator.EnsureIsValid(foo)
-            .Map(f => new Bar { Value = f.Value });
-
-        // Assert
-        var hasBar = result.HasValue(out var bar);
-        Assert.False(hasBar);
-        Assert.Null(bar);
-        
-        var hasProblems = result.HasProblems(out var problems);
-        Assert.True(hasProblems);
-        Assert.NotNull(problems);
-    }
+    
 
     [Fact]
     public async Task MapAsync_From_MapAsync_Use_Task()
@@ -141,61 +122,5 @@ public class MapAsyncTests
         Assert.True(hasBaz);
         Assert.NotNull(baz);
         Assert.Equal(foo.Value + 1, baz.Value);
-    }
-}
-
-file class Foo
-{
-    public int Value { get; set; }
-}
-
-file class Bar
-{
-    public int Value { get; set; }
-}
-
-file class Baz
-{
-    public int Value { get; set; }
-}
-
-file class FooValidator : AbstractValidator<Foo>
-{
-    public FooValidator()
-    {
-        RuleFor(x => x.Value).GreaterThan(0);
-    }
-}
-
-file class FooBarService
-{
-    public Task<Bar> FindBarAsync(Foo foo)
-    {
-        return Task.FromResult(new Bar { Value = foo.Value });
-    }
-
-    public ValueTask<Bar> FindBar(Foo foo)
-    {
-        return new ValueTask<Bar>(new Bar { Value = foo.Value });
-    }
-
-    public Task<Result<Bar>> CreateBarAsync(Foo foo)
-    {
-        return Task.FromResult(new Result<Bar>(new Bar { Value = foo.Value }));
-    }
-
-    public ValueTask<Result<Bar>> CreateBar(Foo foo)
-    {
-        return new ValueTask<Result<Bar>>(new Result<Bar>(new Bar { Value = foo.Value }));
-    }
-
-    public Task<Result<Baz>> ProcessBarAsync(Bar bar)
-    {
-        return Task.FromResult(new Result<Baz>(new Baz { Value = bar.Value + 1 } ));
-    }
-
-    public ValueTask<Result<Baz>> ProcessBar(Bar bar)
-    {
-        return new ValueTask<Result<Baz>>(new Result<Baz>(new Baz { Value = bar.Value + 1 } ));
     }
 }

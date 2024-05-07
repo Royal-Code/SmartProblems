@@ -58,6 +58,17 @@ public readonly struct Result<TValue>
 
     /// <summary>
     /// <para>
+    ///     Converts a result with a value to a result without a value.
+    /// </para>
+    /// </summary>
+    /// <param name="result">The result.</param>
+    /// <returns>
+    ///     A new result without a value.
+    /// </returns>
+    public static implicit operator Result(Result<TValue> result) => result.IsSuccess ? Result.Ok() : result.problems;
+    
+    /// <summary>
+    /// <para>
     ///     Adds a problem to a failed result.
     /// </para>
     /// <para>
