@@ -186,6 +186,16 @@ public readonly struct Result
         }
     }
 
+    /// <summary>
+    /// Validates the result and throws an exception if it's a failure.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    public void EnsureSuccess()
+    {
+        if (IsFailure)
+            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+    }
+
     #region Match 
 
     /// <summary>

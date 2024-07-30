@@ -256,6 +256,31 @@ public readonly struct Result<TValue>
         }
     }
 
+    /// <summary>
+    /// Validates the result and throws an exception if it's a failure.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    public void EnsureSuccess()
+    {
+        if (IsFailure)
+            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+    }
+
+    /// <summary>
+    /// Validates the result and throws an exception if it's a failure.
+    /// When success returns the value.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void EnsureHasValue([NotNull] out TValue value)
+    {
+        if (IsFailure)
+            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+
+        value = this.value;
+    }
+
     #region Match 
 
     /// <summary>
