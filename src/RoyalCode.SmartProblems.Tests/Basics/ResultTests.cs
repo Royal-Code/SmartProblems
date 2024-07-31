@@ -35,7 +35,7 @@ public class ResultTests
     }
 
     [Fact]
-    public void Result_Implict_Problems()
+    public void Result_Implicit_Problems()
     {
         // Arrange
         Result result;
@@ -52,7 +52,7 @@ public class ResultTests
     }
 
     [Fact]
-    public void Result_Implict_Problems_Must_Throw_When_Null()
+    public void Result_Implicit_Problems_Must_Throw_When_Null()
     {
         // Arrange
         Result result;
@@ -66,7 +66,7 @@ public class ResultTests
     }
 
     [Fact]
-    public void Result_Implict_Exception()
+    public void Result_Implicit_Exception()
     {
         // Arrange
         Result result;
@@ -158,6 +158,32 @@ public class ResultTests
 
         // Act
         Action act = () => _ = result[0];
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+    
+    [Fact]
+    public void Result_EnsureSuccess_WithoutProblems_MustNotThrow()
+    {
+        // Arrange
+        var result = Result.Ok();
+
+        // Act
+        result.EnsureSuccess();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+    }
+    
+    [Fact]
+    public void Result_EnsureSuccess_WithProblems_MustThrow()
+    {
+        // Arrange
+        Result result = Problems.InvalidParameter("invalid");
+
+        // Act
+        Action act = () => result.EnsureSuccess();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);

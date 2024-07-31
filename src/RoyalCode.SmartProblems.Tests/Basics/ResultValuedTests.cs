@@ -50,7 +50,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Implict_Problems()
+    public void ResultValued_Implicit_Problems()
     {
         // Arrange
         Result<string> result;
@@ -67,7 +67,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Implict_Problems_Must_Throw_When_Null()
+    public void ResultValued_Implicit_Problems_Must_Throw_When_Null()
     {
         // Arrange
         Result<string> result;
@@ -115,7 +115,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Add_Problem_Must_Throw_When_Sucesfully()
+    public void ResultValued_Add_Problem_Must_Throw_When_Successfully()
     {
         // Arrange
         Result<string> result = "Good day!";
@@ -147,7 +147,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Add_Problems_Must_Throw_When_Sucesfully()
+    public void ResultValued_Add_Problems_Must_Throw_When_Successfully()
     {
         // Arrange
         Result<string> result = "Good day!";
@@ -179,7 +179,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Add_Result_Must_Throw_When_Sucesfully()
+    public void ResultValued_Add_Result_Must_Throw_When_Successfully()
     {
         // Arrange
         Result<string> result = "Good day!";
@@ -226,7 +226,7 @@ public class ResultValuedTests
     }
 
     [Fact]
-    public void ResultValued_Add_ResultValued_Must_Throw_When_Sucesfully()
+    public void ResultValued_Add_ResultValued_Must_Throw_When_Successfully()
     {
         // Arrange
         Result<string> result = "Good day!";
@@ -262,6 +262,58 @@ public class ResultValuedTests
 
         // Act
         Action act = () => _ = result[0];
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+    
+    [Fact]
+    public void ResultValued_EnsureSuccess_WithoutProblems_MustNotThrow()
+    {
+        // Arrange
+        Result<string> result = "Success";
+
+        // Act
+        result.EnsureSuccess();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+    }
+    
+    [Fact]
+    public void ResultValued_EnsureSuccess_WithProblems_MustThrow()
+    {
+        // Arrange
+        Result<string> result = Problems.InvalidParameter("invalid");
+
+        // Act
+        Action act = () => result.EnsureSuccess();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+    
+    [Fact]
+    public void ResultValued_EnsureHasValue_WithoutProblems_MustHasValue()
+    {
+        // Arrange
+        Result<string> result = "Success";
+
+        // Act
+        result.EnsureHasValue(out var value);
+
+        // Assert
+        Assert.Equal("Success", value);
+    }
+
+    [Fact]
+    public void ResultValued_EnsureHasValue_WithProblems_MustThrow()
+    {
+        // Arrange
+        Result<string> result = Problems.InvalidParameter("invalid");
+
+        // Act
+        Action act = () => result.EnsureHasValue(out _);
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
