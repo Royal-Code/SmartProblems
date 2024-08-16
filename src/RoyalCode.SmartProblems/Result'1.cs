@@ -228,7 +228,7 @@ public readonly struct Result<TValue>
     /// </summary>
     [MemberNotNullWhen(false, nameof(problems))]
     [MemberNotNullWhen(true, nameof(value))]
-    public bool IsSuccess => value is not null;
+    public bool IsSuccess => problems is null;
 
     /// <summary>
     /// Checks if the result is a failure.
