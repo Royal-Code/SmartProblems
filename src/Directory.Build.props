@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SPVer>1.0.0</SPVer>
-		<SPPreview>-preview-1.2</SPPreview>
+		<SPPreview>-preview-1.3</SPPreview>
 	</PropertyGroup>
 	<PropertyGroup>
 		<FluentValidationVer>11.9.2</FluentValidationVer>

@@ -76,8 +76,8 @@ public sealed class CreatedMatch<T> : IResult, INestedHttpResult, IEndpointMetad
     /// <param name="createdPathFunction">The function to create the location of the created resource.</param>
     public CreatedMatch(Result<T> result, Func<T, string> createdPathFunction)
     {
-        Result = result.Match<IResult>(
-            value => TypedResults.Created(createdPathFunction(value), value),
+        Result = result.Match<IResult, Func<T, string>>(createdPathFunction,
+            (v, f) => TypedResults.Created(f(v), v),
             error => new MatchErrorResult(error));
     }
 
@@ -85,16 +85,7 @@ public sealed class CreatedMatch<T> : IResult, INestedHttpResult, IEndpointMetad
     /// Creates a new <see cref="CreatedMatch{T}"/> for the <see cref="Created{TValue}"/> match.
     /// </summary>
     /// <param name="result">The <see cref="Created{TValue}"/> to be converted.</param>
-    public CreatedMatch(Created<T> result)
-    {
-        Result = result;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="CreatedMatch{T}"/> for the <see cref="MatchErrorResult"/> match.
-    /// </summary>
-    /// <param name="result">The <see cref="MatchErrorResult"/> to be converted.</param>
-    public CreatedMatch(MatchErrorResult result)
+    public CreatedMatch(IResult result)
     {
         Result = result;
     }

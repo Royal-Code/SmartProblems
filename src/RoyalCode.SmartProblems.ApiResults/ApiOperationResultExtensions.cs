@@ -103,6 +103,26 @@ public static partial class ApiResults
     /// <summary>
     /// Convert the <see cref="Result{TValue}"/> to <see cref="RoyalCode.SmartProblems.HttpResults.CreatedMatch{T}"/>.
     /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TResponse">The value type for the response.</typeparam>
+    /// <param name="result">The operation result.</param>
+    /// <param name="createdPathFunction">A function to create the path for created responses.</param>
+    /// <param name="selector">A function to select the value for the response.</param>
+    /// <returns>The <see cref="RoyalCode.SmartProblems.HttpResults.CreatedMatch{T}"/> for the response.</returns>
+    public static CreatedMatch<TValue> CreatedMatch<TValue, TResponse>(
+        this Result<TValue> result,
+        Func<TValue, string> createdPathFunction,
+        Func<TValue, TResponse> selector)
+    {
+        return new CreatedMatch<TValue>(
+            result.Match<IResult>(
+                value => TypedResults.Created(createdPathFunction(value), selector(value)),
+                error => new MatchErrorResult(error)));
+    }
+
+    /// <summary>
+    /// Convert the <see cref="Result{TValue}"/> to <see cref="RoyalCode.SmartProblems.HttpResults.CreatedMatch{T}"/>.
+    /// </summary>
     /// <typeparam name="T">The value type.</typeparam>
     /// <param name="result">The operation result.</param>
     /// <param name="createdPath">The path for created responses.</param>
