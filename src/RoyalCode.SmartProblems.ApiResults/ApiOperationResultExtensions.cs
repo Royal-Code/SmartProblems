@@ -109,12 +109,12 @@ public static partial class ApiResults
     /// <param name="createdPathFunction">A function to create the path for created responses.</param>
     /// <param name="selector">A function to select the value for the response.</param>
     /// <returns>The <see cref="RoyalCode.SmartProblems.HttpResults.CreatedMatch{T}"/> for the response.</returns>
-    public static CreatedMatch<TValue> CreatedMatch<TValue, TResponse>(
+    public static CreatedMatch<TResponse> CreatedMatch<TValue, TResponse>(
         this Result<TValue> result,
         Func<TValue, string> createdPathFunction,
         Func<TValue, TResponse> selector)
     {
-        return new CreatedMatch<TValue>(
+        return new CreatedMatch<TResponse>(
             result.Match<IResult>(
                 value => TypedResults.Created(createdPathFunction(value), selector(value)),
                 error => new MatchErrorResult(error)));
