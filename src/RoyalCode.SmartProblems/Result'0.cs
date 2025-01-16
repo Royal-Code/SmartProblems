@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace RoyalCode.SmartProblems;
@@ -190,6 +191,8 @@ public readonly struct Result
     /// Validates the result and throws an exception if it's a failure.
     /// </summary>
     /// <exception cref="InvalidOperationException"></exception>
+    [StackTraceHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EnsureSuccess()
     {
         if (IsFailure)

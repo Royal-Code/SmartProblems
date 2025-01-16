@@ -146,7 +146,6 @@ public static class ValidationsExtensions
     /// <returns>
     ///     The result of the validation, with the model validated when it is valid, or the problems.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<T>> EnsureIsValidAsync<T>(this AbstractValidator<T> validator, T model)
     {
         return validator.ValidateAsync(model).ContinueWith((t, o) => t.Result.ToResult().Map((T)o!), model);

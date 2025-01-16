@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable ParameterHidesMember
@@ -260,6 +261,8 @@ public readonly struct Result<TValue>
     /// Validates the result and throws an exception if it's a failure.
     /// </summary>
     /// <exception cref="InvalidOperationException"></exception>
+    [StackTraceHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EnsureSuccess()
     {
         if (IsFailure)
@@ -272,6 +275,7 @@ public readonly struct Result<TValue>
     /// </summary>
     /// <param name="value"></param>
     /// <exception cref="InvalidOperationException"></exception>
+    [StackTraceHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EnsureHasValue([NotNull] out TValue value)
     {
