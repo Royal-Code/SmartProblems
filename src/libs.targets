@@ -6,7 +6,7 @@
 		<DocumentationFile>$(BaseOutputPath)\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Royal Code</Authors>
-		<Copyright>Royal Code Copyright ©  2024</Copyright>
+		<Copyright>Royal Code Copyright ©  2025</Copyright>
 		<RepositoryUrl>https://github.com/Royal-Code/SmartProblems</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<Configurations>Debug;Release</Configurations>
@@ -24,7 +24,6 @@
 		<None Include="../../README.md" Pack="true" PackagePath="/"/>
 	</ItemGroup>
 	<PropertyGroup>
-		<DotNetCoreVersion Condition="'$(TargetFramework)' == 'net7'">7.0.0</DotNetCoreVersion>
 		<DotNetCoreVersion Condition="'$(TargetFramework)' == 'net8'">8.0.0</DotNetCoreVersion>
 	</PropertyGroup>
 </Project>
