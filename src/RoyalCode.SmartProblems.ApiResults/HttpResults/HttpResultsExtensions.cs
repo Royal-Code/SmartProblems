@@ -7,7 +7,7 @@ namespace Microsoft.AspNetCore.Http;
 /// <summary>
 /// Extensions for adapt <see cref="Result"/> of SmartProblems to <see cref="IResult"/> of Minimal APIs.
 /// </summary>
-public static partial class ApiResults
+public static partial class HttpResultsExtensions
 {
     /// <summary>
     /// Convert the <see cref="Result{T}"/> to <see cref="NoContent"/> or <see cref="MatchErrorResult"/>.

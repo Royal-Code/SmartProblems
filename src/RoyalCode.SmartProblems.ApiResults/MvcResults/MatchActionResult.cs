@@ -7,39 +7,39 @@ namespace RoyalCode.SmartProblems.MvcResults;
 /// <summary>
 /// A Mvc <see cref="ObjectResult"/> for <see cref="Result"/>.
 /// </summary>
-public sealed class MatchObjectResult : MatchObjectResultBase<Result>
+public sealed class MatchActionResult : MatchObjectResultBase<Result>
 {
     #region Implicit Operators
 
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult"/> for the <see cref="Result"/>.
+    /// Creates a new <see cref="MatchActionResult"/> for the <see cref="Result"/>.
     /// </summary>
     /// <param name="result">The <see cref="Result"/> to be converted.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult(Result result) => new(result);
+    public static implicit operator MatchActionResult(Result result) => new(result);
 
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult"/> for the <see cref="Problems"/>.
+    /// Creates a new <see cref="MatchActionResult"/> for the <see cref="Problems"/>.
     /// </summary>
     /// <param name="problems">The collection of problems.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult(Problems problems) => new(problems);
+    public static implicit operator MatchActionResult(Problems problems) => new(problems);
     
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult"/> for the <see cref="Problem"/>.
+    /// Creates a new <see cref="MatchActionResult"/> for the <see cref="Problem"/>.
     /// </summary>
     /// <param name="problem">The problem.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult(Problem problem) => new(problem);
-    
+    public static implicit operator MatchActionResult(Problem problem) => new(problem);
+
     #endregion
-    
+
     /// <summary>
-    /// Creates a new instance of <see cref="MatchObjectResult"/>.
+    /// Creates a new instance of <see cref="MatchActionResult"/>.
     /// </summary>
     /// <param name="result">The operation result.</param>
     /// <param name="createdPath">Optional, the path created by the operation.</param>
-    public MatchObjectResult(
+    public MatchActionResult(
         Result result,
         string? createdPath = null) : base(result, createdPath)
     { }
@@ -70,47 +70,47 @@ public sealed class MatchObjectResult : MatchObjectResultBase<Result>
 /// A MVC <see cref="ObjectResult"/> for <see cref="Result{TValue}"/>.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public sealed class MatchObjectResult<TValue> : MatchObjectResultBase<Result<TValue>>
+public sealed class MatchActionResult<TValue> : MatchObjectResultBase<Result<TValue>>
 {
     #region Implicit Operators
 
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult{TValue}"/> for the <see cref="Result{TValue}"/>.
+    /// Creates a new <see cref="MatchActionResult{TValue}"/> for the <see cref="Result{TValue}"/>.
     /// </summary>
     /// <param name="result">The <see cref="Result{TValue}"/> to be converted.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult<TValue>(Result<TValue> result) => new(result);
+    public static implicit operator MatchActionResult<TValue>(Result<TValue> result) => new(result);
     
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult{TValue}"/> for the <see cref="Problems"/>.
+    /// Creates a new <see cref="MatchActionResult{TValue}"/> for the <see cref="Problems"/>.
     /// </summary>
     /// <param name="problems">The collection of problems.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult<TValue>(Problems problems) => new(problems);
+    public static implicit operator MatchActionResult<TValue>(Problems problems) => new(problems);
     
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult{TValue}"/> for the <see cref="Problem"/>.
+    /// Creates a new <see cref="MatchActionResult{TValue}"/> for the <see cref="Problem"/>.
     /// </summary>
     /// <param name="problem">The problem.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult<TValue>(Problem problem) => new(problem);
+    public static implicit operator MatchActionResult<TValue>(Problem problem) => new(problem);
     
     /// <summary>
-    /// Creates a new <see cref="MatchObjectResult{TValue}"/> for the <typeparamref name="TValue"/>.
+    /// Creates a new <see cref="MatchActionResult{TValue}"/> for the <typeparamref name="TValue"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MatchObjectResult<TValue>(TValue value) => new(value);
+    public static implicit operator MatchActionResult<TValue>(TValue value) => new(value);
 
     #endregion
     
     /// <summary>
-    /// Creates a new instance of <see cref="MatchObjectResult{TValue}"/>.
+    /// Creates a new instance of <see cref="MatchActionResult{TValue}"/>.
     /// </summary>
     /// <param name="result">The operation result.</param>
     /// <param name="createdPath">Optional, the path created by the operation.</param>
     /// <param name="formatPathWithValue">If true, the <paramref name="createdPath"/> will be formatted with the value of the result.</param>
-    public MatchObjectResult(
+    public MatchActionResult(
         Result<TValue> result,
         string? createdPath = null,
         bool formatPathWithValue = false) : base(result, createdPath)
@@ -119,11 +119,11 @@ public sealed class MatchObjectResult<TValue> : MatchObjectResultBase<Result<TVa
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="MatchObjectResult{TValue}"/>.
+    /// Creates a new instance of <see cref="MatchActionResult{TValue}"/>.
     /// </summary>
     /// <param name="result">The operation result.</param>
     /// <param name="createdPathProvider">A function to provide the value for the <c>Location</c> header.</param>
-    public MatchObjectResult(Result<TValue> result, Func<TValue, string> createdPathProvider) 
+    public MatchActionResult(Result<TValue> result, Func<TValue, string> createdPathProvider) 
         : base(result)
     {
         CreatedPathProvider = createdPathProvider;

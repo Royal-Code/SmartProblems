@@ -1,4 +1,6 @@
 ﻿
+using RoyalCode.SmartProblems.Entities;
+
 namespace RoyalCode.SmartProblems.Tests.Basics;
 
 public class ResultValuedTests
@@ -95,6 +97,34 @@ public class ResultValuedTests
         Assert.NotNull(problems);
         Assert.Single(problems);
         Assert.Equal("Error", problems[0].Detail);
+    }
+
+    [Fact]
+    public void ResultValued_Implicit_FindResult_Found()
+    {
+        // Arrange
+        FindResult<string> findResult = new FindResult<string>("Good day!");
+
+        // Act
+        Result<string> result = findResult;
+        
+        // Assert
+        Assert.True(result.HasValue(out var resultValue));
+        Assert.Equal("Good day!", resultValue);
+    }
+
+    [Fact]
+    public void ResultValued_Implicit_FindResult_NotFound()
+    {
+        // Arrange
+        FindResult<string> findResult = FindResult<string>.Problem("name", "name", "x");
+
+        // Act
+        Result<string> result = findResult;
+
+        // Assert
+        Assert.True(result.HasProblems(out var problems));
+        Assert.NotNull(problems);
     }
 
     [Fact]
@@ -278,6 +308,7 @@ public class ResultValuedTests
 
         // Assert
         Assert.True(result.IsSuccess);
+        Assert.False(result.IsFailure);
     }
     
     [Fact]
@@ -317,5 +348,71 @@ public class ResultValuedTests
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void ResultValued_HasProblemsOrGetValue()
+    {
+        // Arrange
+        Result<string> result = "Success";
+
+        // Act
+        var hasProblems = result.HasProblemsOrGetValue(out var problems, out var value);
+
+        // Assert
+        Assert.False(hasProblems);
+        Assert.Null(problems);
+        Assert.NotNull(value);
+        Assert.Equal("Success", value);
+    }
+
+    [Fact]
+    public void ResultValued_HasProblemsOrGetValue_WithProblem()
+    {
+        // Arrange
+        Result<string> result = Problems.InvalidParameter("invalid");
+
+        // Act
+        var hasProblems = result.HasProblemsOrGetValue(out var problems, out var value);
+
+        // Assert
+        Assert.True(hasProblems);
+        Assert.NotNull(problems);
+        Assert.Single(problems);
+        Assert.Equal("invalid", problems[0].Detail);
+        Assert.Null(value);
+    }
+
+    [Fact]
+    public void ResultValued_HasValueOrGetProblems()
+    {
+        // Arrange
+        Result<string> result = "Success";
+
+        // Act
+        var hasValue = result.HasValueOrGetProblems(out var value, out var problems);
+
+        // Assert
+        Assert.True(hasValue);
+        Assert.Null(problems);
+        Assert.NotNull(value);
+        Assert.Equal("Success", value);
+    }
+
+    [Fact]
+    public void ResultValued_HasValueOrGetProblems_WithProblem()
+    {
+        // Arrange
+        Result<string> result = Problems.InvalidParameter("invalid");
+
+        // Act
+        var hasValue = result.HasValueOrGetProblems(out var value, out var problems);
+
+        // Assert
+        Assert.False(hasValue);
+        Assert.NotNull(problems);
+        Assert.Single(problems);
+        Assert.Equal("invalid", problems[0].Detail);
+        Assert.Null(value);
     }
 }

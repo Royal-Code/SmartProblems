@@ -27,11 +27,13 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 		<PackageReference Include="xunit" Version="2.5.3" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj" />
 		<ProjectReference Include="..\RoyalCode.SmartProblems.Conversions\RoyalCode.SmartProblems.Conversions.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.EntityFramework\RoyalCode.SmartProblems.EntityFramework.csproj" />
 		<ProjectReference Include="..\RoyalCode.SmartProblems.FluentValidation\RoyalCode.SmartProblems.FluentValidation.csproj" />
 		<ProjectReference Include="..\RoyalCode.SmartProblems.Http\RoyalCode.SmartProblems.Http.csproj" />
 		<ProjectReference Include="..\RoyalCode.SmartProblems.ProblemDetails\RoyalCode.SmartProblems.ProblemDetails.csproj" />

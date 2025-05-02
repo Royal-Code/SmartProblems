@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>$(FrmsVer)</TargetFrameworks>
+		<IsTrimmable>true</IsTrimmable>
+	</PropertyGroup>
+
+	<Import Project="..\libs.targets" />
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(AspNetVer)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RoyalCode.SmartProblems\RoyalCode.SmartProblems.csproj" />
+	</ItemGroup>
+
+</Project>

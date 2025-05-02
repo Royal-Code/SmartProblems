@@ -176,6 +176,7 @@ public class ResultTests
 
         // Assert
         Assert.True(result.IsSuccess);
+        Assert.False(result.IsFailure);
     }
     
     [Fact]
@@ -189,5 +190,35 @@ public class ResultTests
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void Result_IsSuccessOrGetProblems_WithProblems()
+    {
+        // Arrange
+        Result result = Problems.InvalidParameter("invalid");
+        
+        // Act
+        var isSuccess = result.IsSuccessOrGetProblems(out var problems);
+        
+        // Assert
+        Assert.False(isSuccess);
+        Assert.NotNull(problems);
+        Assert.Single(problems);
+        Assert.Equal("invalid", problems[0].Detail);
+    }
+
+    [Fact]
+    public void Result_IsSuccessOrGetProblems_WithoutProblems()
+    {
+        // Arrange
+        Result result = Result.Ok();
+
+        // Act
+        var isSuccess = result.IsSuccessOrGetProblems(out var problems);
+
+        // Assert
+        Assert.True(isSuccess);
+        Assert.Null(problems);
     }
 }
