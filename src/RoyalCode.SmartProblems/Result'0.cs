@@ -199,7 +199,49 @@ public readonly struct Result
             throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
     }
 
-    #region Match 
+    #region Has/Is 
+
+    /// <summary>
+    /// <para>
+    ///     Check if the result is a failure and return the problems.
+    /// </para>
+    /// <para>
+    ///     When the result is a success, the problems will be null.
+    /// </para>
+    /// </summary>
+    /// <param name="problems">The problems.</param>
+    /// <returns>
+    ///     True if the result is a failure, false otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasProblems([NotNullWhen(true)] out Problems? problems)
+    {
+        problems = this.problems;
+        return IsFailure;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Check if the result is a success and return the problems.
+    /// </para>
+    /// <para>
+    ///     When the result is a success, the problems will be null, otherwise the problems will be returned.
+    /// </para>
+    /// </summary>
+    /// <param name="problems">The problems.</param>
+    /// <returns>
+    ///     True if the result is a success, false otherwise.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsSuccessOrGetProblems([NotNullWhen(false)] out Problems? problems)
+    {
+        problems = this.problems;
+        return IsSuccess;
+    }
+
+    #endregion
+
+    #region Match/Async
 
     /// <summary>
     /// <para>
@@ -264,46 +306,130 @@ public readonly struct Result
         return IsSuccess ? onSuccess(param) : onFailure(problems);
     }
 
-    #endregion
-
-    #region Has/Is 
-
     /// <summary>
     /// <para>
-    ///     Check if the result is a failure and return the problems.
-    /// </para>
-    /// <para>
-    ///     When the result is a success, the problems will be null.
+    ///     Async Match a function depending on the result, if it is a success or a failure.
     /// </para>
     /// </summary>
-    /// <param name="problems">The problems.</param>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
     /// <returns>
-    ///     True if the result is a failure, false otherwise.
+    ///     The new result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasProblems([NotNullWhen(true)] out Problems? problems)
+    public Task<TResult> MatchAsync<TResult>(
+        Func<Task<TResult>> onSuccess,
+        Func<Problems, Task<TResult>> onFailure)
     {
-        problems = this.problems;
-        return IsFailure;
+        return IsSuccess ? onSuccess() : onFailure(problems);
     }
 
     /// <summary>
     /// <para>
-    ///     Check if the result is a success and return the problems.
-    /// </para>
-    /// <para>
-    ///     When the result is a success, the problems will be null, otherwise the problems will be returned.
+    ///     Async Match a function depending on the result, if it is a success or a failure.
     /// </para>
     /// </summary>
-    /// <param name="problems">The problems.</param>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
     /// <returns>
-    ///     True if the result is a success, false otherwise.
+    ///     The new result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsSuccessOrGetProblems([NotNullWhen(false)] out Problems? problems)
+    public Task<TResult> MatchAsync<TResult>(
+        Func<Task<TResult>> onSuccess,
+        Func<Problems, TResult> onFailure)
     {
-        problems = this.problems;
-        return IsSuccess;
+        return IsSuccess ? onSuccess() : Task.FromResult(onFailure(problems));
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Async Match a function depending on the result, if it is a success or a failure.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the functions.</typeparam>
+    /// <param name="param">A parameter to pass to the functions.</param>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <returns>
+    ///     The new result of the executed function.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task<TResult> MatchAsync<TResult, TParam>(
+        TParam param,
+        Func<TParam, Task<TResult>> onSuccess,
+        Func<Problems, TParam, Task<TResult>> onFailure)
+    {
+        return IsSuccess ? onSuccess(param) : onFailure(problems, param);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Async Match a function depending on the result, if it is a success or a failure.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the functions.</typeparam>
+    /// <param name="param">A parameter to pass to the functions.</param>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <returns>
+    ///     The new result of the executed function.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task<TResult> MatchAsync<TResult, TParam>(
+        TParam param,
+        Func<TParam, Task<TResult>> onSuccess,
+        Func<Problems, TParam, TResult> onFailure)
+    {
+        return IsSuccess ? onSuccess(param) : Task.FromResult(onFailure(problems, param));
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Async Match a function depending on the result, if it is a success or a failure.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the functions.</typeparam>
+    /// <param name="param">The parameter to pass to the success function.</param>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <returns>
+    ///     The new result of the executed function.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task<TResult> MatchAsync<TResult, TParam>(
+        TParam param,
+        Func<TParam, Task<TResult>> onSuccess,
+        Func<Problems, Task<TResult>> onFailure)
+    {
+        return IsSuccess ? onSuccess(param) : onFailure(problems);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Async Match a function depending on the result, if it is a success or a failure.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TResult">The new type of the result.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the functions.</typeparam>
+    /// <param name="param">The parameter to pass to the success function.</param>
+    /// <param name="onSuccess">The function to execute when the result is a success.</param>
+    /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <returns>
+    ///     The new result of the executed function.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task<TResult> MatchAsync<TResult, TParam>(
+        TParam param,
+        Func<TParam, Task<TResult>> onSuccess,
+        Func<Problems, TResult> onFailure)
+    {
+        return IsSuccess ? onSuccess(param) : Task.FromResult(onFailure(problems));
     }
 
     #endregion
@@ -410,8 +536,23 @@ public readonly struct Result
     ///     A new result with the value, when the result is a success,
     ///     a new result with the problems, otherwise.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> MapAsync<TValue>(Func<Task<TValue>> valueFactory)
+    public async Task<Result<TValue>> MapAsync<TValue>(Task<TValue> valueFactory)
+    {
+        return IsSuccess ? new Result<TValue>(await valueFactory) : new Result<TValue>(problems);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <param name="valueFactory">A function to generate the value.</param>
+    /// <returns>
+    ///     A new result with the value, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    public async Task<Result<TValue>> MapAsync<TValue>(Func<Task<TValue>> valueFactory)
     {
         return IsSuccess ? new Result<TValue>(await valueFactory()) : new Result<TValue>(problems);
     }
@@ -429,8 +570,7 @@ public readonly struct Result
     ///     A new result with the value, when the result is a success,
     ///     a new result with the problems, otherwise.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<TValue>> valueFactory)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<TValue>> valueFactory)
     {
         return IsSuccess ? await valueFactory(param) : new Result<TValue>(problems);
     }
@@ -446,8 +586,7 @@ public readonly struct Result
     ///     The new result of the function, when the result is a success,
     ///     a new result with the problems, otherwise.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> MapAsync<TValue>(Func<Task<Result<TValue>>> map)
+    public async Task<Result<TValue>> MapAsync<TValue>(Func<Task<Result<TValue>>> map)
     {
         return IsSuccess ? await map() : new Result<TValue>(problems);
     }
@@ -465,8 +604,7 @@ public readonly struct Result
     ///     The new result of the function, when the result is a success,
     ///     a new result with the problems, otherwise.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<Result<TValue>>> map)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, Func<TParam, Task<Result<TValue>>> map)
     {
         return IsSuccess ? await map(param) : new Result<TValue>(problems);
     }
@@ -544,7 +682,6 @@ public readonly struct Result
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result> ContinueAsync(Func<Task> action)
     {
         if (IsSuccess)
@@ -560,7 +697,6 @@ public readonly struct Result
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or the action result.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result> ContinueAsync(Func<Task<Result>> action)
     {
         return IsSuccess ? await action() : this;
@@ -575,7 +711,6 @@ public readonly struct Result
     /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result> ContinueAsync<TParam>(TParam param, Func<TParam, Task> action)
     {
         if (IsSuccess)
@@ -593,7 +728,6 @@ public readonly struct Result
     /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or the action result.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result> ContinueAsync<TParam>(TParam param, Func<TParam, Task<Result>> action)
     {
         return IsSuccess ? await action(param) : this;

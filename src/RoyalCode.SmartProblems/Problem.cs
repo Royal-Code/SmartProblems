@@ -1,6 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace RoyalCode.SmartProblems;
+
+#pragma warning disable S4050 // implement operatiors == != Equals GetHashCode
 
 /// <summary>
 /// An object that represents a problem that occurred in the system, with details and category.
@@ -21,6 +24,15 @@ public sealed class Problem
         Problems collection = [a, b];
         return collection;
     }
+
+    #endregion
+
+    #region Static functions
+
+    /// <summary>
+    /// Default function to convert the problem to a string.
+    /// </summary>
+    public Func<Problem, string> ToStringFactory { get; set; } = DefaultToString;
 
     #endregion
 
@@ -68,5 +80,64 @@ public sealed class Problem
         Extensions ??= new Dictionary<string, object?>(StringComparer.Ordinal);
         Extensions[key] = value;
         return this;
+    }
+
+    /// <summary>
+    /// Adds a new key-value pair to the extensions.
+    /// </summary>
+    /// <param name="key">The key of the data.</param>
+    /// <param name="value">The value of the data.</param>
+    /// <returns>
+    ///     The same instance of the problem.
+    /// </returns>
+    public Problem With<TEnum>(string key, TEnum value)
+        where TEnum : Enum
+    {
+        return With(key, value.ToString());
+    }
+
+    /// <inheritdoc />
+    public override string ToString() => ToStringFactory(this);
+
+    /// <summary>
+    /// Default function to convert the problem to a string.
+    /// </summary>
+    /// <param name="problem">The problem to convert.</param>
+    /// <returns>A string representation of the problem.</returns>
+    private static string DefaultToString(Problem problem)
+    {
+        var builder = new StringBuilder();
+
+        builder.Append($"Category: {problem.Category}, ");
+        builder.Append($"Details: {problem.Detail}, ");
+
+        if (!string.IsNullOrEmpty(problem.Property))
+        {
+            builder.Append($"Property: {problem.Property}, ");
+        }
+
+        if (!string.IsNullOrEmpty(problem.TypeId))
+        {
+            builder.Append($"TypeId: {problem.TypeId}, ");
+        }
+
+        if (problem.Extensions != null && problem.Extensions.Count > 0)
+        {
+            builder.Append("Extensions: { ");
+            foreach (var kvp in problem.Extensions)
+            {
+                builder.Append($"{kvp.Key}: {kvp.Value}, ");
+            }
+            // Remove a última vírgula e espaço
+            builder.Length -= 2;
+            builder.Append(" }");
+        }
+        else
+        {
+            // Remove a última vírgula e espaço se não houver extensões
+            builder.Length -= 2;
+        }
+
+        return builder.ToString();
     }
 }

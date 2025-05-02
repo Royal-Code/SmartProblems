@@ -1,4 +1,6 @@
 ﻿
+using RoyalCode.SmartProblems.Tests.UseCases;
+
 namespace RoyalCode.SmartProblems.Tests.Basics;
 
 public class ResultTests
@@ -183,7 +185,7 @@ public class ResultTests
         Result result = Problems.InvalidParameter("invalid");
 
         // Act
-        Action act = () => result.EnsureSuccess();
+        Action act = result.EnsureSuccess;
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);

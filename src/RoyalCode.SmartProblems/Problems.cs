@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace RoyalCode.SmartProblems;
 
+#pragma warning disable S4050 // implement operatiors == != Equals GetHashCode
+
 /// <summary>
 /// A collection of problems that occurred in the system.
 /// </summary>
@@ -32,7 +34,44 @@ public sealed class Problems : ICollection<Problem>
     /// </para>
     /// </summary>
     public static ExceptionOptions ExceptionOptions { get; } = new();
-    
+
+    #endregion
+
+    #region implicit operators
+
+    /// <summary>
+    /// Convert a problem to a collection of problems.
+    /// </summary>
+    /// <param name="problem"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Problems(Problem problem) => [problem];
+
+    /// <summary>
+    /// Add a problem to the collection of problems.
+    /// </summary>
+    /// <param name="collection">The collection of problems.</param>
+    /// <param name="problem">The problem to add.</param>
+    /// <returns>The same instance of the collection with the problem added.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Problems operator +(Problems collection, Problem problem)
+    {
+        collection.Add(problem);
+        return collection;
+    }
+
+    /// <summary>
+    /// Add a problem to the collection of problems.
+    /// </summary>
+    /// <param name="collection">The collection of problems.</param>
+    /// <param name="problems">Other collection of problems to add.</param>
+    /// <returns>The same instance of the collection with the problem added.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Problems operator +(Problems collection, IEnumerable<Problem> problems)
+    {
+        collection.AddRange(problems);
+        return collection;
+    }
+
     #endregion
 
     #region Factory Methods
@@ -217,42 +256,12 @@ public sealed class Problems : ICollection<Problem>
         };
     }
 
-    #endregion
-
-    #region implicit operators
-
     /// <summary>
-    /// Convert a problem to a collection of problems.
+    /// Create a builder for a problem.
     /// </summary>
-    /// <param name="problem"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Problems(Problem problem) => [problem];
-
-    /// <summary>
-    /// Add a problem to the collection of problems.
-    /// </summary>
-    /// <param name="collection">The collection of problems.</param>
-    /// <param name="problem">The problem to add.</param>
-    /// <returns>The same instance of the collection with the problem added.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Problems operator +(Problems collection, Problem problem)
-    {
-        collection.Add(problem);
-        return collection;
-    }
-
-    /// <summary>
-    /// Add a problem to the collection of problems.
-    /// </summary>
-    /// <param name="collection">The collection of problems.</param>
-    /// <param name="problems">Other collection of problems to add.</param>
-    /// <returns>The same instance of the collection with the problem added.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Problems operator +(Problems collection, IEnumerable<Problem> problems)
-    {
-        collection.AddRange(problems);
-        return collection;
-    }
+    /// <param name="details"></param>
+    /// <returns></returns>
+    public static DetailBuilder Detail(string details) => new() { Details = details };
 
     #endregion
 

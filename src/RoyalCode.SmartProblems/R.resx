@@ -123,6 +123,12 @@
   <data name="CopyToArgumentErrorMessage" xml:space="preserve">
     <value>The number of elements is greater than the available space in the array.</value>
   </data>
+  <data name="EntityNotFoundBy" xml:space="preserve">
+    <value>The record of '{0}' with {1} '{2}' was not found</value>
+  </data>
+  <data name="EntityNotFoundById" xml:space="preserve">
+    <value>The record of '{0}' with id '{1}' was not found</value>
+  </data>
   <data name="InternalServerErrorMessage" xml:space="preserve">
     <value>An unexpected error has occurred</value>
   </data>
