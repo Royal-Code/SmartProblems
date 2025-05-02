@@ -23,13 +23,6 @@ public readonly struct FindResult<TEntity>
     public static implicit operator FindResult<TEntity>(TEntity entity) => new(entity);
 
     /// <summary>
-    /// Implicit operator to convert <see cref="Problems"/> into a <see cref="FindResult{TEntity}"/>.
-    /// </summary>
-    /// <param name="problems"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator FindResult<TEntity>(Problems problems) => new(problems);
-
-    /// <summary>
     /// Implicit operator to convert a <see cref="RoyalCode.SmartProblems.Problem"/> into a <see cref="FindResult{TEntity}"/>.
     /// </summary>
     /// <param name="problem"></param>
@@ -37,11 +30,20 @@ public readonly struct FindResult<TEntity>
     public static implicit operator FindResult<TEntity>(Problem problem) => new(problem);
 
     /// <summary>
+    /// Implicit operator to convert a <see cref="Problems"/> into a <see cref="FindResult{TEntity}"/>.
+    /// </summary>
+    /// <param name="problems"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator FindResult<TEntity>(Problems problems) => new(problems);
+
+    /// <summary>
     /// Implicit operator to convert a <see cref="Result{TEntity}"/> into a <see cref="FindResult{TEntity}"/>.
     /// </summary>
     /// <param name="result"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator FindResult<TEntity>(Result<TEntity> result) => result.Match(value => new FindResult<TEntity>(value), problems => new FindResult<TEntity>(problems));
+    public static implicit operator FindResult<TEntity>(Result<TEntity> result) => result.Match(
+        value => new FindResult<TEntity>(value),
+        problems => new FindResult<TEntity>(problems));
 
     /// <summary>
     /// Implicit operator to convert a tuple into a <see cref="FindResult{TEntity}"/> creating a problem.
@@ -77,6 +79,8 @@ public readonly struct FindResult<TEntity>
 
     #endregion
 
+    #region Factory Methods
+
     /// <summary>
     /// <para>
     ///     Creates a new <see cref="FindResult{TEntity}"/> for when the entity is not found, generating
@@ -97,14 +101,16 @@ public readonly struct FindResult<TEntity>
     public static FindResult<TEntity> Problem(string byName, string propertyName, object? propertyValue)
     {
         var entityName = DisplayNames.Instance.GetDisplayName(typeof(TEntity));
-        var datails = string.Format(R.EntityNotFoundBy, entityName, propertyName, propertyValue);
+        var datails = string.Format(R.EntityNotFoundBy, entityName, byName, propertyValue);
 
         return Problems.NotFound(datails)
             .With("entity", typeof(TEntity).Name)
             .With(propertyName, propertyValue);
     }
 
-    private readonly Problems? problems;
+    #endregion
+
+    private readonly Problem? problem;
 
     /// <summary>
     /// Constructor to create a <see cref="FindResult{TEntity}"/> from an entity.
@@ -118,10 +124,25 @@ public readonly struct FindResult<TEntity>
     /// <summary>
     /// Constructor to create a <see cref="FindResult{TEntity}"/> from a problem.
     /// </summary>
-    /// <param name="problems"></param>
-    public FindResult(Problems? problems)
+    /// <param name="problem"></param>
+    public FindResult(Problem? problem)
     {
-        this.problems = problems;
+        this.problem = problem;
+    }
+
+    /// <summary>
+    /// Constructor to create a <see cref="FindResult{TEntity}"/> from a problem.
+    /// </summary>
+    /// <param name="problems"></param>
+    public FindResult(Problems problems)
+    {
+        string message = string.Format(
+                    R.EntityNotFound,
+                    DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
+
+        problem = Problems.NotFound(message)
+            .With("entity", typeof(TEntity).Name)
+            .With("problems", problems);
     }
 
     /// <summary>
@@ -138,20 +159,20 @@ public readonly struct FindResult<TEntity>
     /// <summary>
     /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
     /// </summary>
-    /// <param name="problems">The problems associated with the entity, if not found.</param>
+    /// <param name="problem">The problems associated with the entity, if not found.</param>
     /// <returns>True if the entity was not found, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [MemberNotNullWhen(false, nameof(Entity))]
-    public bool NotFound([NotNullWhen(true)] out Problems? problems)
+    public bool NotFound([NotNullWhen(true)] out Problem? problem)
     {
         if (Entity is null)
         {
-            var datails = string.Format(R.EntityNotFoundBy, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
-            problems = this.problems ?? Problems.NotFound(datails).With("entity", typeof(TEntity).Name);
+            var datails = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
+            problem = this.problem ?? Problems.NotFound(datails).With("entity", typeof(TEntity).Name);
             return true;
         }
 
-        problems = null;
+        problem = null;
         return false;
     }
 
@@ -270,8 +291,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TEntity> ToResult()
     {
-        if (NotFound(out var notFoundProblems))
-            return notFoundProblems;
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
         return Entity;
     }
 }
@@ -292,13 +313,6 @@ public readonly struct FindResult<TEntity, TId>
     #region Implicit Operators
 
     /// <summary>
-    /// Implicit operator to convert an entity and id into a <see cref="FindResult{TEntity, TId}"/>.
-    /// </summary>
-    /// <param name="p">The entity and the identifier.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator FindResult<TEntity, TId>((TEntity entity, TId id) p) => new(p.entity, p.id);
-
-    /// <summary>
     /// Implicit operator for converting a <see cref="FindResult{TEntity, TId}"/> into a result.
     /// </summary>
     /// <param name="entry"></param>
@@ -310,13 +324,22 @@ public readonly struct FindResult<TEntity, TId>
     private readonly TId id;
 
     /// <summary>
-    /// Creates a new <see cref="FindResult{TEntity}"/> from an entity and an identifier.
+    /// Creates a new <see cref="FindResult{TEntity, TId}"/> from an entity and an identifier.
     /// </summary>
     /// <param name="entity">A entidade referenciada.</param>
     /// <param name="id">O identificador da entidade.</param>
     public FindResult(TEntity? entity, TId id)
     {
         Entity = entity;
+        this.id = id;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="FindResult{TEntity, TId}"/> from an entity and an identifier.
+    /// </summary>
+    /// <param name="id">O identificador da entidade.</param>
+    public FindResult(TId id)
+    {
         this.id = id;
     }
 
@@ -334,11 +357,11 @@ public readonly struct FindResult<TEntity, TId>
     /// <summary>
     /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
     /// </summary>
-    /// <param name="problems">The problems associated with the entity, if not found.</param>
+    /// <param name="problem">The problem associated with the entity, if not found.</param>
     /// <returns>True if the entity was not found, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [MemberNotNullWhen(false, nameof(Entity))]
-    public bool NotFound([NotNullWhen(true)] out Problems? problems)
+    public bool NotFound([NotNullWhen(true)] out Problem? problem)
     {
         if (Entity is null)
         {
@@ -347,14 +370,14 @@ public readonly struct FindResult<TEntity, TId>
                 DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
                 id);
 
-            problems = Problems.NotFound(datails)
+            problem = Problems.NotFound(datails)
                 .With("entity", typeof(TEntity).Name)
                 .With("id", id);
 
             return true;
         }
 
-        problems = null;
+        problem = null;
         return false;
     }
 
@@ -473,8 +496,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TEntity> ToResult()
     {
-        if (NotFound(out var notFoundProblems))
-            return notFoundProblems;
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
         return Entity;
     }
 }

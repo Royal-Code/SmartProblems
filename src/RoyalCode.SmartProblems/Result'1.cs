@@ -72,9 +72,9 @@ public readonly struct Result<TValue>
     /// <summary>
     /// Implicit operator for converting a <see cref="FindResult{TEntity}"/> into a result.
     /// </summary>
-    /// <param name="entry"></param>
+    /// <param name="result"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Result<TValue>(FindResult<TValue> entry) => entry.ToResult();
+    public static implicit operator Result<TValue>(FindResult<TValue> result) => result.ToResult();
 
     /// <summary>
     /// <para>
