@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".items", ".items", "{EA60FB
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		libs.targets = libs.targets
+		..\.github\workflows\smart-problems.yml = ..\.github\workflows\smart-problems.yml
 		tests.targets = tests.targets
 	EndProjectSection
 EndProject

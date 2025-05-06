@@ -27,6 +27,9 @@ jobs:
       - name: Build and pack Conversions
         run: sudo dotnet build ./src/RoyalCode.SmartProblems.Conversions/RoyalCode.SmartProblems.Conversions.csproj -c Release
       
+      - name: Build and pack EntityFramework
+        run: sudo dotnet build ./src/RoyalCode.SmartProblems.EntityFramework/RoyalCode.SmartProblems.EntityFramework.csproj -c Release
+
       - name: Build and pack ProblemDetails
         run: sudo dotnet build ./src/RoyalCode.SmartProblems.ProblemDetails/RoyalCode.SmartProblems.ProblemDetails.csproj -c Release
         
