@@ -171,6 +171,52 @@ public class FindTests
     }
 
     [Fact]
+    public void FindResult_New_Problem()
+    {
+        // act
+        var findResult = new FindResult<Foo>();
+        var notFound = findResult.NotFound(out var problem);
+
+        // assert
+        Assert.False(findResult.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record for 'Foo' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.NotFound, problem.Category);
+    }
+
+    [Fact]
+    public void FindResult_New_Problem_InvalidParamter()
+    {
+        // act
+        var findResult = new FindResult<Foo>();
+        var notFound = findResult.HasInvalidParameter(out var problem);
+
+        // assert
+        Assert.False(findResult.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record for 'Foo' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problem.Category);
+    }
+
+    [Fact]
+    public void FindResult_New_Problem_InvalidParamter_WithParamterName()
+    {
+        // act
+        var findResult = new FindResult<Foo>();
+        var notFound = findResult.HasInvalidParameter(out var problem, "SomeParameterName");
+
+        // assert
+        Assert.False(findResult.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record for 'Foo' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problem.Category);
+        Assert.Equal("SomeParameterName", problem.Property);
+    }
+
+    [Fact]
     public void FindResult_Factory_Problem_ByName()
     {
         // act
@@ -196,6 +242,38 @@ public class FindTests
         Assert.True(notFound);
         Assert.NotNull(problem);
         Assert.Equal("The record of 'Foo' with id '1' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.NotFound, problem.Category);
+    }
+
+    [Fact]
+    public void FindResult_Factory_Problem_InvalidParamter_ById()
+    {
+        // act
+        var findResult = new FindResult<Foo, int>(1);
+        var notFound = findResult.HasInvalidParameter(out var problem);
+
+        // assert
+        Assert.False(findResult.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record of 'Foo' with id '1' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problem.Category);
+    }
+
+    [Fact]
+    public void FindResult_Factory_Problem_InvalidParamter_WithParamterName_ById()
+    {
+        // act
+        var findResult = new FindResult<Foo, int>(1);
+        var notFound = findResult.HasInvalidParameter(out var problem, "Id");
+
+        // assert
+        Assert.False(findResult.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record of 'Foo' with id '1' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problem.Category);
+        Assert.Equal("Id", problem.Property);
     }
 
     [Fact]

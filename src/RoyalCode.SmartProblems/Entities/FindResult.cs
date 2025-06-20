@@ -20,7 +20,7 @@ public readonly struct FindResult<TEntity>
     /// </summary>
     /// <param name="entity"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator FindResult<TEntity>(TEntity entity) => new(entity);
+    public static implicit operator FindResult<TEntity>(TEntity? entity) => new(entity);
 
     /// <summary>
     /// Implicit operator to convert a <see cref="RoyalCode.SmartProblems.Problem"/> into a <see cref="FindResult{TEntity}"/>.
@@ -113,10 +113,15 @@ public readonly struct FindResult<TEntity>
     private readonly Problem? problem;
 
     /// <summary>
+    /// Constructor to create a <see cref="FindResult{TEntity}"/>.
+    /// </summary>
+    public FindResult() { }
+
+    /// <summary>
     /// Constructor to create a <see cref="FindResult{TEntity}"/> from an entity.
     /// </summary>
     /// <param name="entity">The referenced entity.</param>
-    public FindResult(TEntity entity)
+    public FindResult(TEntity? entity)
     {
         Entity = entity;
     }
@@ -159,7 +164,7 @@ public readonly struct FindResult<TEntity>
     /// <summary>
     /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
     /// </summary>
-    /// <param name="problem">The problems associated with the entity, if not found.</param>
+    /// <param name="problem">The problems (<see cref="ProblemCategory.NotFound"/>) associated with the entity, if not found.</param>
     /// <returns>True if the entity was not found, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [MemberNotNullWhen(false, nameof(Entity))]
@@ -169,6 +174,27 @@ public readonly struct FindResult<TEntity>
         {
             var datails = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
             problem = this.problem ?? Problems.NotFound(datails).With("entity", typeof(TEntity).Name);
+            return true;
+        }
+
+        problem = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
+    /// </summary>
+    /// <param name="problem">The problems (<see cref="ProblemCategory.InvalidParameter"/>) associated with the entity, if not found.</param>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <returns>True if the entity was not found, false otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MemberNotNullWhen(false, nameof(Entity))]
+    public bool HasInvalidParameter([NotNullWhen(true)] out Problem? problem, string? parameterName = null)
+    {
+        if (Entity is null)
+        {
+            var datails = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
+            problem = this.problem ?? Problems.InvalidParameter(datails, parameterName).With("entity", typeof(TEntity).Name);
             return true;
         }
 
@@ -357,7 +383,7 @@ public readonly struct FindResult<TEntity, TId>
     /// <summary>
     /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
     /// </summary>
-    /// <param name="problem">The problem associated with the entity, if not found.</param>
+    /// <param name="problem">The problem (<see cref="ProblemCategory.NotFound"/>) associated with the entity, if not found.</param>
     /// <returns>True if the entity was not found, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [MemberNotNullWhen(false, nameof(Entity))]
@@ -380,6 +406,35 @@ public readonly struct FindResult<TEntity, TId>
         problem = null;
         return false;
     }
+
+    /// <summary>
+    /// Checks if the entity was not found, i.e. if the value of <see cref="Entity"/> is null.
+    /// </summary>
+    /// <param name="problem">The problem (<see cref="ProblemCategory.InvalidParameter"/>) associated with the entity, if not found.</param>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <returns>True if the entity was not found, false otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MemberNotNullWhen(false, nameof(Entity))]
+    public bool HasInvalidParameter([NotNullWhen(true)] out Problem? problem, string? parameterName = null)
+    {
+        if (Entity is null)
+        {
+            var datails = string.Format(
+                R.EntityNotFoundById,
+                DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
+                id);
+
+            problem = Problems.InvalidParameter(datails, parameterName)
+                .With("entity", typeof(TEntity).Name)
+                .With("id", id);
+
+            return true;
+        }
+
+        problem = null;
+        return false;
+    }
+
 
     /// <summary>
     /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
