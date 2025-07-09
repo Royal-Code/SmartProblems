@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\tests.targets" />
+
 	<PropertyGroup>
-		<TargetFramework>$(TestVer)</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-
-		<IsPackable>false</IsPackable>
-		<IsTestProject>true</IsTestProject>
+		<TargetFrameworks>$(TestVer)</TargetFrameworks>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
 		<None Remove="problem-details.json" />
 	</ItemGroup>
@@ -22,12 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="6.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.17" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-		<PackageReference Include="xunit" Version="2.9.3" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.17" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(AspNetVer)" />
 	</ItemGroup>
 
 	<ItemGroup>

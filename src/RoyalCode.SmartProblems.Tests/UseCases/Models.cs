@@ -1,5 +1,8 @@
 ﻿using FluentValidation;
 
+#pragma warning disable IDE0079 // Suppress unused warning disable
+#pragma warning disable CA1822 // Mark members as static
+
 namespace RoyalCode.SmartProblems.Tests.UseCases;
 
 public class Foo
@@ -17,12 +20,16 @@ public class Baz
     public int Value { get; set; }
 }
 
+#nullable disable
+
 public class FooBarContainer
 {
     public Foo Foo { get; set; }
     public Bar Bar { get; set; }
     public Baz Baz { get; set; }
 }
+
+#nullable enable
 
 public class FooValidator : AbstractValidator<Foo>
 {

@@ -33,7 +33,7 @@ public class PointerParserTests
     [InlineData("a/10", "a[10]")]
     [InlineData("a/10/b", "a[10].b")]
     [InlineData("a/10/b/", "a[10].b")]
-    public void PointerToProperty(string pointer, string expected)
+    public void PointerToProperty(string? pointer, string? expected)
     {
         var property = pointer.PointerToProperty();
 
@@ -52,7 +52,7 @@ public class PointerParserTests
     [InlineData("[0]", "#/0")]
     [InlineData("[0].a", "#/0/a")]
     [InlineData("[0].a.b", "#/0/a/b")]
-    public void PropertyToPointer(string property, string expected)
+    public void PropertyToPointer(string? property, string? expected)
     {
         var pointer = property.PropertyToPointer();
 

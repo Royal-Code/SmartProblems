@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
-		<FrmsVer>net8.0</FrmsVer>
-		<TestVer>net8.0</TestVer>
+		<FrmsVer>net8.0;net9.0</FrmsVer>
+		<TestVer>net9.0</TestVer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SPVer>1.0.0</SPVer>
-		<SPPreview>-preview-3.5</SPPreview>
+		<SPPreview>-preview-4.0</SPPreview>
 	</PropertyGroup>
 	<PropertyGroup>
 		<FluentValidationVer>12.0.0</FluentValidationVer>

@@ -64,6 +64,24 @@ public class FindTests
     }
 
     [Fact]
+    public void FindResult_HasInvalidParameter()
+    {
+        // Arrange
+        FindResult<Foo> result = new();
+
+        // Act
+        var notFound = result.HasInvalidParameter(out var problem, "property");
+
+        // Assert
+        Assert.False(result.Found);
+        Assert.True(notFound);
+        Assert.NotNull(problem);
+        Assert.Equal("The record for 'Foo' was not found", problem.Detail);
+        Assert.Equal(ProblemCategory.InvalidParameter, problem.Category);
+        Assert.Equal("property", problem.Property);
+    }
+
+    [Fact]
     public void FindResult_Implicit_Result_Entity()
     {
         // Arrange

@@ -427,7 +427,7 @@ public class TryFindTests
         using var db = CreateDbContext();
 
         // Act
-        var entry = await db.TryFindByAsync<TestEntity, string>(e => e.Name, "Test2");
+        var entry = await db.TryFindByAsync<TestEntity, string?>(e => e.Name, "Test2");
         var notFound = entry.NotFound(out var problems);
         
         // Assert
@@ -444,7 +444,7 @@ public class TryFindTests
         using var db = CreateDbContext();
 
         // Act
-        var entry = await db.TryFindByAsync<TestEntity, string>(e => e.Name, "Test4");
+        var entry = await db.TryFindByAsync<TestEntity, string?>(e => e.Name, "Test4");
         var notFound = entry.NotFound(out var problem);
 
         // Assert
@@ -517,7 +517,7 @@ internal class TestEntity
     public int Id { get; set; }
 
     [DisplayName("Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 internal class TestDbContext : DbContext
