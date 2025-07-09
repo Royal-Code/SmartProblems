@@ -13,34 +13,34 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
           include-prerelease: true
 
       - name: Build and pack SmartProblems
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems/RoyalCode.SmartProblems.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems/RoyalCode.SmartProblems.csproj -c Release
       
       - name: Build and pack Conversions
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.Conversions/RoyalCode.SmartProblems.Conversions.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.Conversions/RoyalCode.SmartProblems.Conversions.csproj -c Release
       
       - name: Build and pack EntityFramework
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.EntityFramework/RoyalCode.SmartProblems.EntityFramework.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.EntityFramework/RoyalCode.SmartProblems.EntityFramework.csproj -c Release
 
       - name: Build and pack ProblemDetails
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.ProblemDetails/RoyalCode.SmartProblems.ProblemDetails.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.ProblemDetails/RoyalCode.SmartProblems.ProblemDetails.csproj -c Release
         
       - name: Build and pack ApiResults
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.ApiResults/RoyalCode.SmartProblems.ApiResults.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.ApiResults/RoyalCode.SmartProblems.ApiResults.csproj -c Release
         
       - name: Build and pack Http
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.Http/RoyalCode.SmartProblems.Http.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.Http/RoyalCode.SmartProblems.Http.csproj -c Release
       
       - name: Build and pack FluentValidation
-        run: sudo dotnet build ./src/RoyalCode.SmartProblems.FluentValidation/RoyalCode.SmartProblems.FluentValidation.csproj -c Release
+        run: dotnet build ./src/RoyalCode.SmartProblems.FluentValidation/RoyalCode.SmartProblems.FluentValidation.csproj -c Release
         
       - name: Publish
-        run: sudo dotnet nuget push ./**/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./**/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
