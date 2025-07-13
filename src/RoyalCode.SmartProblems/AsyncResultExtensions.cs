@@ -1043,6 +1043,30 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="valueFactory">A function to generate the value.</param>
+    /// <returns>
+    ///     A new result with the value, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    public static async Task<Result<TValue>> MapAsync<TValue, TParam>(this Task<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<TValue>> valueFactory)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, valueFactory);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the function.</param>
     /// <param name="valueFactory">A function to generate the value.</param>
     /// <returns>
     ///     A new result with the value, when the result is a success,
@@ -1076,6 +1100,30 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.MapAsync(param, valueFactory);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the function.</param>
+    /// <param name="ct"> The cancellation token.</param>
+    /// <param name="valueFactory">A function to generate the value.</param>
+    /// <returns>
+    ///     A new result with the value, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    public static async Task<Result<TValue>> MapAsync<TValue, TParam>(this ValueTask<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<TValue>> valueFactory)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, valueFactory);
     }
 
     /// <summary>
@@ -1202,6 +1250,30 @@ public static class AsyncResultExtensions
     /// <typeparam name="TValue">The value type.</typeparam>
     /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to generate the new result.</param>
+    /// <returns>
+    ///     The new result of the function, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    public static async Task<Result<TValue>> MapAsync<TValue, TParam>(this Task<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<Result<TValue>>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map to a new result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the function.</param>  
     /// <param name="map">A function to generate the new result.</param>
     /// <returns>
@@ -1236,6 +1308,30 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.MapAsync(param, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map to a new result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The value type.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to generate the new result.</param>
+    /// <returns>
+    ///     The new result of the function, when the result is a success,
+    ///     a new result with the problems, otherwise.
+    /// </returns>
+    public static async Task<Result<TValue>> MapAsync<TValue, TParam>(this ValueTask<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<Result<TValue>>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
     }
 
     #endregion
@@ -1378,6 +1474,31 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter passed to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async Task<Result<TOther>> MapAsync<TValue, TOther, TParam>(
+        this Task<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<TOther>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter passed to the function.</param>
     /// <param name="map">A function to map the value.</param>
     /// <returns>
     ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
@@ -1421,6 +1542,31 @@ public static class AsyncResultExtensions
     /// </summary>
     /// <typeparam name="TOther">The new type of the value.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter passed to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async ValueTask<Result<TOther>> MapAsync<TValue, TOther, TParam>(
+        this ValueTask<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<TOther>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="map">A function to map the value.</param>
     /// <returns>
@@ -1550,6 +1696,31 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter passed to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async Task<Result<TOther>> MapAsync<TValue, TOther, TParam>(
+        this Task<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<Result<TOther>>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter passed to the function.</param>
     /// <param name="map">A function to map the value.</param>
     /// <returns>
     ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
@@ -1584,6 +1755,31 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.MapAsync(param, map);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Map a new value to a result when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TOther">The new type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter passed to the function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="map">A function to map the value.</param>
+    /// <returns>
+    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
+    /// </returns>
+    public static async ValueTask<Result<TOther>> MapAsync<TValue, TOther, TParam>(
+        this ValueTask<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<Result<TOther>>> map)
+    {
+        var result = await task;
+        return await result.MapAsync(param, ct, map);
     }
 
     #endregion
@@ -2024,6 +2220,27 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result> ContinueAsync<TParam>(
+        this Task<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param,ct, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
     public static async Task<Result> ContinueAsync<TParam>(
@@ -2052,6 +2269,27 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(param, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result> ContinueAsync<TParam>(
+        this ValueTask<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param,ct, action);
     }
 
     /// <summary>
@@ -2100,6 +2338,27 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    public static async Task<Result> ContinueAsync<TParam>(
+        this Task<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or the action result.</returns>
     public static async Task<Result> ContinueAsync<TParam>(
@@ -2128,6 +2387,27 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(param, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct"> The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    public static async Task<Result> ContinueAsync<TParam>(
+        this ValueTask<Result> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TParam, CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
     }
 
     #endregion
@@ -2319,6 +2599,28 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
+        this Task<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parameter of the action.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
     public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
@@ -2348,6 +2650,28 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(param, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parameter of the action.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
+        this ValueTask<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
     }
 
     /// <summary>
@@ -2399,6 +2723,28 @@ public static class AsyncResultExtensions
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or a new with the problems.</returns>
+    public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
+        this Task<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parameter of the action.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or a new with the problems.</returns>
     public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
@@ -2428,6 +2774,28 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(param, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parameter of the action.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="param">The parameter to pass to the action.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or a new with the problems.</returns>
+    public static async Task<Result<TValue>> ContinueAsync<TValue, TParam>(
+        this ValueTask<Result<TValue>> task,
+        TParam param,
+        CancellationToken ct,
+        Func<TValue, TParam, CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(param, ct, action);
     }
 
     #endregion
