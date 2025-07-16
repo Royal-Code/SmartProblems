@@ -99,11 +99,14 @@ public sealed class Problem
     }
 
     /// <summary>
-    /// Encadeia uma propriedade ao início da propriedade atual, formando uma propriedade aninhada (ex: Endereco.Rua).
+    /// Chains a property to the beginning of the current property, forming a nested property (e.g. Parent.Current).
     /// </summary>
-    /// <param name="parentProperty">Nome da propriedade a ser encadeada.</param>
-    /// <returns>Esta instância de Problem com a propriedade modificada.</returns>
-    public Problem ChainProperty(string parentProperty)
+    /// <remarks>
+    ///     When <see cref="Property"/> or <paramref name="parentProperty"/> is null or empty, this method does nothing.
+    /// </remarks>
+    /// <param name="parentProperty">Name of the property to be chained.</param>
+    /// <returns>The same instance of the problem.</returns>
+    public Problem ChainProperty(string? parentProperty)
     {
         if (string.IsNullOrEmpty(parentProperty) || string.IsNullOrEmpty(_property))
             return this;
@@ -113,12 +116,15 @@ public sealed class Problem
     }
 
     /// <summary>
-    /// Encadeia uma propriedade de coleção com índice ao início da propriedade atual (ex: Endereco[0].Rua).
+    /// Chains a collection property with index to the beginning of the current property (e.g. Parent[0].Current).
     /// </summary>
-    /// <param name="parentProperty">Nome da propriedade de coleção.</param>
-    /// <param name="index">Índice da coleção.</param>
-    /// <returns>Esta instância de Problem com a propriedade modificada.</returns>
-    public Problem ChainProperty(string parentProperty, int index)
+    /// <remarks>
+    ///     When <see cref="Property"/> or <paramref name="parentProperty"/> is null or empty, this method does nothing.
+    /// </remarks>
+    /// <param name="parentProperty">Name of the property to be chained.</param>
+    /// <param name="index">Collection index.</param>
+    /// <returns>The same instance of the problem.</returns>
+    public Problem ChainProperty(string? parentProperty, int index)
     {
         if (string.IsNullOrEmpty(parentProperty) || string.IsNullOrEmpty(_property))
             return this;
