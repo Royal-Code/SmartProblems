@@ -36,6 +36,8 @@ public sealed class Problem
 
     #endregion
 
+    private string? _property;
+
     /// <summary>
     /// <para>
     ///     Description of the problem, like a message to the user.
@@ -60,7 +62,7 @@ public sealed class Problem
     /// <summary>
     /// Optional, the property that the problem is related to.
     /// </summary>
-    public string? Property { get; init; }
+    public string? Property { get => _property; init => _property = value; }
     
     /// <summary>
     /// Optional, extra information about the problem.
@@ -94,6 +96,35 @@ public sealed class Problem
         where TEnum : Enum
     {
         return With(key, value.ToString());
+    }
+
+    /// <summary>
+    /// Encadeia uma propriedade ao início da propriedade atual, formando uma propriedade aninhada (ex: Endereco.Rua).
+    /// </summary>
+    /// <param name="parentProperty">Nome da propriedade a ser encadeada.</param>
+    /// <returns>Esta instância de Problem com a propriedade modificada.</returns>
+    public Problem ChainProperty(string parentProperty)
+    {
+        if (string.IsNullOrEmpty(parentProperty) || string.IsNullOrEmpty(_property))
+            return this;
+
+        _property = $"{parentProperty}.{Property}";
+        return this;
+    }
+
+    /// <summary>
+    /// Encadeia uma propriedade de coleção com índice ao início da propriedade atual (ex: Endereco[0].Rua).
+    /// </summary>
+    /// <param name="parentProperty">Nome da propriedade de coleção.</param>
+    /// <param name="index">Índice da coleção.</param>
+    /// <returns>Esta instância de Problem com a propriedade modificada.</returns>
+    public Problem ChainProperty(string parentProperty, int index)
+    {
+        if (string.IsNullOrEmpty(parentProperty) || string.IsNullOrEmpty(_property))
+            return this;
+
+        _property = $"{parentProperty}[{index}].{Property}";
+        return this;
     }
 
     /// <inheritdoc />
