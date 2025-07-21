@@ -196,7 +196,7 @@ public readonly struct Result
     public void EnsureSuccess()
     {
         if (IsFailure)
-            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+            throw problems.ToException();
     }
 
     #region Has/Is 

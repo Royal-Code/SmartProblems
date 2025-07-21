@@ -274,7 +274,7 @@ public readonly struct Result<TValue>
     public void EnsureSuccess()
     {
         if (IsFailure)
-            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+            throw problems.ToException();
     }
 
     /// <summary>
@@ -288,7 +288,7 @@ public readonly struct Result<TValue>
     public void EnsureHasValue([NotNull] out TValue value)
     {
         if (IsFailure)
-            throw new InvalidOperationException(string.Join("\n", problems.Select(p => p.ToString())));
+            throw problems.ToException();
 
         value = this.value;
     }

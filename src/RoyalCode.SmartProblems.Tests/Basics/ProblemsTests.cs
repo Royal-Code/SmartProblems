@@ -282,6 +282,56 @@ public class ProblemsTests
         // Assert
         Assert.Throws<ArgumentException>(act);
     }
+
+    [Fact]
+    public void Problems_ToException()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("Invalid parameter 1"), Problems.InvalidParameter("Invalid parameter 2")];
+        
+        // Act
+        var exception = problems.ToException();
+        
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<InvalidOperationException>(exception);
+        Assert.Contains("Invalid parameter 1", exception.Message);
+        Assert.Contains("Invalid parameter 2", exception.Message);
+    }
+
+    [Fact]
+    public void Problems_ToException_WithMessagePattern()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("Invalid parameter 1"), Problems.InvalidParameter("Invalid parameter 2")];
+
+        // Act
+        var exception = problems.ToException("Custom message: {0}");
+
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<InvalidOperationException>(exception);
+        Assert.Contains("Custom message:", exception.Message);
+        Assert.Contains("Invalid parameter 1", exception.Message);
+        Assert.Contains("Invalid parameter 2", exception.Message);
+    }
+
+    [Fact]
+    public void Problems_ToException_WithMessagePattern_And_Separator()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("Invalid parameter 1"), Problems.InvalidParameter("Invalid parameter 2")];
+
+        // Act
+        var exception = problems.ToException("Custom message:\n - {0}", "\n - ");
+
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<InvalidOperationException>(exception);
+        Assert.Contains("Custom message:", exception.Message);
+        Assert.Contains("\n - Category: InvalidParameter, Details: Invalid parameter 1", exception.Message);
+        Assert.Contains("\n - Category: InvalidParameter, Details: Invalid parameter 2", exception.Message);
+    }
 }
 
 #region classes

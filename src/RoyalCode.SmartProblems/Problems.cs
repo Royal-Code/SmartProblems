@@ -445,4 +445,31 @@ public sealed class Problems : ICollection<Problem>
     }
 
     #endregion
+
+    /// <summary>
+    /// Creates an <see cref="InvalidOperationException"/> from the collection of problems.
+    /// The exception message will contain the details of all problems in the collection.
+    /// </summary>
+    /// <returns>A new instance of <see cref="InvalidOperationException"/>.</returns>
+    public InvalidOperationException ToException()
+    {
+        return new InvalidOperationException(string.Join("\n", this.Select(p => p.ToString())));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="InvalidOperationException"/> from the collection of problems.
+    /// The exception message will be formatted using the provided pattern,
+    /// where the first argument is the details of all problems in the collection.
+    /// </summary>
+    /// <remarks>
+    ///     The message pattern should contain a single placeholder (e.g., <c>"{0}"</c>, <c>"Errors: {0}"</c>),
+    /// </remarks>
+    /// <param name="messagePattern">The message pattern to format the exception message.</param>
+    /// <param name="separator">The separator to use between problem details in the message, optional, defaults to newline character.</param>
+    /// <returns>A new instance of <see cref="InvalidOperationException"/>.</returns>
+    public InvalidOperationException ToException(string messagePattern, string separator = "\n")
+    {
+        var message = string.Format(messagePattern, string.Join(separator, this.Select(p => p.ToString())));
+        return new InvalidOperationException(message);
+    }
 }
