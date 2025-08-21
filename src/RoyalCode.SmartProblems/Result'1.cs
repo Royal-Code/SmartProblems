@@ -59,6 +59,13 @@ public readonly struct Result<TValue>
     public static implicit operator Result<TValue>(Exception ex) => new([Problems.InternalError(ex)]);
 
     /// <summary>
+    /// Converts a result with a value to a task of result with a value.
+    /// </summary>
+    /// <param name="result"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Task<Result<TValue>>(Result<TValue> result) => Task.FromResult(result);
+
+    /// <summary>
     /// <para>
     ///     Converts a result with a value to a result without a value.
     /// </para>

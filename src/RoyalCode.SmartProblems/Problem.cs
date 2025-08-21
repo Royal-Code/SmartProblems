@@ -13,6 +13,13 @@ public sealed class Problem
     #region implicit operators
 
     /// <summary>
+    /// Converts a <see cref="Problem"/> to a <see cref="Task"/> of <see cref="Result"/>.
+    /// </summary>
+    /// <param name="problem"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Task<Result>(Problem problem) => Task.FromResult(new Result(problem));
+
+    /// <summary>
     /// Creates a collection of problems with both problems.
     /// </summary>
     /// <param name="a">A problem to add.</param>
@@ -176,5 +183,24 @@ public sealed class Problem
         }
 
         return builder.ToString();
+    }
+
+    /// <summary>
+    /// Converts the problem to a <see cref="Result"/> object.
+    /// </summary>
+    /// <returns></returns>
+    public Result AsResult()
+    {
+        return new Result(this);
+    }
+
+    /// <summary>
+    /// Converts the problem to a <see cref="Result{TValue}"/> object with a specified value type.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <returns></returns>
+    public Result<TValue> AsResult<TValue>()
+    {
+        return new Result<TValue>(this);
     }
 }

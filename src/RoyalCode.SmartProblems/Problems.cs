@@ -47,6 +47,13 @@ public sealed class Problems : ICollection<Problem>
     public static implicit operator Problems(Problem problem) => [problem];
 
     /// <summary>
+    /// Convert a <see cref="Problem"/> to a <see cref="Task"/> of <see cref="Result"/>.
+    /// </summary>
+    /// <param name="problems"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Task<Result>(Problems problems) => Task.FromResult(new Result(problems));
+
+    /// <summary>
     /// Add a problem to the collection of problems.
     /// </summary>
     /// <param name="collection">The collection of problems.</param>
@@ -471,5 +478,25 @@ public sealed class Problems : ICollection<Problem>
     {
         var message = string.Format(messagePattern, string.Join(separator, this.Select(p => p.ToString())));
         return new InvalidOperationException(message);
+    }
+
+    /// <summary>
+    /// Convert the collection of problems to a <see cref="Result"/> instance.
+    /// </summary>
+    /// <returns></returns>
+    public Result AsResult()
+    {
+        return new Result(this);
+    }
+
+    /// <summary>
+    /// Convert the collection of problems to a <see cref="Result{TValue}"/> instance with the specified value.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public Result<TValue> AsResult<TValue>(TValue value)
+    {
+        return new Result<TValue>(this);
     }
 }

@@ -53,6 +53,13 @@ public readonly struct Result
     public static implicit operator Result(Exception ex) => new([Problems.InternalError(ex)]);
 
     /// <summary>
+    /// Converts a result to a <see cref="Task"/> of <see cref="Result"/>.
+    /// </summary>
+    /// <param name="result"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Task<Result>(Result result) => Task.FromResult(result);
+
+    /// <summary>
     /// <para>
     ///     Adds a problem to a result.
     /// </para>
