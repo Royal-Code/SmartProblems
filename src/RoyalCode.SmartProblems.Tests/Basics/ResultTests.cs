@@ -85,6 +85,22 @@ public class ResultTests
     }
 
     [Fact]
+    public void Result_Implicit_Task()
+    {
+        // Arrange
+        Result result = Result.Ok();
+        Task<Result> task;
+
+        // Act
+        task = result;
+
+        // Assert
+        Assert.NotNull(task);
+        Assert.True(task.IsCompleted);
+        Assert.Equal(result, task.Result);
+    }
+
+    [Fact]
     public void Result_Add_Problem_Must_HasProblems()
     {
         // Arrange

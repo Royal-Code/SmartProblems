@@ -69,6 +69,25 @@ public class ResultValuedTests
     }
 
     [Fact]
+    public void Result_Implicit_Task()
+    {
+        // Arrange
+        Result<int> result = 42;
+        Task<Result<int>> task;
+
+        // Act
+        task = result;
+
+        // Assert
+        Assert.NotNull(task);
+        Assert.True(task.IsCompleted);
+        var resultValue = task.Result;
+        Assert.Equal(result, resultValue);
+        Assert.True(resultValue.HasValue(out var value));
+        Assert.Equal(42, value);
+    }
+
+    [Fact]
     public void ResultValued_Implicit_Problems_Must_Throw_When_Null()
     {
         // Arrange

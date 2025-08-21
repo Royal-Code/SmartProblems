@@ -109,6 +109,62 @@ public class ProblemTests
         Assert.Single(problem.Extensions);
         Assert.Equal("Value1", problem.Extensions["my-key"]);
     }
+
+    [Fact]
+    public void Problem_Implicit_Task()
+    {
+        // Arrange
+        Problem problem = Problems.InvalidParameter("Invalid parameter");
+        Task<Result> task;
+
+        // Act
+        task = problem;
+
+        // Assert
+        Assert.NotNull(task);
+        var result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
+    }
+
+    [Fact]
+    public void Problem_AsResult()
+    {
+        // Arrange
+        Problem problem = Problems.InvalidParameter("Invalid parameter");
+        Result result;
+        Task<Result> task;
+
+        // Act
+        task = problem.AsResult();
+
+        // Assert
+        Assert.NotNull(task);
+        result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
+    }
+
+    [Fact]
+    public void Problem_AsResultValue()
+    {
+        // Arrange
+        Problem problem = Problems.InvalidParameter("Invalid parameter");
+        Result<int> result;
+        Task<Result<int>> task;
+
+        // Act
+        task = problem.AsResult<int>();
+
+        // Assert
+        Assert.NotNull(task);
+        result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
+    }
 }
 
 file enum MyEnum

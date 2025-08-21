@@ -139,7 +139,7 @@ public class ProblemsTests
     }
 
     [Fact]
-    public void Problems_Implict_Add_Problem()
+    public void Problems_Implicit_Add_Problem()
     {
         // Arrange
         Problems problems = [];
@@ -152,7 +152,7 @@ public class ProblemsTests
     }
 
     [Fact]
-    public void Problems_Implict_Add_Problems()
+    public void Problems_Implicit_Add_Problems()
     {
         // Arrange
         Problems problems = [];
@@ -163,6 +163,24 @@ public class ProblemsTests
 
         // Assert
         Assert.Equal(2, problems.Count);
+    }
+
+    [Fact]
+    public void Problems_Implicit_Task()
+    {
+        // Arrange
+        Problems problems = Problems.InvalidParameter("Invalid parameter");
+        Task<Result> task;
+
+        // Act
+        task = problems;
+
+        // Assert
+        Assert.NotNull(task);
+        var result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
     }
 
     [Fact]
@@ -331,6 +349,44 @@ public class ProblemsTests
         Assert.Contains("Custom message:", exception.Message);
         Assert.Contains("\n - Category: InvalidParameter, Details: Invalid parameter 1", exception.Message);
         Assert.Contains("\n - Category: InvalidParameter, Details: Invalid parameter 2", exception.Message);
+    }
+
+    [Fact]
+    public void Problem_AsResult()
+    {
+        // Arrange
+        Problems problems = Problems.InvalidParameter("Invalid parameter");
+        Result result;
+        Task<Result> task;
+
+        // Act
+        task = problems.AsResult();
+
+        // Assert
+        Assert.NotNull(task);
+        result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
+    }
+
+    [Fact]
+    public void Problem_AsResultValue()
+    {
+        // Arrange
+        Problems problems = Problems.InvalidParameter("Invalid parameter");
+        Result<int> result;
+        Task<Result<int>> task;
+
+        // Act
+        task = problems.AsResult<int>();
+
+        // Assert
+        Assert.NotNull(task);
+        result = task.Result;
+        Assert.True(result.HasProblems(out var resultProblems));
+        Assert.NotNull(resultProblems);
+        Assert.Single(resultProblems);
     }
 }
 

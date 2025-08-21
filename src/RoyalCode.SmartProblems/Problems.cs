@@ -493,9 +493,8 @@ public sealed class Problems : ICollection<Problem>
     /// Convert the collection of problems to a <see cref="Result{TValue}"/> instance with the specified value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
-    /// <param name="value"></param>
     /// <returns></returns>
-    public Result<TValue> AsResult<TValue>(TValue value)
+    public Result<TValue> AsResult<TValue>()
     {
         return new Result<TValue>(this);
     }
