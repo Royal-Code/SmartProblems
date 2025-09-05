@@ -140,6 +140,17 @@ public sealed class Problem
         return this;
     }
 
+    /// <summary>
+    /// Replaces the current property with a new one.
+    /// </summary>
+    /// <param name="newProperty">The new property name.</param>
+    /// <returns>The same instance of the problem.</returns>
+    public Problem ReplaceProperty(string? newProperty)
+    {
+        _property = newProperty;
+        return this;
+    }
+
     /// <inheritdoc />
     public override string ToString() => ToStringFactory(this);
 
