@@ -481,6 +481,64 @@ public sealed class Problems : ICollection<Problem>
     }
 
     /// <summary>
+    /// Execute the specified action for each problem in the collection.
+    /// </summary>
+    /// <param name="action">The action to execute for each problem.</param>
+    /// <returns>
+    ///     The same instance of the collection, to allow method chaining.
+    /// </returns>
+    public Problems ForEach(Action<Problem> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        
+        if (Count == 0)
+            return this;
+
+        action(firstProblem!);
+
+        if (Count == 1)
+            return this;
+
+        var current = head;
+        while (current is not null)
+        {
+            action(current.Problem);
+            current = current.Next;
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Execute the specified action for each problem in the collection, passing an additional parameter.
+    /// </summary>
+    /// <typeparam name="T">The type of the additional parameter.</typeparam>
+    /// <param name="param">The additional parameter to pass to the action.</param>
+    /// <param name="action">The action to execute for each problem, with the additional parameter.</param>
+    /// <returns>The same instance of the collection, to allow method chaining.</returns>
+    public Problems ForEach<T>(T param, Action<T, Problem> action)
+    {
+        ArgumentNullException.ThrowIfNull(param);
+        ArgumentNullException.ThrowIfNull(action);
+
+        if (Count == 0)
+            return this;
+
+        action(param, firstProblem!);
+
+        if (Count == 1)
+            return this;
+
+        var current = head;
+        while (current is not null) {
+            action(param, current.Problem);
+            current = current.Next;
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Convert the collection of problems to a <see cref="Result"/> instance.
     /// </summary>
     /// <returns></returns>
