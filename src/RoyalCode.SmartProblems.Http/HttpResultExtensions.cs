@@ -1,9 +1,10 @@
 ﻿using RoyalCode.SmartProblems;
 using RoyalCode.SmartProblems.Conversions;
+using RoyalCode.SmartProblems.Http;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using RoyalCode.SmartProblems.Http;
+using System.Text.Json.Serialization.Metadata;
 
 // ReSharper disable CheckNamespace
 
@@ -80,6 +81,26 @@ public static class HttpResultExtensions
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
+    /// <param name="jsonTypeInfo">
+    ///     The <see cref="JsonTypeInfo{T}"/> for the <typeparamref name="TValue"/>, 
+    ///     used when status code is success.
+    /// </param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
+    /// <returns>The <see cref="Result{TValue}"/>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Task<Result<TValue>> ToResultAsync<TValue>(
+        this HttpResponseMessage response, JsonTypeInfo<TValue> jsonTypeInfo, CancellationToken ct = default)
+    {
+        return ToResultAsync(response, null, jsonTypeInfo, ct);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Get <see cref="Result{TValue}" /> from <see cref="HttpResponseMessage"/>.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
     /// <param name="failureTypeReader">
     ///     A <see cref="FailureTypeReader"/> to read the error content when the status code is not success 
     ///     and the content is not a problem details.
@@ -102,6 +123,39 @@ public static class HttpResultExtensions
         
         // on success, with value, the value must be deserialized
         var value = await response.Content.ReadFromJsonAsync<TValue>(options, token);
+
+        return value!;
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Get <see cref="Result{TValue}" /> from <see cref="HttpResponseMessage"/>.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
+    /// <param name="failureTypeReader">
+    ///     A <see cref="FailureTypeReader"/> to read the error content when the status code is not success 
+    ///     and the content is not a problem details.
+    /// </param>
+    /// <param name="jsonTypeInfo">
+    ///     The <see cref="JsonTypeInfo{T}"/> for the <typeparamref name="TValue"/>, 
+    ///     used when status code is success.
+    /// </param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
+    /// <returns>The <see cref="Result{TValue}"/>.</returns>
+    public static async Task<Result<TValue>> ToResultAsync<TValue>(
+        this HttpResponseMessage response,
+        FailureTypeReader? failureTypeReader,
+        JsonTypeInfo<TValue> jsonTypeInfo,
+        CancellationToken ct = default)
+    {
+        // on error, read the content as a problem details or text.
+        if (!response.IsSuccessStatusCode)
+            return await response.ReadErrorStatus(failureTypeReader, ct);
+
+        // on success, with value, the value must be deserialized
+        var value = await response.Content.ReadFromJsonAsync(jsonTypeInfo, ct);
 
         return value!;
     }

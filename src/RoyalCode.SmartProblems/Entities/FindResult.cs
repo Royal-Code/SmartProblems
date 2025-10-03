@@ -226,8 +226,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Collect(string parameterName, Action<TEntity> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         receiver(Entity);
         return Result.Ok();
     }
@@ -253,8 +253,8 @@ public readonly struct FindResult<TEntity>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     public async Task<Result> CollectAsync(string parameterName, Func<TEntity, Task> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         await receiver(Entity);
         return Result.Ok();
     }
@@ -281,8 +281,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Continue(string parameterName, Func<TEntity, Result> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -308,8 +308,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result> ContinueAsync(string parameterName, Func<TEntity, Task<Result>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return Task.FromResult(new Result(problem));
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return Task.FromResult(new Result(invalidParameter));
         return receiver(Entity);
     }
 
@@ -337,8 +337,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, TValue> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -366,8 +366,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, Result<TValue>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -393,8 +393,8 @@ public readonly struct FindResult<TEntity>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     public async Task<Result<TValue>> MapAsync<TValue>(string parameterName, Func<TEntity, Task<TValue>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return await receiver(Entity);
     }
 
@@ -422,8 +422,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result<TValue>> MapAsync<TValue>(string parameterName, Func<TEntity, Task<Result<TValue>>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return Task.FromResult(new Result<TValue>(problem));
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return Task.FromResult(new Result<TValue>(invalidParameter));
         return receiver(Entity);
     }
 
@@ -451,8 +451,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TEntity> ToResult(string parameterName)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return Entity;
     }
 }
@@ -594,8 +594,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Collect(string parameterName, Action<TEntity> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         receiver(Entity);
         return Result.Ok();
     }
@@ -621,8 +621,8 @@ public readonly struct FindResult<TEntity, TId>
     /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
     public async Task<Result> CollectAsync(string parameterName, Func<TEntity, Task> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         await receiver(Entity);
         return Result.Ok();
     }
@@ -649,8 +649,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Continue(string parameterName, Func<TEntity, Result> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -676,8 +676,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result> ContinueAsync(string parameterName, Func<TEntity, Task<Result>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return Task.FromResult(new Result(problem));
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return Task.FromResult(new Result(invalidParameter));
         return receiver(Entity);
     }
 
@@ -705,8 +705,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, TValue> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -734,8 +734,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, Result<TValue>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return receiver(Entity);
     }
 
@@ -761,8 +761,8 @@ public readonly struct FindResult<TEntity, TId>
     /// <returns>Um <see cref="Result{TValue}"/> indicando sucesso ou falha.</returns>
     public async Task<Result<TValue>> MapAsync<TValue>(string parameterName, Func<TEntity, Task<TValue>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return await receiver(Entity);
     }
 
@@ -790,8 +790,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result<TValue>> MapAsync<TValue>(string parameterName, Func<TEntity, Task<Result<TValue>>> receiver)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return Task.FromResult(new Result<TValue>(problem));
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return Task.FromResult(new Result<TValue>(invalidParameter));
         return receiver(Entity);
     }
 
@@ -815,8 +815,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TEntity> ToResult(string parameterName)
     {
-        if (HasInvalidParameter(out var problem, parameterName))
-            return problem;
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
         return Entity;
     }
 }
