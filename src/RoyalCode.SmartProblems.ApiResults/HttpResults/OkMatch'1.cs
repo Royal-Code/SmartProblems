@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Http.Metadata;
+using RoyalCode.SmartProblems.Entities;
 using RoyalCode.SmartProblems.Metadata;
 using System.Net.Mime;
 using System.Reflection;
@@ -27,6 +28,13 @@ public sealed class OkMatch<T> : IResult, INestedHttpResult, IEndpointMetadataPr
     /// <param name="result"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator OkMatch<T>(Result<T> result) => new(result);
+
+    /// <summary>
+    /// Creates a new <see cref="OkMatch{T}"/> for the <see cref="Result{TValue}"/>.
+    /// </summary>
+    /// <param name="result"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator OkMatch<T>(FindResult<T> result) => new(result);
 
     /// <summary>
     /// Creates a new <see cref="OkMatch{T}"/> for the <see cref="Ok{TValue}"/>.
@@ -72,6 +80,17 @@ public sealed class OkMatch<T> : IResult, INestedHttpResult, IEndpointMetadataPr
         Result = result.Match<IResult>(
             TypedResults.Ok,
             static error => new MatchErrorResult(error));
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="IResult"/> for the <see cref="FindResult{TEntity}"/> match.
+    /// </summary>
+    /// <param name="result">The <see cref="FindResult{TEntity}"/> to be converted.</param>
+    public OkMatch(FindResult<T> result)
+    {
+        Result = result.NotFound(out var problem) 
+            ? new MatchErrorResult(problem)
+            : TypedResults.Ok(result.Entity);
     }
 
     /// <summary>
