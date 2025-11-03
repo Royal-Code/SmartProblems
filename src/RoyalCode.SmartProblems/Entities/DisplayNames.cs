@@ -22,17 +22,16 @@ public class DisplayNames
 
     private readonly ConcurrentDictionary<Type, string> typeNames = new();
     private readonly ConcurrentDictionary<(Type, string), string> propertyNames = new();
-    private readonly Func<Type, string> createTypeDisplayName;
-    private readonly Func<(Type, string), string> createPropertyDisplayName;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DisplayNames"/> class.
+    /// Gets or sets the function to create the display name for a type.
     /// </summary>
-    public DisplayNames()
-    {
-        createTypeDisplayName = CreateTypeDisplayName;
-        createPropertyDisplayName = CreatePropertyDisplayName;
-    }
+    public Func<Type, string> CreateTypeDisplayName { get; set; } = DefaultCreateTypeDisplayName;
+
+    /// <summary>
+    /// Gets or sets the function to create the display name for a property.
+    /// </summary>
+    public Func<(Type, string), string> CreatePropertyDisplayName { get; set; } = DefaultCreatePropertyDisplayName;
 
     /// <summary>
     /// Gets the display name of a given type.
@@ -44,7 +43,7 @@ public class DisplayNames
         if (type is null)
             return "?";
 
-        return typeNames.GetOrAdd(type, createTypeDisplayName);
+        return typeNames.GetOrAdd(type, CreateTypeDisplayName);
     }
 
     /// <summary>
@@ -64,10 +63,10 @@ public class DisplayNames
         if (type is null || property is null)
             return property ?? "?";
 
-        return propertyNames.GetOrAdd((type, property), createPropertyDisplayName);
+        return propertyNames.GetOrAdd((type, property), CreatePropertyDisplayName);
     }
 
-    private static string CreateTypeDisplayName(Type type)
+    private static string DefaultCreateTypeDisplayName(Type type)
     {
         var attr = type.GetCustomAttribute<DisplayNameAttribute>();
         if (attr is not null)
@@ -80,10 +79,10 @@ public class DisplayNames
         "Trimming", 
         "IL2077:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The source field does not have matching annotations.", 
         Justification = "Annotation are added in the caller.")]
-    private static string CreatePropertyDisplayName((Type type, string property) key)
-        => CreatePropertyDisplayName(key.type, key.property);
+    private static string DefaultCreatePropertyDisplayName((Type type, string property) key)
+        => DefaultCreatePropertyDisplayName(key.type, key.property);
 
-    private static string CreatePropertyDisplayName(
+    private static string DefaultCreatePropertyDisplayName(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type,
         string property)
     {
