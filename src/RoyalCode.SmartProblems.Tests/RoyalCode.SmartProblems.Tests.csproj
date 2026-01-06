@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(AspNetVer)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVer)" />
 	</ItemGroup>
 
 	<ItemGroup>

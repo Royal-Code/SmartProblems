@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
-		<FrmsVer>net8.0;net9.0</FrmsVer>
-		<TestVer>net9.0</TestVer>
+		<FrmsVer>net8.0;net9.0;net10.0</FrmsVer>
+		<TestVer>net10.0</TestVer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
@@ -10,13 +10,19 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SPVer>1.0.0</SPVer>
-		<SPPreview>-preview-5.0</SPPreview>
-	</PropertyGroup>
-	<PropertyGroup>
-		<FluentValidationVer>12.0.0</FluentValidationVer>
+		<SPPreview>-preview-6.0</SPPreview>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AspNetVer Condition=" '$(TargetFramework)' == 'net8.0'">8.0.0</AspNetVer>
 		<AspNetVer Condition=" '$(TargetFramework)' == 'net9.0'">9.0.0</AspNetVer>
+		<AspNetVer Condition=" '$(TargetFramework)' == 'net10.0'">10.0.0</AspNetVer>
+	</PropertyGroup>
+	<PropertyGroup>
+		<EFVer>$(AspNetVer)</EFVer>
+		<FluentValidationVer>12.1.1</FluentValidationVer>
+		<SwashbuckleVer>10.1.0</SwashbuckleVer>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0'">
+		<EFVer>8.0.10</EFVer>
 	</PropertyGroup>
 </Project>

@@ -8,7 +8,7 @@
 	<Import Project="..\libs.targets" />
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(AspNetVer)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EFVer)" />
 	</ItemGroup>
 
 	<ItemGroup>
