@@ -1,5 +1,4 @@
-﻿
-using RoyalCode.SmartProblems.Entities;
+﻿using RoyalCode.SmartProblems.Entities;
 
 namespace RoyalCode.SmartProblems.Tests.Basics;
 

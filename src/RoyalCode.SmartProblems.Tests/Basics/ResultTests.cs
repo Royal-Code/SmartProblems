@@ -1,7 +1,4 @@
-﻿
-using RoyalCode.SmartProblems.Tests.UseCases;
-
-namespace RoyalCode.SmartProblems.Tests.Basics;
+﻿namespace RoyalCode.SmartProblems.Tests.Basics;
 
 public class ResultTests
 {

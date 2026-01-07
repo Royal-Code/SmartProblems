@@ -1,5 +1,4 @@
-﻿
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace RoyalCode.SmartProblems.Tests.Basics;
 
@@ -17,6 +16,139 @@ public class ProblemsTests
 
         // Assert
         Assert.Equal(message, problem.Detail);
+    }
+
+    [Fact]
+    public void Problems_Add_Null_Must_ThrowArgumentNullException()
+    {
+        // Arrange
+        var problems = new Problems();
+
+        // Act
+        var act = new Action(() => problems.Add(null!));
+
+        // Assert
+        Assert.Throws<ArgumentNullException>(act);
+    }
+
+    [Fact]
+    public void Problems_AddRange_Null_Must_ThrowArgumentNullException()
+    {
+        // Arrange
+        var problems = new Problems();
+
+        // Act
+        var act = new Action(() => problems.AddRange(null!));
+
+        // Assert
+        Assert.Throws<ArgumentNullException>(act);
+    }
+
+    [Fact]
+    public void Problems_Clear_Must_ThrowNotSupportedException()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("p")];
+
+        // Act
+        var act = new Action(() => problems.Clear());
+
+        // Assert
+        Assert.Throws<NotSupportedException>(act);
+    }
+
+    [Fact]
+    public void Problems_Remove_Must_ThrowNotSupportedException()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("p")];
+
+        // Act
+        var act = new Action(() => problems.Remove(Problems.InvalidParameter("x")));
+
+        // Assert
+        Assert.Throws<NotSupportedException>(act);
+    }
+
+    [Fact]
+    public void Problems_ForEach_Action_Null_Must_Throw()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("a")];
+
+        // Act
+        var act = new Action(() => problems.ForEach(null!));
+
+        // Assert
+        Assert.Throws<ArgumentNullException>(act);
+    }
+
+    [Fact]
+    public void Problems_ForEach_Zero_One_Many_Must_InvokeAction()
+    {
+        // Arrange
+        Problems empty = [];
+        Problems one = [Problems.InvalidParameter("1")];
+        Problems many = [Problems.InvalidParameter("1"), Problems.InvalidParameter("2"), Problems.InvalidParameter("3")];
+
+        var countEmpty = 0;
+        var countOne = 0;
+        var countMany = 0;
+
+        // Act
+        empty.ForEach(_ => countEmpty++);
+        one.ForEach(_ => countOne++);
+        many.ForEach(_ => countMany++);
+
+        // Assert
+        Assert.Equal(0, countEmpty);
+        Assert.Equal(1, countOne);
+        Assert.Equal(3, countMany);
+    }
+
+    [Fact]
+    public void Problems_ForEach_WithParam_ArgValidation_And_Counts()
+    {
+        // Arrange
+        Problems many = [Problems.InvalidParameter("1"), Problems.InvalidParameter("2")];
+
+        // Act
+        var actParamNull = new Action(() => many.ForEach<string?>(null!, (s, p) => { }));
+
+        // Assert
+        Assert.Throws<ArgumentNullException>(actParamNull);
+
+        // Arrange
+        var actActionNull = new Action(() => many.ForEach("x", null!));
+
+        // Assert
+        Assert.Throws<ArgumentNullException>(actActionNull);
+
+        // Arrange
+        var count = 0;
+
+        // Act
+        many.ForEach("param", (param, _) =>
+        {
+            Assert.Equal("param", param);
+            count++;
+        });
+
+        // Assert
+        Assert.Equal(2, count);
+    }
+
+    [Fact]
+    public void Problems_Indexer_Negative_Must_Throw()
+    {
+        // Arrange
+        Problems problems = [Problems.InvalidParameter("1")];
+
+        // Act
+        var act = new Action(() => _ = problems[-1]);
+
+        // Assert
+        Assert.Throws<IndexOutOfRangeException>(act);
     }
 
     [Fact]

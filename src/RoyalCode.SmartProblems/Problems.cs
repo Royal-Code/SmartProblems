@@ -194,9 +194,9 @@ public sealed class Problems : ICollection<Problem>
     /// <summary>
     /// Create a new problem of InternalServerError category.
     /// </summary>
-    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="exception">The exception that occurred. When null, a default message is used.</param>
     /// <returns>A new problem.</returns>
-    public static Problem InternalError(Exception exception) => InternalError(exception, ExceptionOptions);
+    public static Problem InternalError(Exception? exception = null) => InternalError(exception, ExceptionOptions);
 
     /// <summary>
     /// Create a new problem of InternalServerError category.
@@ -204,8 +204,19 @@ public sealed class Problems : ICollection<Problem>
     /// <param name="exception">The exception that occurred.</param>
     /// <param name="options">The options to customize the creation of problems from exceptions.</param>
     /// <returns>A new problem.</returns>
-    public static Problem InternalError(Exception exception, ExceptionOptions options)
+    public static Problem InternalError(Exception? exception, ExceptionOptions options)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (exception is null)
+        {
+            return new Problem
+            {
+                Category = ProblemCategory.InternalServerError,
+                Detail = options.DefaultExceptionMessage
+            };
+        }
+
         if (ExceptionHandler?.TryHandle(exception, out var problem) is true)
             return problem;
 
