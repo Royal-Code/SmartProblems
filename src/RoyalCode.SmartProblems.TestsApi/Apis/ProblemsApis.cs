@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Builder;
-using RoyalCode.SmartProblems.HttpResults;
+﻿using RoyalCode.SmartProblems.HttpResults;
 
 namespace RoyalCode.SmartProblems.TestsApi.Apis;
 

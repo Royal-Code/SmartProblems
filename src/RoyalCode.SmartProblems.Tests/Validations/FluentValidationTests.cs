@@ -285,6 +285,166 @@ public class FluentValidationTests
         problem = problems[1];
         Assert.Null(problem.Extensions);
     }
+
+    [Fact]
+    public void Validation_ToResult_SuccessAndFail()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var ok = new SimpleClass { Name = "John", Age = 20 };
+        var bad = new SimpleClass { Name = "", Age = 18 };
+
+        // Act
+        var okResult = validator.Validate(ok).ToResult();
+        var badResult = validator.Validate(bad).ToResult();
+
+        // Assert
+        Assert.True(okResult.IsSuccess);
+        Assert.True(badResult.HasProblems(out var problems));
+        Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public void Validation_EnsureIsValid_Sync()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var ok = new SimpleClass { Name = "John", Age = 20 };
+        var bad = new SimpleClass { Name = "", Age = 18 };
+
+        // Act
+        var okResult = validator.EnsureIsValid(ok);
+        var badResult = validator.EnsureIsValid(bad);
+
+        // Assert
+        Assert.True(okResult.HasValue(out var model));
+        Assert.Equal("John", model.Name);
+
+        Assert.True(badResult.HasProblems(out var problems));
+        Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public async Task Validation_EnsureIsValid_Async()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var ok = new SimpleClass { Name = "John", Age = 20 };
+        var bad = new SimpleClass { Name = "", Age = 18 };
+
+        // Act
+        var okResult = await validator.EnsureIsValidAsync(ok);
+        var badResult = await validator.EnsureIsValidAsync(bad);
+
+        // Assert
+        Assert.True(okResult.HasValue(out var model));
+        Assert.Equal("John", model.Name);
+
+        Assert.True(badResult.HasProblems(out var problems));
+        Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public void Validation_Validate_Result_Sync()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        Result<SimpleClass> invalid = Problems.InvalidParameter("x");
+        Result<SimpleClass> valid = new SimpleClass { Name = "John", Age = 20 };
+
+        // Act
+        var keepInvalid = invalid.Validate(validator);
+        var validated = valid.Validate(validator);
+
+        // Assert
+        Assert.True(keepInvalid.HasProblems(out _));
+        Assert.True(validated.HasValue(out var model));
+        Assert.Equal("John", model.Name);
+    }
+
+    [Fact]
+    public async Task Validation_Validate_Task_ValueTask_And_Async()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var model = new SimpleClass { Name = "John", Age = 20 };
+        Task<Result<SimpleClass>> task = Task.FromResult<Result<SimpleClass>>(model);
+        ValueTask<Result<SimpleClass>> vtask = new ValueTask<Result<SimpleClass>>(model);
+
+        // Act
+        var fromTask = await task.Validate(validator);
+        var fromVTask = await vtask.Validate(validator);
+        var asyncTask = await task.ValidateAsync(validator);
+        var asyncVTask = await vtask.ValidateAsync(validator);
+
+        // Assert
+        Assert.True(fromTask.IsSuccess);
+        Assert.True(fromVTask.IsSuccess);
+        Assert.True(asyncTask.IsSuccess);
+        Assert.True(asyncVTask.IsSuccess);
+    }
+
+    [Fact]
+    public void Validation_Options_CustomCategory_And_ErrorCodeField()
+    {
+        // Arrange
+        var validator = new SimpleClassValidator();
+        var bad = new SimpleClass { Name = "", Age = 18 };
+        var options = new ValidationToProblemOptions
+        {
+            Category = RoyalCode.SmartProblems.ProblemCategory.ValidationFailed,
+            ErrorCodeExtensionField = "code"
+        };
+
+        // Act
+        var problems = validator.Validate(bad).Errors.ToProblems(options);
+
+        // Assert
+        Assert.Equal(RoyalCode.SmartProblems.ProblemCategory.ValidationFailed, problems[0].Category);
+        Assert.NotNull(problems[0].Extensions);
+        Assert.True(problems[0].Extensions!.ContainsKey("code"));
+    }
+
+    [Fact]
+    public void Validation_ExtensionData_DuplicatedKey_And_NullKey()
+    {
+        // Arrange
+        var validator = new InlineValidator<SimpleClass>();
+        validator.RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithExtension(data =>
+            {
+                data.Add("k", "v");
+                Assert.Throws<ArgumentNullException>(() => data.Add(null!, "x"));
+            });
+
+        // Act
+        var result = validator.Validate(new SimpleClass { Name = "", Age = 20 });
+        var problems = result.Errors.ToProblems();
+
+        // Assert
+        Assert.NotEmpty(problems);
+        var ext = problems[0].Extensions!;
+        Assert.Equal("v", ext["k"]);
+
+        // Arrange
+        var validatorDup = new InlineValidator<SimpleClass>();
+        validatorDup.RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithExtension(data =>
+            {
+                data.Add("dup", "a");
+                Assert.Throws<ArgumentException>(() => data.Add("dup", "b"));
+            });
+
+        // Act
+        var resultDup = validatorDup.Validate(new SimpleClass { Name = "", Age = 20 });
+        var problemsDup = resultDup.Errors.ToProblems();
+
+        // Assert
+        var extDup = problemsDup[0].Extensions!;
+        Assert.Equal("a", extDup["dup"]);
+    }
 }
 
 #region Simple
