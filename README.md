@@ -1,22 +1,16 @@
 # SmartProblems
 
-SmartProblems is a set of libraries aimed at standardizing the handling of results and errors from operations in .NET.
-It provides types and utilities to:
+SmartProblems standardizes success/failure handling with `Result`/`Result<T>` and error modeling with `Problem`/`Problems`.
+It integrates APIs (ProblemDetails per RFC 9457), EF (`FindResult`/`TryFind*`) and HttpClient (`ToResultAsync`).
 
-- Work with `Result`/`Result<T>` (success/failure with type safety)
-- Model errors with `Problem` and `Problems` collections (with categories and extra data)
-- Convert problems to `ProblemDetails` (RFC 7807) and return in APIs
-- Extensions for Entity Framework (safe lookup with `FindResult`/`TryFind*`)
-- Integrations for ASP.NET, Minimal APIs, ProblemDetails, and FluentValidation
-
-Target projects: .NET 8, .NET 9, and .NET 10.
+Target frameworks: .NET 8, .NET 9, .NET 10.
 
 ## Packages/Projects
 
 - Core
   - `RoyalCode.SmartProblems` (Core: `Problem`, `Problems`, `Result`, `Result<T>`, `FindResult`)
 - Integrations and extensions
-  - `RoyalCode.SmartProblems.Conversions` (Conversions to/from extended `ProblemDetails`)
+- `RoyalCode.SmartProblems.Conversions` (Conversions to/from extended `ProblemDetails` per RFC 9457)
   - `RoyalCode.SmartProblems.ProblemDetails` (description and configuration of problem types)
   - `RoyalCode.SmartProblems.EntityFramework` (methods `TryFind*` and integration with `FindResult`)
   - `RoyalCode.SmartProblems.Http` (utilities for ASP.NET)
@@ -27,11 +21,10 @@ Target projects: .NET 8, .NET 9, and .NET 10.
 
 ## Main Concepts
 
-- `Problem`: represents an error (category, detail, property, typeId, and extensions)
-- `Problems`: chainable collection of `Problem`
-- `Result`/`Result<T>`: result of operations (success/failure). Matches, aggregates, maps
-- `FindResult<T>`/`FindResult<T, TId>`: result of lookups (entity or NotFound/InvalidParameter problem)
-- Problem categories (`ProblemCategory`): `NotFound`, `InvalidParameter`, `ValidationFailed`, `NotAllowed`, `InvalidState`, `InternalServerError`, `CustomProblem`
+- `Problem`/`Problems`: categorized errors with `detail`, `property`, `extensions`
+- `Result`/`Result<T>`: success/failure results with composition (`Map`, `Continue`, `Match/MatchAsync`)
+- `FindResult<T>`: safe lookups with standardized `NotFound`/`InvalidParameter`
+- Categories: `NotFound`(404), `InvalidParameter`(400), `ValidationFailed`(422), `NotAllowed`(403), `InvalidState`(409), `InternalServerError`(500), `CustomProblem`
 
 ## Installation
 
@@ -49,7 +42,7 @@ Add references as needed (Core is mandatory):
 
 ## Quick Start
 
-Creating problems and results:
+Problems and Results:
 
 ```csharp
  // a simple problem
@@ -74,7 +67,7 @@ Creating problems and results:
  }
 ```
 
-Composing operations (map/continue/collect):
+Composition:
 
 ```csharp
  Result<User> GetUser() => Problems.NotFound("User");
@@ -85,9 +78,9 @@ Composing operations (map/continue/collect):
          errs => errs.AsResult());
 ```
 
-## ASP.NET + ProblemDetails
+## APIs + ProblemDetails (RFC 9457)
 
-Convert `Problems` to `ProblemDetails` (RFC 7807):
+Convert `Problems` to `ProblemDetails`:
 
 ```csharp
  using RoyalCode.SmartProblems.Conversions;
@@ -97,14 +90,29 @@ Convert `Problems` to `ProblemDetails` (RFC 7807):
  var pd = problems.ToProblemDetails(options);
 ```
 
-Support for:
-- Multiple problems aggregated in `ProblemDetailsExtended` (errors, not_found, and aggregated)
-- Mapping of categories to standard HTTP status
-- Customization of titles/messages and types via descriptors
+Support:
+- Aggregation in `ProblemDetailsExtended`
+- Category-to-status mapping
+- `ProblemDetailsOptions` descriptors for custom types (`typeId`)
+
+API Matches for Minimal APIs:
+
+```csharp
+// Created (201) with Location or Problems
+return service.Create(input)
+  .Map(dto => new Dto(dto))
+  .CreatedMatch(d => $"/api/items/{d.Id}");
+
+// Ok (200) or ProblemDetails
+return service.Update(id, cmd); // OkMatch
+
+// NoContent (204) or ProblemDetails
+return service.Delete(id); // NoContentMatch
+```
 
 ## Entity Framework: TryFind/FindResult
 
-Query safely and produce standardized problems:
+Safe lookups with standardized problems:
 
 ```csharp
  // by Id
@@ -117,7 +125,7 @@ Query safely and produce standardized problems:
  var result = byName.ToResult();
 ```
 
-`FindResult<T>` exposes utilities to compose pipeline:
+Compose with `FindResult<T>`:
 
 ```csharp
  await entry.ContinueAsync(async entity =>
@@ -142,7 +150,7 @@ Create internal error problems with fine control:
 
 ## Custom Problems (CustomProblem)
 
-Define domain problems with `typeId` and describe them for ProblemDetails:
+Define domain problems with `typeId` and describe them for ProblemDetails (RFC 9457):
 
 ```csharp
  var custom = Problems.Custom("Order on hold", typeId: "order-on-hold", property: "status");
@@ -159,18 +167,27 @@ Define domain problems with `typeId` and describe them for ProblemDetails:
 
 Convert validation errors to `Problems.ValidationFailed`/`InvalidParameter` and return as `ProblemDetails`.
 
+## HttpClient: ToResultAsync
+
+Deserialize responses into `Result`/`Result<T>`:
+
+```csharp
+var resp = await http.GetAsync("/users/123");
+var result = await resp.ToResultAsync<UserDto>();
+if (result.HasValue(out var user)) { /* success */ }
+else if (result.HasProblems(out var problems)) { /* handle ProblemDetails */ }
+```
+
 ## Usage Tips
 
-- Use `With(key, value)` to attach extra data to problems
-- `ChainProperty("parent")` helps compose the property path (e.g., collections with index)
-- Prefer composition with `Result`/`FindResult` to keep flow without exceptions
+- Use `With(key, value)` to attach context data
+- `ChainProperty("parent")` for nested property paths
+- Prefer `Result`/`FindResult` composition over exceptions in expected flows
+- Configure `ProblemDetailsOptions` with absolute `type` URIs (RFC 9457)
 
 ## Development
 
-- Multi-target projects: .NET 8, 9, and 10
-- Tests in `RoyalCode.SmartProblems.Tests` cover:
-  - `Result`/`Problems` operations
-  - `Problems` factories and conversions to `ProblemDetails`
-  - Integration with Entity Framework (lookup scenarios)
+- Multi-target: .NET 8, 9, 10
+- Tests cover Results/Problems, ProblemDetails conversion, EF lookups, Http ToResultAsync, API Matches
 
-Feel free to open issues and PRs.
+Contributions welcome.

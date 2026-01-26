@@ -23,6 +23,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapProblems();
+app.MapMatchApi();
 
 app.MapControllers();
 

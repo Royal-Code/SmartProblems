@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable IDE0079 // Suppress unused warning disable
 #pragma warning disable CA1822 // Mark members as static
@@ -79,5 +80,32 @@ public class FooBarService
     public ValueTask<Result<Baz>> ProcessBar(Bar bar)
     {
         return new ValueTask<Result<Baz>>(new Result<Baz>(new Baz { Value = bar.Value + 1 } ));
+    }
+}
+
+public class User
+{
+    public string Name { get; set; }
+
+    public int Age { get; set; }
+
+    public bool HasProblems([NotNullWhen(true)] out Problems? problems)
+    {
+        Problems errors = [];
+
+        if (string.IsNullOrWhiteSpace(Name))
+            errors += Problems.InvalidParameter("Name is required", "name");
+
+        if (Age < 18)
+            errors += Problems.InvalidParameter("Age must be at least 18", "age");
+
+        if (errors.Count > 0)
+        {
+            problems = errors;
+            return true;
+        }
+
+        problems = null;
+        return false;
     }
 }
