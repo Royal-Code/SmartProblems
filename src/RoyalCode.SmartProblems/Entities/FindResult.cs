@@ -275,6 +275,34 @@ public readonly struct FindResult<TEntity>
     /// <summary>
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result Continue<TParam>(TParam param, Func<TEntity, TParam, Result> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TEntity> Continue<TParam>(TParam param, Func<TEntity, TParam, Result<TEntity>> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
     /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
@@ -297,6 +325,20 @@ public readonly struct FindResult<TEntity>
         if (NotFound(out var notFoundProblem))
             return Task.FromResult(new Result(notFoundProblem));
         return receiver(Entity);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result<TEntity>> ContinueAsync<TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return await receiver(Entity, param, ct);
     }
 
     /// <summary>

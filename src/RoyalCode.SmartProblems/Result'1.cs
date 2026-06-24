@@ -943,7 +943,9 @@ public readonly struct Result<TValue>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or a new with the problems.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> ContinueAsync<TParam>(TParam param, Func<TValue, TParam, Task<Result>> action)
+    public async ValueTask<Result<TValue>> ContinueAsync<TParam>(
+        TParam param,
+        Func<TValue, TParam, Task<Result>> action)
     {
         if (IsSuccess)
         {

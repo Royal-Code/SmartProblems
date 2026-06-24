@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 /// Extensions for SmartProblems to work with Entity Framework.
 /// </summary>
-public static class SmartProblemsEFExtensions
+public static partial class SmartProblemsEFExtensions
 {
     /// <summary>
     /// It tries to find an entity in the database using the identifier provided.

@@ -1,0 +1,204 @@
+
+#pragma warning disable IDE0130 // Namespace does not match folder structure: extension methods for EF.
+
+using System.Runtime.CompilerServices;
+using RoyalCode.SmartProblems;
+using RoyalCode.SmartProblems.Entities;
+
+namespace Microsoft.EntityFrameworkCore;
+
+/// <summary>
+/// Extensions for SmartProblems to work with Entity Framework.
+/// </summary>
+public static partial class SmartProblemsEFExtensions
+{
+    #region AddTo
+
+    /// <summary>
+    /// Adds the entity to the DbContext if the result is successful.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="result">The result containing the entity.</param>
+    /// <param name="context">The DbContext to add the entity to.</param>
+    /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<TEntity> AddTo<TEntity>(this Result<TEntity> result, DbContext context) 
+        where TEntity : class
+    {
+        return result.Continue(context, (entity, ctx) =>
+        {
+            ctx.Add(entity);
+        });
+    }
+
+    /// <summary>
+    /// Adds the entity to the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="result">The result containing the entity.</param>
+    /// <param name="context">The DbContext to add the entity to.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns></returns>
+    public static ValueTask<Result<TEntity>> AddToAsync<TEntity>(
+        this Result<TEntity> result, DbContext context, CancellationToken ct = default) 
+        where TEntity : class
+    {
+        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        {
+            await ctx.AddAsync(entity, ct);
+        });
+    }
+
+    /// <summary>
+    /// Adds the entity to the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="result">The result containing the entity.</param>
+    /// <param name="context">The DbContext to add the entity to.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static Task<Result<TEntity>> AddToAsync<TEntity>(
+        this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
+        where TEntity : class
+    {
+        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        {
+            await ctx.AddAsync(entity, ct);
+        });
+    }
+
+    /// <summary>
+    /// Adds the entity to the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="result">The result containing the entity.</param>
+    /// <param name="context">The DbContext to add the entity to.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static Task<Result<TEntity>> AddToAsync<TEntity>(
+        this ValueTask<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
+        where TEntity : class
+    {
+        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        {
+            await ctx.AddAsync(entity, ct);
+        });
+    }
+
+    #endregion
+
+    #region SaveChaves
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result SaveChanges(this Result result, DbContext context)
+    {
+        return result.Continue(context, (ctx) =>
+        {
+            ctx.SaveChanges();
+        });
+    }
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static ValueTask<Result> SaveChangesAsync(
+        this Result result, DbContext context, CancellationToken ct = default)
+    {
+        return result.ContinueAsync(context, ct, async (ctx, ct) =>
+        {
+            await ctx.SaveChangesAsync(ct);
+        });
+    }
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static Task<Result> SaveChangesAsync(
+        this Task<Result> result, DbContext context, CancellationToken ct = default)
+    {
+        return result.ContinueAsync(context, ct, async (ctx, ct) =>
+        {
+            await ctx.SaveChangesAsync(ct);
+        });
+    }
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<TEntity> SaveChanges<TEntity>(this Result<TEntity> result, DbContext context)
+        where TEntity : class
+    {
+        return result.Continue(context, (_, ctx) =>
+        {
+            ctx.SaveChanges();
+        });
+    }
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static ValueTask<Result<TEntity>> SaveChangesAsync<TEntity>(
+        this Result<TEntity> result, DbContext context, CancellationToken ct = default)
+        where TEntity : class
+    {
+        return result.ContinueAsync(context, ct, async (_, ctx, ct) =>
+        {
+            await ctx.SaveChangesAsync(ct);
+        });
+    }
+
+    /// <summary>
+    /// Saves the changes in the DbContext if the result is successful, asynchronously.
+    /// </summary>
+    /// <param name="result">The result indicating whether the operation was successful.</param>
+    /// <param name="context">The DbContext to save changes in.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The original result.</returns>
+    public static Task<Result<TEntity>> SaveChangesAsync<TEntity>(
+        this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default)
+        where TEntity : class
+    {
+        return result.ContinueAsync(context, ct, async (_, ctx, ct) =>
+        {
+            await ctx.SaveChangesAsync(ct);
+        });
+    }
+
+    #endregion
+
+    #region Remove
+
+    public static async Task<Result<TEntity>> RemoveAsync<TEntity>(this Task<FindResult<TEntity>> task, DbContext context, CancellationToken ct, Func<TEntity, DbContext, CancellationToken, Task> action)
+        where TEntity : class
+    {
+        return await task.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        {
+            await action(entity, ctx, ct);
+            return entity;
+        });
+    }
+
+    #endregion
+}

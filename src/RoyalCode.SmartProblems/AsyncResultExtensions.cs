@@ -2078,6 +2078,26 @@ public static class AsyncResultExtensions
         return await result.ContinueAsync(action);
 
     }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result> ContinueAsync(
+        this Task<Result> task,
+        CancellationToken ct,
+        Func<CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(ct, action);
+
+    }
+
     /// <summary>
     /// <para>
     ///     Execute an action when the result is a success.
@@ -2108,6 +2128,24 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result.</returns>
+    public static async Task<Result> ContinueAsync(
+        this ValueTask<Result> task,
+        CancellationToken ct,
+        Func<CancellationToken, Task> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(ct, action);
     }
 
     /// <summary>
@@ -2148,6 +2186,24 @@ public static class AsyncResultExtensions
     /// </para>
     /// </summary>
     /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    public static async Task<Result> ContinueAsync(
+        this Task<Result> task,
+        CancellationToken ct,
+        Func<CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(ct, action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a result.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or the action result.</returns>
     public static async Task<Result> ContinueAsync(
@@ -2172,6 +2228,24 @@ public static class AsyncResultExtensions
     {
         var result = await task;
         return await result.ContinueAsync(action);
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Execute an action when the result is a success.
+    /// </para>
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a result.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The same result or the action result.</returns>
+    public static async Task<Result> ContinueAsync(
+        this ValueTask<Result> task,
+        CancellationToken ct,
+        Func<CancellationToken, Task<Result>> action)
+    {
+        var result = await task;
+        return await result.ContinueAsync(ct, action);
     }
 
     /// <summary>
@@ -2809,7 +2883,8 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity>(this Task<FindResult<TEntity>> task, Func<TEntity, Result> receiver)
+    public static async Task<Result> ContinueAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, Func<TEntity, Result> receiver)
     {
         var findResult = await task;
         return findResult.Continue(receiver);
@@ -2819,13 +2894,19 @@ public static class AsyncResultExtensions
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Result> receiver)
+    public static async Task<Result<TEntity>> ContinueAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, 
+        TParam param, 
+        CancellationToken ct, 
+        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
     {
         var findResult = await task;
-        return findResult.Continue(receiver);
+        return await findResult.ContinueAsync(param, ct, receiver);
     }
 
     /// <summary>
