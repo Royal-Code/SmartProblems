@@ -1,4 +1,5 @@
 ﻿using RoyalCode.SmartProblems.Entities;
+using RoyalCode.SmartProblems;
 using RoyalCode.SmartProblems.Tests.UseCases;
 
 namespace RoyalCode.SmartProblems.Tests.Basics;
@@ -956,18 +957,232 @@ public class FindTests
         Assert.Null(bar);
     }
 
+    [Fact]
+    public async Task FindResult_Async_WithTParam_UsesCancellationToken()
+    {
+        // Arrange
+        FindResult<Foo> findResult = new Foo { Value = 10 };
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        CancellationToken collectCt = default;
+        CancellationToken collectNamedCt = default;
+        CancellationToken mapCt = default;
+        CancellationToken mapNamedCt = default;
+
+        // Act
+        var collectResult = await findResult.CollectAsync(3, token, (foo, value, ct) =>
+        {
+            collectCt = ct;
+            return Task.CompletedTask;
+        });
+
+        var collectNamedResult = await findResult.CollectAsync("foo", 4, token, (foo, value, ct) =>
+        {
+            collectNamedCt = ct;
+            return Task.CompletedTask;
+        });
+
+        var mapResult = await findResult.MapAsync<Bar, int>(5, token, (foo, value, ct) =>
+        {
+            mapCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        var mapNamedResult = await findResult.MapAsync<Bar, int>("foo", 6, token, (foo, value, ct) =>
+        {
+            mapNamedCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        // Assert
+        Assert.True(collectResult.IsSuccess);
+        Assert.True(collectNamedResult.IsSuccess);
+        Assert.Equal(token, collectCt);
+        Assert.Equal(token, collectNamedCt);
+
+        Assert.True(mapResult.HasValue(out var bar));
+        Assert.Equal(15, bar.Value);
+        Assert.True(mapNamedResult.HasValue(out var namedBar));
+        Assert.Equal(16, namedBar.Value);
+        Assert.Equal(token, mapCt);
+        Assert.Equal(token, mapNamedCt);
+    }
+
+    [Fact]
+    public async Task FindResult_ById_Async_WithTParam_UsesCancellationToken()
+    {
+        // Arrange
+        FindResult<Foo, int> findResult = new(new Foo { Value = 20 }, 7);
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        CancellationToken collectCt = default;
+        CancellationToken collectNamedCt = default;
+        CancellationToken mapCt = default;
+        CancellationToken mapNamedCt = default;
+
+        // Act
+        var collectResult = await findResult.CollectAsync(8, token, (foo, value, ct) =>
+        {
+            collectCt = ct;
+            return Task.CompletedTask;
+        });
+
+        var collectNamedResult = await findResult.CollectAsync("id", 9, token, (foo, value, ct) =>
+        {
+            collectNamedCt = ct;
+            return Task.CompletedTask;
+        });
+
+        var mapResult = await findResult.MapAsync<Bar, int>(10, token, (foo, value, ct) =>
+        {
+            mapCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        var mapNamedResult = await findResult.MapAsync<Bar, int>("id", 11, token, (foo, value, ct) =>
+        {
+            mapNamedCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        // Assert
+        Assert.True(collectResult.IsSuccess);
+        Assert.True(collectNamedResult.IsSuccess);
+        Assert.Equal(token, collectCt);
+        Assert.Equal(token, collectNamedCt);
+
+        Assert.True(mapResult.HasValue(out var bar));
+        Assert.Equal(30, bar.Value);
+        Assert.True(mapNamedResult.HasValue(out var namedBar));
+        Assert.Equal(31, namedBar.Value);
+        Assert.Equal(token, mapCt);
+        Assert.Equal(token, mapNamedCt);
+    }
+
+    [Fact]
+    public async Task FindResult_Extensions_Async_WithTParam_UseCancellationToken()
+    {
+        // Arrange
+        Task<FindResult<Foo>> task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        CancellationToken collectCt = default;
+        CancellationToken collectNamedCt = default;
+        CancellationToken mapCt = default;
+        CancellationToken mapNamedCt = default;
+
+        // Act
+        var collectResult = await task.CollectAsync(12, token, (foo, value, ct) =>
+        {
+            collectCt = ct;
+            return Task.CompletedTask;
+        });
+
+        task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
+        var collectNamedResult = await task.CollectAsync("foo", 13, token, (foo, value, ct) =>
+        {
+            collectNamedCt = ct;
+            return Task.CompletedTask;
+        });
+
+        task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
+        var mapResult = await task.MapAsync<Foo, Bar, int>(14, token, (foo, value, ct) =>
+        {
+            mapCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
+        var mapNamedResult = await task.MapAsync<Foo, Bar, int>("foo", 15, token, (foo, value, ct) =>
+        {
+            mapNamedCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        // Assert
+        Assert.True(collectResult.IsSuccess);
+        Assert.True(collectNamedResult.IsSuccess);
+        Assert.Equal(token, collectCt);
+        Assert.Equal(token, collectNamedCt);
+
+        Assert.True(mapResult.HasValue(out var bar));
+        Assert.Equal(44, bar.Value);
+        Assert.True(mapNamedResult.HasValue(out var namedBar));
+        Assert.Equal(45, namedBar.Value);
+        Assert.Equal(token, mapCt);
+        Assert.Equal(token, mapNamedCt);
+    }
+
+    [Fact]
+    public async Task FindResult_ById_Extensions_Async_WithTParam_UseCancellationToken()
+    {
+        // Arrange
+        Task<FindResult<Foo, int>> task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        CancellationToken collectCt = default;
+        CancellationToken collectNamedCt = default;
+        CancellationToken mapCt = default;
+        CancellationToken mapNamedCt = default;
+
+        // Act
+        var collectResult = await task.CollectAsync<Foo, int, int>(17, token, (foo, value, ct) =>
+        {
+            collectCt = ct;
+            return Task.CompletedTask;
+        });
+
+        task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
+        var collectNamedResult = await task.CollectAsync<Foo, int, int>("id", 18, token, (foo, value, ct) =>
+        {
+            collectNamedCt = ct;
+            return Task.CompletedTask;
+        });
+
+        task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
+        var mapResult = await task.MapAsync<Foo, int, Bar, int>(19, token, (foo, value, ct) =>
+        {
+            mapCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
+        var mapNamedResult = await task.MapAsync<Foo, int, Bar, int>("id", 20, token, (foo, value, ct) =>
+        {
+            mapNamedCt = ct;
+            return Task.FromResult(new Bar { Value = foo.Value + value });
+        });
+
+        // Assert
+        Assert.True(collectResult.IsSuccess);
+        Assert.True(collectNamedResult.IsSuccess);
+        Assert.Equal(token, collectCt);
+        Assert.Equal(token, collectNamedCt);
+
+        Assert.True(mapResult.HasValue(out var bar));
+        Assert.Equal(59, bar.Value);
+        Assert.True(mapNamedResult.HasValue(out var namedBar));
+        Assert.Equal(60, namedBar.Value);
+        Assert.Equal(token, mapCt);
+        Assert.Equal(token, mapNamedCt);
+    }
+
     #region Continue Functions
 
-    private static Func<Foo, Result> CreateContinue(Bar bar)
+    private static Func<Foo, Result<Foo>> CreateContinue(Bar bar)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            return Result.Ok();
+            return foo;
         };
     }
 
-    private static Func<Foo, Result> CreateContinue(Bar bar, Problem problem)
+    private static Func<Foo, Result<Foo>> CreateContinue(Bar bar, Problem problem)
     {
         return (foo) =>
         {
@@ -976,21 +1191,21 @@ public class FindTests
         };
     }
 
-    private static Func<Foo, Task<Result>> CreateContinueAsync(Bar bar)
+    private static Func<Foo, Task<Result<Foo>>> CreateContinueAsync(Bar bar)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            return Task.FromResult(Result.Ok());
+            return Task.FromResult<Result<Foo>>(foo);
         };
     }
 
-    private static Func<Foo, Task<Result>> CreateContinueAsync(Bar bar, Problem problem)
+    private static Func<Foo, Task<Result<Foo>>> CreateContinueAsync(Bar bar, Problem problem)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            Result result = problem;
+            Result<Foo> result = problem;
             return Task.FromResult(result);
         };
     }

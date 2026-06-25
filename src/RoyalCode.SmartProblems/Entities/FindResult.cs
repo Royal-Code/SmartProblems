@@ -284,13 +284,14 @@ public readonly struct FindResult<TEntity>
     /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
     /// </summary>
     /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(TParam param, Func<TEntity, TParam, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
-        await receiver(Entity, param);
+        await receiver(Entity, param, ct);
         return Result.Ok();
     }
 
@@ -313,13 +314,14 @@ public readonly struct FindResult<TEntity>
     /// </summary>
     /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
     /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, Func<TEntity, TParam, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
-        await receiver(Entity, param);
+        await receiver(Entity, param, ct);
         return Result.Ok();
     }
 
@@ -328,12 +330,12 @@ public readonly struct FindResult<TEntity>
     #region Continue & ContinueAsync
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result Continue(Func<TEntity, Result> receiver)
+    public Result<TEntity> Continue(Func<TEntity, Result<TEntity>> receiver)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -341,25 +343,11 @@ public readonly struct FindResult<TEntity>
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="param">The parameter to pass to the receiver function.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result Continue<TParam>(TParam param, Func<TEntity, TParam, Result> receiver)
-    {
-        if (NotFound(out var notFoundProblem))
-            return notFoundProblem;
-        return receiver(Entity, param);
-    }
-
-    /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
-    /// </summary>
-    /// <param name="param">The parameter to pass to the receiver function.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TEntity> Continue<TParam>(TParam param, Func<TEntity, TParam, Result<TEntity>> receiver)
     {
@@ -369,13 +357,13 @@ public readonly struct FindResult<TEntity>
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result Continue(string parameterName, Func<TEntity, Result> receiver)
+    public Result<TEntity> Continue(string parameterName, Func<TEntity, Result<TEntity>> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
@@ -383,15 +371,31 @@ public readonly struct FindResult<TEntity>
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TEntity> Continue<TParam>(string parameterName, TParam param, Func<TEntity, TParam, Result<TEntity>> receiver)
+    {
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Task<Result> ContinueAsync(Func<TEntity, Task<Result>> receiver)
+    public Task<Result<TEntity>> ContinueAsync(Func<TEntity, Task<Result<TEntity>>> receiver)
     {
         if (NotFound(out var notFoundProblem))
-            return notFoundProblem;
+            return notFoundProblem.AsResult<TEntity>();
         return receiver(Entity);
     }
 
@@ -411,21 +415,21 @@ public readonly struct FindResult<TEntity>
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Task<Result> ContinueAsync(string parameterName, Func<TEntity, Task<Result>> receiver)
+    public Task<Result<TEntity>> ContinueAsync(string parameterName, Func<TEntity, Task<Result<TEntity>>> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
-            return invalidParameter;
+            return invalidParameter.AsResult<TEntity>();
         return receiver(Entity);
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
     /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
@@ -558,6 +562,72 @@ public readonly struct FindResult<TEntity>
             return invalidParameter.AsResult<TValue>();
         return receiver(Entity);
     }
+
+    /// <summary>
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TValue> Map<TValue, TParam>(TParam param, Func<TEntity, TParam, TValue> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TValue> Map<TValue, TParam>(string parameterName, TParam param, Func<TEntity, TParam, TValue> receiver)
+    {
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return await receiver(Entity, param, ct);
+    }
+
+    /// <summary>
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    {
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
+        return await receiver(Entity, param, ct);
+    }
     
     #endregion
 
@@ -621,8 +691,8 @@ public readonly struct FindResult<TEntity, TId>
     /// <summary>
     /// Creates a new <see cref="FindResult{TEntity, TId}"/> from an entity and an identifier.
     /// </summary>
-    /// <param name="entity">A entidade referenciada.</param>
-    /// <param name="id">O identificador da entidade.</param>
+    /// <param name="entity">The referenced entity.</param>
+    /// <param name="id">The identifier of the entity.</param>
     public FindResult(TEntity? entity, TId id)
     {
         Entity = entity;
@@ -632,7 +702,7 @@ public readonly struct FindResult<TEntity, TId>
     /// <summary>
     /// Creates a new <see cref="FindResult{TEntity, TId}"/> from an entity and an identifier.
     /// </summary>
-    /// <param name="id">O identificador da entidade.</param>
+    /// <param name="id">The identifier of the entity.</param>
     public FindResult(TId id)
     {
         this.id = id;
@@ -737,11 +807,11 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Converts this find result into a <see cref="Result"/> and executa a ação se a entidade foi encontrada, ou retorna um problema de parâmetro inválido.
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A ação a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Collect(string parameterName, Action<TEntity> receiver)
     {
@@ -752,12 +822,13 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Converts this find result into a <see cref="Result"/> and executa a ação se a entidade foi encontrada, ou retorna um problema de parâmetro inválido.
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="param">O parâmetro a ser passado para a ação.</param>
-    /// <param name="receiver">A ação a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver action.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver action.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result Collect<TParam>(string parameterName, TParam param, Action<TEntity, TParam> receiver)
     {
@@ -785,22 +856,23 @@ public readonly struct FindResult<TEntity, TId>
     /// </summary>
     /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
     /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(TParam param, Func<TEntity, TParam, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
-        await receiver(Entity, param);
+        await receiver(Entity, param, ct);
         return Result.Ok();
     }
 
     /// <summary>
-    /// Executa a função assíncrona se a entidade foi encontrada, ou retorna um problema de parâmetro inválido.
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função assíncrona a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
     public async Task<Result> CollectAsync(string parameterName, Func<TEntity, Task> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
@@ -810,18 +882,19 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Executa a função assíncrona se a entidade foi encontrada, ou retorna um problema de parâmetro inválido.
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
-    /// <typeparam name="TParam">O tipo do parâmetro a ser passado para a função.</typeparam>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="param">O parâmetro a ser passado para a função.</param>
-    /// <param name="receiver">A função assíncrona a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
-    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, Func<TEntity, TParam, Task> receiver)
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
-        await receiver(Entity, param);
+        await receiver(Entity, param, ct);
         return Result.Ok();
     }
 
@@ -830,12 +903,12 @@ public readonly struct FindResult<TEntity, TId>
     #region Continue & Continue Async
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result Continue(Func<TEntity, Result> receiver)
+    public Result<TEntity> Continue(Func<TEntity, Result<TEntity>> receiver)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -843,13 +916,13 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Continua a operação com a entidade se encontrada, ou retorna um problema de parâmetro inválido.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result Continue(string parameterName, Func<TEntity, Result> receiver)
+    public Result<TEntity> Continue(string parameterName, Func<TEntity, Result<TEntity>> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
@@ -857,15 +930,15 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Task<Result> ContinueAsync(Func<TEntity, Task<Result>> receiver)
+    public Task<Result<TEntity>> ContinueAsync(Func<TEntity, Task<Result<TEntity>>> receiver)
     {
         if (NotFound(out var notFoundProblem))
-            return notFoundProblem;
+            return notFoundProblem.AsResult<TEntity>();
         return receiver(Entity);
     }
 
@@ -888,16 +961,16 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Continua a operação assíncrona com a entidade se encontrada, ou retorna um problema de parâmetro inválido.
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result{TEntity}"/> with the problems.
     /// </summary>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função assíncrona a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result"/> indicando sucesso ou falha.</returns>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Task<Result> ContinueAsync(string parameterName, Func<TEntity, Task<Result>> receiver)
+    public Task<Result<TEntity>> ContinueAsync(string parameterName, Func<TEntity, Task<Result<TEntity>>> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
-            return invalidParameter;
+            return invalidParameter.AsResult<TEntity>();
         return receiver(Entity);
     }
 
@@ -941,12 +1014,12 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Mapeia a entidade para um novo valor se encontrada, ou retorna um problema de parâmetro inválido.
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
     /// </summary>
-    /// <typeparam name="TValue">O tipo do valor a ser retornado.</typeparam>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result{TValue}"/> indicando sucesso ou falha.</returns>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, TValue> receiver)
     {
@@ -970,12 +1043,12 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Mapeia a entidade para um novo valor se encontrada, ou retorna um problema de parâmetro inválido.
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
     /// </summary>
-    /// <typeparam name="TValue">O tipo do valor a ser retornado.</typeparam>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result{TValue}"/> indicando sucesso ou falha.</returns>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<TValue> Map<TValue>(string parameterName, Func<TEntity, Result<TValue>> receiver)
     {
@@ -998,12 +1071,12 @@ public readonly struct FindResult<TEntity, TId>
     }
 
     /// <summary>
-    /// Mapeia a entidade para um novo valor de forma assíncrona se encontrada, ou retorna um problema de parâmetro inválido.
+    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
     /// </summary>
-    /// <typeparam name="TValue">O tipo do valor a ser retornado.</typeparam>
-    /// <param name="parameterName">O nome do parâmetro que causou o problema, se aplicável.</param>
-    /// <param name="receiver">A função assíncrona a ser executada se a entidade for encontrada.</param>
-    /// <returns>Um <see cref="Result{TValue}"/> indicando sucesso ou falha.</returns>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     public async Task<Result<TValue>> MapAsync<TValue>(string parameterName, Func<TEntity, Task<TValue>> receiver)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
@@ -1038,6 +1111,72 @@ public readonly struct FindResult<TEntity, TId>
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter.AsResult<TValue>();
         return receiver(Entity);
+    }
+
+    /// <summary>
+    /// Maps the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TValue> Map<TValue, TParam>(TParam param, Func<TEntity, TParam, TValue> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Maps the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<TValue> Map<TValue, TParam>(string parameterName, TParam param, Func<TEntity, TParam, TValue> receiver)
+    {
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
+        return receiver(Entity, param);
+    }
+
+    /// <summary>
+    /// Maps the entity to a new value asynchronously if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The asynchronous function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    {
+        if (NotFound(out var notFoundProblem))
+            return notFoundProblem;
+        return await receiver(Entity, param, ct);
+    }
+
+    /// <summary>
+    /// Maps the entity to a new value asynchronously if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The asynchronous function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    {
+        if (HasInvalidParameter(out var invalidParameter, parameterName))
+            return invalidParameter;
+        return await receiver(Entity, param, ct);
     }
 
     #endregion

@@ -25,7 +25,7 @@ public static partial class SmartProblemsEFExtensions
     public static Result<TEntity> AddTo<TEntity>(this Result<TEntity> result, DbContext context) 
         where TEntity : class
     {
-        return result.Continue(context, (entity, ctx) =>
+        return result.Continue(context, static (entity, ctx) =>
         {
             ctx.Add(entity);
         });
@@ -43,7 +43,7 @@ public static partial class SmartProblemsEFExtensions
         this Result<TEntity> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
         });
@@ -61,7 +61,7 @@ public static partial class SmartProblemsEFExtensions
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
         });
@@ -79,7 +79,7 @@ public static partial class SmartProblemsEFExtensions
         this ValueTask<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
         });
@@ -98,7 +98,7 @@ public static partial class SmartProblemsEFExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result SaveChanges(this Result result, DbContext context)
     {
-        return result.Continue(context, (ctx) =>
+        return result.Continue(context, static (ctx) =>
         {
             ctx.SaveChanges();
         });
@@ -114,7 +114,7 @@ public static partial class SmartProblemsEFExtensions
     public static ValueTask<Result> SaveChangesAsync(
         this Result result, DbContext context, CancellationToken ct = default)
     {
-        return result.ContinueAsync(context, ct, async (ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
         });
@@ -130,7 +130,7 @@ public static partial class SmartProblemsEFExtensions
     public static Task<Result> SaveChangesAsync(
         this Task<Result> result, DbContext context, CancellationToken ct = default)
     {
-        return result.ContinueAsync(context, ct, async (ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
         });
@@ -146,7 +146,7 @@ public static partial class SmartProblemsEFExtensions
     public static Result<TEntity> SaveChanges<TEntity>(this Result<TEntity> result, DbContext context)
         where TEntity : class
     {
-        return result.Continue(context, (_, ctx) =>
+        return result.Continue(context, static (_, ctx) =>
         {
             ctx.SaveChanges();
         });
@@ -163,7 +163,7 @@ public static partial class SmartProblemsEFExtensions
         this Result<TEntity> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, async (_, ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (_, ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
         });
@@ -180,7 +180,7 @@ public static partial class SmartProblemsEFExtensions
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, async (_, ctx, ct) =>
+        return result.ContinueAsync(context, ct, static async (_, ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
         });
@@ -188,7 +188,7 @@ public static partial class SmartProblemsEFExtensions
 
     #endregion
 
-    #region Remove
+    #region RemoveFrom
 
     /// <summary>
     /// Removes the entity from the DbContext if the result is successful.
@@ -204,7 +204,7 @@ public static partial class SmartProblemsEFExtensions
         CancellationToken ct)
         where TEntity : class
     {
-        return await task.ContinueAsync(context, ct, async (entity, ctx, ct) =>
+        return await task.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
         {
             ctx.Remove(entity);
             return entity;
@@ -212,4 +212,5 @@ public static partial class SmartProblemsEFExtensions
     }
 
     #endregion
+
 }
