@@ -1810,37 +1810,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, TValue> receiver)
-    {
-        var findResult = await task;
-        return findResult.Map(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this Task<FindResult<TEntity>> task, Func<TEntity, Result<TValue>> receiver)
-    {
-        var findResult = await task;
-        return findResult.Map(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Result<TValue>> receiver)
     {
         var findResult = await task;
         return findResult.Map(receiver);
@@ -1868,37 +1838,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Task<TValue>> receiver)
-    {
-        var findResult = await task;
-        return await findResult.MapAsync(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this Task<FindResult<TEntity>> task, Func<TEntity, Task<Result<TValue>>> receiver)
-    {
-        var findResult = await task;
-        return await findResult.MapAsync(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TValue>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Task<Result<TValue>>> receiver)
     {
         var findResult = await task;
         return await findResult.MapAsync(receiver);
@@ -1935,41 +1876,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, TValue> receiver)
-        where TEntity : class
-    {
-        var findResult = await task;
-        return findResult.Map(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TId"> The type of the identifier of the entity.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this Task<FindResult<TEntity, TId>> task, Func<TEntity, Result<TValue>> receiver)
-        where TEntity : class
-    {
-        var findResult = await task;
-        return findResult.Map(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TId"> The type of the identifier of the entity.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Result<TValue>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2001,41 +1908,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Task<TValue>> receiver)
-        where TEntity : class
-    {
-        var findResult = await task;
-        return await findResult.MapAsync(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TId"> The type of the identifier of the entity.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this Task<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result<TValue>>> receiver)
-        where TEntity : class
-    {
-        var findResult = await task;
-        return await findResult.MapAsync(receiver);
-    }
-
-    /// <summary>
-    /// Map the entity to a new value if it was found, otherwise returns a <see cref="Result{TValue}"/> with the problems.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity to be found.</typeparam>
-    /// <typeparam name="TId"> The type of the identifier of the entity.</typeparam>
-    /// <typeparam name="TValue">The type of the value to be returned.</typeparam>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result<TValue>> MapAsync<TEntity, TId, TValue>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result<TValue>>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2894,11 +2768,52 @@ public static class AsyncResultExtensions
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task<Result> ContinueAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Result> receiver)
+    {
+        var findResult = await task;
+        return findResult.Continue(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> ContinueAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, Func<TEntity, Task<Result>> receiver)
+    {
+        var findResult = await task;
+        return await findResult.ContinueAsync(receiver);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> ContinueAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Task<Result>> receiver)
+    {
+        var findResult = await task;
+        return await findResult.ContinueAsync(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="param">The parameter to pass to the receiver function.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TEntity>> ContinueAsync<TEntity, TParam>(
         this Task<FindResult<TEntity>> task, 
         TParam param, 
@@ -2913,26 +2828,20 @@ public static class AsyncResultExtensions
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity>(this Task<FindResult<TEntity>> task, Func<TEntity, Task<Result>> receiver)
+    public static async Task<Result<TEntity>> ContinueAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, 
+        string parameterName,
+        TParam param, 
+        CancellationToken ct, 
+        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
     {
         var findResult = await task;
-        return await findResult.ContinueAsync(receiver);
-    }
-
-    /// <summary>
-    /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
-    /// </summary>
-    /// <param name="task">The task of an operation that returns a find result.</param>
-    /// <param name="receiver">The function to be executed if the entity was found.</param>
-    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Task<Result>> receiver)
-    {
-        var findResult = await task;
-        return await findResult.ContinueAsync(receiver);
+        return await findResult.ContinueAsync(parameterName, param, ct, receiver);
     }
 
     #endregion
@@ -2945,8 +2854,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity, TId>(this Task<FindResult<TEntity, TId>> task, Func<TEntity, Result> receiver)
+    public static async Task<Result> ContinueAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Result> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2957,14 +2866,15 @@ public static class AsyncResultExtensions
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity, TId>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Result> receiver)
+    public static async Task<Result> ContinueAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Result> receiver)
         where TEntity : class
     {
         var findResult = await task;
-        return findResult.Continue(receiver);
+        return findResult.Continue(parameterName, receiver);
     }
 
     /// <summary>
@@ -2973,8 +2883,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity, TId>(this Task<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result>> receiver)
+    public static async Task<Result> ContinueAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2985,14 +2895,63 @@ public static class AsyncResultExtensions
     /// Continues the operation with the entity if it was found, otherwise returns a <see cref="Result"/> with the problems.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<Result> ContinueAsync<TEntity, TId>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result>> receiver)
+    public static async Task<Result> ContinueAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
-        return await findResult.ContinueAsync(receiver);
+        return await findResult.ContinueAsync(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, 
+    /// otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TId">The type of the entity's identifier.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, 
+        TParam param, 
+        CancellationToken ct, 
+        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return await findResult.ContinueAsync(param, ct, receiver);
+    }
+
+    /// <summary>
+    /// Continues the operation with the entity if it was found, 
+    /// otherwise returns a <see cref="Result"/> with the problems.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TId">The type of the entity's identifier.</typeparam>
+    /// <typeparam name="TParam">The type of the parameter to pass to the receiver function.</typeparam>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, 
+        string parameterName,
+        TParam param, 
+        CancellationToken ct, 
+        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return await findResult.ContinueAsync(parameterName, param, ct, receiver);
     }
 
     #endregion
@@ -3005,7 +2964,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The action to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity>(this Task<FindResult<TEntity>> task, Action<TEntity> receiver)
+    public static async Task<Result> CollectAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, Action<TEntity> receiver)
     {
         var findResult = await task;
         return findResult.Collect(receiver);
@@ -3015,12 +2975,43 @@ public static class AsyncResultExtensions
     /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
     /// <param name="receiver">The action to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity>(this ValueTask<FindResult<TEntity>> task, Action<TEntity> receiver)
+    public static async Task<Result> CollectAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, string parameterName, Action<TEntity> receiver)
     {
         var findResult = await task;
-        return findResult.Collect(receiver);
+        return findResult.Collect(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver action.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, TParam param, Action<TEntity, TParam> receiver)
+    {
+        var findResult = await task;
+        return findResult.Collect(param, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver action.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, string parameterName, TParam param, Action<TEntity, TParam> receiver)
+    {
+        var findResult = await task;
+        return findResult.Collect(parameterName, param, receiver);
     }
 
     /// <summary>
@@ -3029,7 +3020,8 @@ public static class AsyncResultExtensions
     /// <param name="task">The task of an operation that returns a find result.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity>(this Task<FindResult<TEntity>> task, Func<TEntity, Task> receiver)
+    public static async Task<Result> CollectAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, Func<TEntity, Task> receiver)
     {
         var findResult = await task;
         return await findResult.CollectAsync(receiver);
@@ -3039,12 +3031,43 @@ public static class AsyncResultExtensions
     /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity>(this ValueTask<FindResult<TEntity>> task, Func<TEntity, Task> receiver)
+    public static async Task<Result> CollectAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Task> receiver)
     {
         var findResult = await task;
-        return await findResult.CollectAsync(receiver);
+        return await findResult.CollectAsync(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, TParam param, Func<TEntity, TParam, Task> receiver)
+    {
+        var findResult = await task;
+        return await findResult.CollectAsync(param, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter that caused the problem, if applicable.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TParam>(
+        this Task<FindResult<TEntity>> task, string parameterName, TParam param, Func<TEntity, TParam, Task> receiver)
+    {
+        var findResult = await task;
+        return await findResult.CollectAsync(parameterName, param, receiver);
     }
 
     #endregion
@@ -3068,13 +3091,46 @@ public static class AsyncResultExtensions
     /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
     /// <param name="receiver">The action to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity, TId>(this ValueTask<FindResult<TEntity, TId>> task, Action<TEntity> receiver)
+    public static async Task<Result> CollectAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Action<TEntity> receiver)
         where TEntity : class
     {
         var findResult = await task;
-        return findResult.Collect(receiver);
+        return findResult.Collect(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver action.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, TParam param, Action<TEntity, TParam> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return findResult.Collect(param, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver action if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="param">The parameter to pass to the receiver action.</param>
+    /// <param name="receiver">The action to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, string parameterName, TParam param, Action<TEntity, TParam> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return findResult.Collect(parameterName, param, receiver);
     }
 
     /// <summary>
@@ -3094,13 +3150,51 @@ public static class AsyncResultExtensions
     /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
     /// </summary>
     /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result> CollectAsync<TEntity, TId>(this ValueTask<FindResult<TEntity, TId>> task, Func<TEntity, Task> receiver)
+    public static async Task<Result> CollectAsync<TEntity, TId>(
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Task> receiver)
         where TEntity : class
     {
         var findResult = await task;
-        return await findResult.CollectAsync(receiver);
+        return await findResult.CollectAsync(parameterName, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, 
+        TParam param,
+        Func<TEntity, TParam, Task> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return await findResult.CollectAsync(param, receiver);
+    }
+
+    /// <summary>
+    /// Converts this find result into a <see cref="Result"/> and executes the receiver function if the entity was found.
+    /// </summary>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="parameterName">The name of the parameter to be used in the error message if the entity was not found.</param>
+    /// <param name="param">The parameter to pass to the receiver function.</param>
+    /// <param name="receiver">The function to be executed if the entity was found.</param>
+    /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result> CollectAsync<TEntity, TId, TParam>(
+        this Task<FindResult<TEntity, TId>> task, 
+        string parameterName,
+        TParam param,
+        Func<TEntity, TParam, Task> receiver)
+        where TEntity : class
+    {
+        var findResult = await task;
+        return await findResult.CollectAsync(parameterName, param, receiver);
     }
 
     #endregion

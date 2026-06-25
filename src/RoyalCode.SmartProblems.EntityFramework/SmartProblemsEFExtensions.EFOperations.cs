@@ -190,12 +190,23 @@ public static partial class SmartProblemsEFExtensions
 
     #region Remove
 
-    public static async Task<Result<TEntity>> RemoveAsync<TEntity>(this Task<FindResult<TEntity>> task, DbContext context, CancellationToken ct, Func<TEntity, DbContext, CancellationToken, Task> action)
+    /// <summary>
+    /// Removes the entity from the DbContext if the result is successful.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="task">The task of an operation that returns a find result.</param>
+    /// <param name="context">The DbContext to remove the entity from.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
+    public static async Task<Result<TEntity>> RemoveFromAsync<TEntity>(
+        this Task<FindResult<TEntity>> task, 
+        DbContext context, 
+        CancellationToken ct)
         where TEntity : class
     {
         return await task.ContinueAsync(context, ct, async (entity, ctx, ct) =>
         {
-            await action(entity, ctx, ct);
+            ctx.Remove(entity);
             return entity;
         });
     }
