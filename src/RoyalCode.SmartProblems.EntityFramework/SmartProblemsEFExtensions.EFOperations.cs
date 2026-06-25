@@ -39,6 +39,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to add the entity to.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Result<TEntity>> AddToAsync<TEntity>(
         this Result<TEntity> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
@@ -57,6 +58,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to add the entity to.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<TEntity>> AddToAsync<TEntity>(
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
@@ -75,6 +77,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to add the entity to.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<TEntity>> AddToAsync<TEntity>(
         this ValueTask<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
@@ -87,7 +90,7 @@ public static partial class SmartProblemsEFExtensions
 
     #endregion
 
-    #region SaveChaves
+    #region SaveChanges
 
     /// <summary>
     /// Saves the changes in the DbContext if the result is successful.
@@ -111,6 +114,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to save changes in.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Result> SaveChangesAsync(
         this Result result, DbContext context, CancellationToken ct = default)
     {
@@ -127,6 +131,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to save changes in.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result> SaveChangesAsync(
         this Task<Result> result, DbContext context, CancellationToken ct = default)
     {
@@ -159,6 +164,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to save changes in.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Result<TEntity>> SaveChangesAsync<TEntity>(
         this Result<TEntity> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
@@ -176,6 +182,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to save changes in.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The original result.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<TEntity>> SaveChangesAsync<TEntity>(
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
@@ -198,16 +205,17 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="context">The DbContext to remove the entity from.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
-    public static async Task<Result<TEntity>> RemoveFromAsync<TEntity>(
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Task<Result<TEntity>> RemoveFromAsync<TEntity>(
         this Task<FindResult<TEntity>> task, 
         DbContext context, 
         CancellationToken ct)
         where TEntity : class
     {
-        return await task.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
+        return task.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
         {
             ctx.Remove(entity);
-            return entity;
+            return Result.Ok();
         });
     }
 

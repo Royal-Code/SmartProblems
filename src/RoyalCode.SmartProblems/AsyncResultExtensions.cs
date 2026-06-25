@@ -2624,7 +2624,7 @@ public static class AsyncResultExtensions
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TEntity>> ContinueAsync<TEntity>(
-        this Task<FindResult<TEntity>> task, Func<TEntity, Result<TEntity>> receiver)
+        this Task<FindResult<TEntity>> task, Func<TEntity, Result> receiver)
     {
         var findResult = await task;
         return findResult.Continue(receiver);
@@ -2639,7 +2639,7 @@ public static class AsyncResultExtensions
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<Result<TEntity>> ContinueAsync<TEntity>(
-        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Result<TEntity>> receiver)
+        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Result> receiver)
     {
         var findResult = await task;
         return findResult.Continue(parameterName, receiver);
@@ -2652,7 +2652,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity>(
-        this Task<FindResult<TEntity>> task, Func<TEntity, Task<Result<TEntity>>> receiver)
+        this Task<FindResult<TEntity>> task, Func<TEntity, Task<Result>> receiver)
     {
         var findResult = await task;
         return await findResult.ContinueAsync(receiver);
@@ -2666,7 +2666,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity>(
-        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Task<Result<TEntity>>> receiver)
+        this Task<FindResult<TEntity>> task, string parameterName, Func<TEntity, Task<Result>> receiver)
     {
         var findResult = await task;
         return await findResult.ContinueAsync(parameterName, receiver);
@@ -2684,7 +2684,7 @@ public static class AsyncResultExtensions
         this Task<FindResult<TEntity>> task, 
         TParam param, 
         CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
     {
         var findResult = await task;
         return await findResult.ContinueAsync(param, ct, receiver);
@@ -2704,7 +2704,7 @@ public static class AsyncResultExtensions
         string parameterName,
         TParam param, 
         CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
     {
         var findResult = await task;
         return await findResult.ContinueAsync(parameterName, param, ct, receiver);
@@ -2721,7 +2721,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId>(
-        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Result<TEntity>> receiver)
+        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Result> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2736,7 +2736,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId>(
-        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Result<TEntity>> receiver)
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Result> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2750,7 +2750,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId>(
-        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result<TEntity>>> receiver)
+        this Task<FindResult<TEntity, TId>> task, Func<TEntity, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2765,7 +2765,7 @@ public static class AsyncResultExtensions
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TEntity}"/> indicating the success or failure of the operation.</returns>
     public static async Task<Result<TEntity>> ContinueAsync<TEntity, TId>(
-        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Task<Result<TEntity>>> receiver)
+        this Task<FindResult<TEntity, TId>> task, string parameterName, Func<TEntity, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2788,7 +2788,7 @@ public static class AsyncResultExtensions
         this Task<FindResult<TEntity, TId>> task, 
         TParam param, 
         CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
@@ -2813,7 +2813,7 @@ public static class AsyncResultExtensions
         string parameterName,
         TParam param, 
         CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result<TEntity>>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
         where TEntity : class
     {
         var findResult = await task;
