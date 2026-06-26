@@ -8,10 +8,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="$(SwashbuckleVer)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\RoyalCode.SmartProblems.ApiResults\RoyalCode.SmartProblems.ApiResults.csproj" />
+		<ProjectReference Include="..\RoyalCode.SmartProblems.EntityFramework\RoyalCode.SmartProblems.EntityFramework.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

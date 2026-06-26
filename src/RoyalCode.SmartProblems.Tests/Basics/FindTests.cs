@@ -1173,16 +1173,16 @@ public class FindTests
 
     #region Continue Functions
 
-    private static Func<Foo, Result<Foo>> CreateContinue(Bar bar)
+    private static Func<Foo, Result> CreateContinue(Bar bar)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            return foo;
+            return Result.Ok();
         };
     }
 
-    private static Func<Foo, Result<Foo>> CreateContinue(Bar bar, Problem problem)
+    private static Func<Foo, Result> CreateContinue(Bar bar, Problem problem)
     {
         return (foo) =>
         {
@@ -1191,21 +1191,21 @@ public class FindTests
         };
     }
 
-    private static Func<Foo, Task<Result<Foo>>> CreateContinueAsync(Bar bar)
+    private static Func<Foo, Task<Result>> CreateContinueAsync(Bar bar)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            return Task.FromResult<Result<Foo>>(foo);
+            return Task.FromResult(Result.Ok());
         };
     }
 
-    private static Func<Foo, Task<Result<Foo>>> CreateContinueAsync(Bar bar, Problem problem)
+    private static Func<Foo, Task<Result>> CreateContinueAsync(Bar bar, Problem problem)
     {
         return (foo) =>
         {
             bar.Value = foo.Value;
-            Result<Foo> result = problem;
+            Result result = problem;
             return Task.FromResult(result);
         };
     }

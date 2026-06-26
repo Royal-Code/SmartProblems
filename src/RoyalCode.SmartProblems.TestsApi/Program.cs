@@ -12,8 +12,10 @@ builder.Services.AddProblemDetailsDescriptions(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddContactsSample();
 
 var app = builder.Build();
+app.EnsureContactsDatabase();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -24,6 +26,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapProblems();
 app.MapMatchApi();
+app.MapContactsApi();
 
 app.MapControllers();
 
