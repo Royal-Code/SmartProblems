@@ -36,6 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalCode.SmartProblems.Ent
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F3D36B0F-6F41-43A3-8275-81EE7A789C5C}"
 	ProjectSection(SolutionItems) = preProject
+		.docs\outralib-problems.md = .docs\outralib-problems.md
 		.docs\problems.md = .docs\problems.md
 	EndProjectSection
 EndProject
