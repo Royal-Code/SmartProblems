@@ -8,6 +8,9 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 2. Mapeamento manual da rota pelo desenvolvedor via `MapProblemDetailsDescriptionPage`.
 3. A sobrecarga sem parametro mantem rota padrao `/.problems`, como na outra lib.
 4. A pagina deve exibir todos os tipos genericos conhecidos (sem filtro por uso em runtime).
+5. O prototipo em `.ai/plans/descriptions-ui/*.cs` e referencia funcional, nao referencia visual.
+6. A UI deve ter recursos proprios em `Descriptions/Documentation`, sem reutilizar `DR.resx`, que pertence aos textos de descricao/conversao.
+7. Anchors/ids HTML devem ser normalizados a partir de `TypeId`, nao usar o valor cru quando houver caracteres problemáticos para atributo/id.
 
 ## Escopo
 1. Adicionar endpoint para expor a pagina de descricoes em rota configuravel (padrao `/.problems`).
@@ -25,6 +28,7 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 2. Criar SPA, JS client-side ou dependencia de assets externos.
 3. Alterar comportamento de conversao de `Problem` para `ProblemDetails` fora do necessario para leitura das descricoes.
 4. Inferir uso real de tipos por analise estatica somente.
+5. Reaproveitar a linguagem visual implementada no prototipo da outra lib.
 
 ## Mapeamento de Arquivos (proposto)
 1. Novo: `RoyalCode.SmartProblems.ProblemDetails/Descriptions/Documentation/ProblemDetailsDescriptionPageModel.cs`
@@ -56,6 +60,9 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Reutilizar `IOptions<ProblemDetailsOptions>`.
 - Incluir descricoes custom e descricoes genericas conhecidas.
 - Adicionar em `ProblemDetailsDescriptor` um metodo de leitura para listar descricoes da pagina (ex.: `GetAllDescriptions()`).
+- O metodo deve combinar `descriptions` e `genericErrorDescriptions`.
+- Deduplicacao por `TypeId`, com prioridade para descricoes explicitas/custom sobre genericas quando houver colisao.
+- O metodo deve retornar uma leitura estavel sem expor os dicionarios internos para mutacao externa.
 
 4. Regra de roteamento
 - Mapeamento sempre explicito pelo desenvolvedor na app.
@@ -71,6 +78,9 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Substituir strings hardcoded por recursos.
 - Definir idioma padrao em `R.resx` e traducao em `R.pt-BR.resx`.
 - O renderer usa `CultureInfo.CurrentUICulture` de forma indireta via classe de recursos.
+- Os novos recursos ficam em `Descriptions/Documentation/R.resx` e `Descriptions/Documentation/R.pt-BR.resx`.
+- Nao reutilizar `Descriptions/DR.resx`, pois ele descreve ProblemDetails e mensagens de conversao, nao textos da pagina HTML.
+- Testes de localizacao devem alterar `CultureInfo.CurrentUICulture` de forma isolada e restaurar a cultura anterior ao final.
 
 7. Regra de "efetivamente em uso"
 - A listagem principal sempre usa tipos conhecidos retornados pelo descriptor.
@@ -81,8 +91,18 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Escapar todo texto dinamico com HTML encode.
 - Nao inserir dados de usuario em CSS/atributos sem sanitizacao.
 - Tratar route pattern vazio/nulo com `ArgumentException`.
+- Normalizar `SectionId`/anchors derivados de `TypeId` para evitar ids invalidos, duplicados ou dificeis de navegar.
+- Manter um fallback deterministico para anchors vazias ou colidentes.
 
-## Direcao Visual (diferente da referencia)
+9. Relacao com o prototipo da outra lib
+- Reaproveitar o prototipo somente como mapa funcional: endpoint, modelo, renderer, dados exibidos e testes esperados.
+- Nao copiar classes CSS, tokens, hierarquia visual, paleta ou composicao do prototipo.
+- A implementacao local deve parecer uma pagina nova do ecossistema RoyalCode.SmartProblems.
+
+## Direcao Visual (diferente do prototipo implementado)
+### Regra principal
+O que ja existe em `.ai/plans/descriptions-ui/ProblemDetailsDescriptionPageHtmlRenderer.cs` deve ser tratado como prova de conceito. A versao local deve preservar a funcao, mas trocar a linguagem visual: paleta, ritmo, densidade, componentes e nomes de classes.
+
 ### Conceito
 "Technical Editorial": mistura de docs tecnica (github) com leitura confortavel (chatgpt/claude).
 
@@ -114,11 +134,14 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Criar metodo de leitura de descricoes no descriptor para suportar a pagina.
 - Definir deduplicacao por `TypeId` e prioridade (explicito > generico).
 - Garantir que todos os tipos genericos conhecidos sejam incluídos na listagem final.
+- Retornar colecao somente leitura/iteravel, sem expor dicionarios internos.
 - Resultado esperado: modelo itera sobre todos os tipos documentaveis sem reflection.
 
 2. Etapa 2 - Model da pagina
 - Implementar `ProblemDetailsDescriptionPageModel` e item interno.
 - Calcular `PageTitle`, `PageDescription`, `PageUri`, `ResolvedTypeUri`, `UsesGeneratedTypeUri`, `StatusDisplay`.
+- Calcular tambem `SectionId` e `NavigationHref`.
+- Normalizar `SectionId` a partir do `TypeId`, com tratamento de caracteres especiais e colisoes.
 - Ordenar itens por `TypeId` para estabilidade de output e testes.
 - Resultado esperado: construcao deterministica do modelo.
 
@@ -126,12 +149,14 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Criar `R.resx` e `R.pt-BR.resx` para textos da pagina.
 - Ajustar `csproj` para gerar `R.Designer.cs`.
 - Substituir strings fixas do model/renderer por recursos.
+- Manter os recursos da UI separados de `DR.resx`.
 - Resultado esperado: pagina muda idioma conforme cultura da thread.
 
 4. Etapa 4 - Renderer HTML
 - Implementar renderer por `StringBuilder` com CSS inline.
 - Aplicar linguagem visual nova (tokens, layout, cards, badges).
 - Garantir HTML sem JS e com encode em todos os campos dinamicos.
+- Nao copiar markup, classes ou CSS do prototipo; usar uma identidade local nova.
 - Resultado esperado: pagina renderizada com identidade visual nova e legivel.
 
 5. Etapa 5 - Endpoint extension
@@ -146,8 +171,9 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 - Resultado esperado: rota acessivel no `WebApplicationFactory`.
 
 7. Etapa 7 - Testes unitarios
-- Model tests: lista, ordenacao, URI resolvida, override de `description.Type`.
-- Renderer tests: secoes esperadas, HTML encode, classes de status, textos localizados.
+- Model tests: lista, ordenacao, URI resolvida, override de `description.Type`, deduplicacao, inclusao dos genericos e `SectionId` sanitizado.
+- Renderer tests: secoes esperadas, HTML encode, classes de status, textos localizados e ausencia de strings hardcoded principais.
+- Testes de localizacao devem restaurar a cultura anterior ao finalizar.
 - Resultado esperado: regra de negocio, i18n e seguranca do HTML validados.
 
 8. Etapa 8 - Testes de integracao HTTP
@@ -174,9 +200,10 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 3. Pagina lista tipos custom e genericos com URI final resolvida.
 4. Strings da UI vindas de `R.resx` e `R.pt-BR.resx`.
 5. HTML encode aplicado em todo dado textual dinamico.
-6. Visual claramente diferente do prototipo inicial, mantendo usabilidade e responsividade.
-7. Testes unitarios e de integracao cobrindo cenarios principais.
-8. Nenhuma regressao nos testes existentes.
+6. Anchors/ids derivados de `TypeId` sao seguros, deterministicos e navegaveis.
+7. Visual claramente diferente do prototipo inicial, mantendo usabilidade e responsividade.
+8. Testes unitarios e de integracao cobrindo cenarios principais.
+9. Nenhuma regressao nos testes existentes.
 
 ## Riscos e Mitigacoes
 1. Risco: descriptor nao expor leitura agregada de descricoes.
@@ -193,6 +220,12 @@ Implementar, no projeto `RoyalCode.SmartProblems.ProblemDetails`, uma pagina HTM
 
 5. Risco: entender "em uso" como configurado e nao observado.
 - Mitigacao: documentar na UI os dois conceitos ("conhecido" vs "observado").
+
+6. Risco: `TypeId` conter caracteres ruins para anchor HTML.
+- Mitigacao: sanitizar ids, manter mapa deterministico e cobrir em teste.
+
+7. Risco: testes de localizacao vazarem cultura para outros testes.
+- Mitigacao: encapsular troca de `CurrentUICulture` e restaurar no `finally`/`Dispose`.
 
 ## Definicao para "tipos efetivamente em uso"
 1. Nao existe forma 100% confiavel de saber "uso real" apenas por leitura estatica de codigo.
