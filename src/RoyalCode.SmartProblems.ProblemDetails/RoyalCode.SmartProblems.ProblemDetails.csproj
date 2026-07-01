@@ -21,12 +21,21 @@
 	    <AutoGen>True</AutoGen>
 	    <DependentUpon>DR.resx</DependentUpon>
 	  </Compile>
+	  <Compile Update="Descriptions\Documentation\R.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>R.resx</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Update="Descriptions\DR.resx">
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>DR.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Descriptions\Documentation\R.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>R.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
 	</ItemGroup>
 

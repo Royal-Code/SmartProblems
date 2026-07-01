@@ -37,6 +37,31 @@ public partial class ProblemDetailsDescriptor
     }
 
     /// <summary>
+    /// Gets all descriptions known by this descriptor.
+    /// </summary>
+    /// <remarks>
+    /// Explicit descriptions override generic descriptions with the same type id.
+    /// The returned collection is detached from the descriptor internals.
+    /// </remarks>
+    /// <returns>A read-only collection with all known descriptions.</returns>
+    public IReadOnlyCollection<ProblemDetailsDescription> GetAllDescriptions()
+    {
+        Dictionary<string, ProblemDetailsDescription> all = new(StringComparer.Ordinal);
+
+        foreach (var description in genericErrorDescriptions.Values)
+        {
+            all[description.TypeId] = description;
+        }
+
+        foreach (var description in descriptions.Values)
+        {
+            all[description.TypeId] = description;
+        }
+
+        return all.Values.ToArray();
+    }
+
+    /// <summary>
     /// <para>
     ///     Adds a new problem details description.
     /// </para>

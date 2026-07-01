@@ -31,7 +31,7 @@ Regra de ouro para IA: prefira `Result`, `FindResult` e `Problems` para validaç
 - `RoyalCode.SmartProblems.EntityFramework`
   - EF Core: `TryFindAsync`, `TryFindByAsync`, `AddTo`, `SaveChanges`, `RemoveFromAsync`.
 - `RoyalCode.SmartProblems.ProblemDetails`
-  - Descrição/configuração de `ProblemDetails`: `AddProblemDetailsDescriptions`, `ProblemDetailsDescription`, descriptors.
+  - Descrição/configuração de `ProblemDetails`: `AddProblemDetailsDescriptions`, `ProblemDetailsDescription`, descriptors, `MapProblemDetailsDescriptionPage`.
 - `RoyalCode.SmartProblems.ApiResults`
   - Minimal API e MVC: `OkMatch`, `CreatedMatch`, `NoContentMatch`, `MatchErrorResult`, `ToActionResult`, `WithExceptionFilter`.
 - `RoyalCode.SmartProblems.Conversions`
@@ -757,6 +757,32 @@ options.BaseAddress = "https://api.example.com/problems";
 options.TypeComplement = "/";
 options.DescriptionFiles = ["problem-details.json"];
 ```
+
+### Página de documentação dos tipos
+
+Use `MapProblemDetailsDescriptionPage` quando a API deve expor uma página HTML com o catálogo dos tipos RFC 9457 conhecidos pela aplicação.
+
+```csharp
+var app = builder.Build();
+
+app.MapProblemDetailsDescriptionPage(); // GET /.problems
+```
+
+Rota customizada:
+
+```csharp
+app.MapProblemDetailsDescriptionPage("/docs/problems");
+```
+
+A página é opt-in: só existe se o app mapear explicitamente o endpoint. Ela lista descrições genéricas e customizadas configuradas no `ProblemDetailsDescriptor`, resolve a URI final do tipo, mostra status HTTP, origem da URI e anchors navegáveis por `TypeId`.
+
+Regras para IA:
+
+- Chame `AddProblemDetailsDescriptions` nos serviços antes de mapear a página.
+- Use `MapProblemDetailsDescriptionPage()` para a rota padrão `/.problems`.
+- Use o overload com `pattern` quando o projeto já reserva `/.problems` para outra finalidade ou prefere rota de documentação.
+- Para `ProblemDetailsDescription` com `Type` explícito, a página preserva essa URI.
+- Para descrição sem `Type`, a URI é gerada com `BaseAddress + TypeComplement + TypeId`; se `BaseAddress` estiver no default da lib, a página usa a própria rota documentada como base navegável.
 
 ### Handlers
 

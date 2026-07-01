@@ -25,6 +25,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapProblems();
+app.MapProblemDetailsDescriptionPage();
 app.MapMatchApi();
 app.MapContactsApi();
 
