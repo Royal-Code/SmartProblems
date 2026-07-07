@@ -16,7 +16,7 @@ public abstract class JsonFailureTypeReader<TResponseType> : FailureTypeReader
     protected abstract Problems Map(TResponseType response);
 
     /// <inheritdoc />
-    public override async Task<ReadResult> TryReadAsync(HttpResponseMessage response)
+    public override async Task<ReadResult> TryReadAsync(HttpResponseMessage response, CancellationToken ct = default)
     {
         // check if content is application/json
         if (!response.Content.Headers.ContentType?.MediaType?.Equals("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
@@ -25,7 +25,7 @@ public abstract class JsonFailureTypeReader<TResponseType> : FailureTypeReader
         }
         
         // read the content
-        var content = await response.Content.ReadFromJsonAsync<TResponseType>();
+        var content = await response.Content.ReadFromJsonAsync<TResponseType>(cancellationToken: ct);
         
         // map the response to problems
         var problems = Map(content!);

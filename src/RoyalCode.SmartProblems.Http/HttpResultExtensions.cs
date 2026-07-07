@@ -23,13 +23,13 @@ public static class HttpResultExtensions
     /// </para>
     /// </summary>
     /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
-    /// <param name="token">The <see cref="CancellationToken"/>.</param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>The <see cref="Result"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result> ToResultAsync(
-        this HttpResponseMessage response, CancellationToken token = default)
+        this HttpResponseMessage response, CancellationToken ct = default)
     {
-        return ToResultAsync(response, null, token);
+        return ToResultAsync(response, null, ct);
     }
     
     /// <summary>
@@ -39,10 +39,10 @@ public static class HttpResultExtensions
     /// </summary>
     /// <param name="response">The <see cref="HttpResponseMessage"/>.</param>
     /// <param name="failureTypeReader">A <see cref="FailureTypeReader"/> to read the error content when the status code is not success and the content is not a problem details.</param>
-    /// <param name="token">The <see cref="CancellationToken"/>.</param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>The <see cref="Result"/>.</returns>
     public static async Task<Result> ToResultAsync(
-        this HttpResponseMessage response, FailureTypeReader? failureTypeReader, CancellationToken token = default)
+        this HttpResponseMessage response, FailureTypeReader? failureTypeReader, CancellationToken ct = default)
     {
         if (response.IsSuccessStatusCode)
         {
@@ -51,7 +51,7 @@ public static class HttpResultExtensions
             return Result.Ok();
         }
 
-        return await response.ReadErrorStatus(failureTypeReader, token);
+        return await response.ReadErrorStatus(failureTypeReader, ct);
     }
 
     /// <summary>
@@ -65,13 +65,13 @@ public static class HttpResultExtensions
     ///     The <see cref="JsonSerializerOptions"/> for the <typeparamref name="TValue"/>, 
     ///     used when status code is success.
     /// </param>
-    /// <param name="token">The <see cref="CancellationToken"/>.</param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>The <see cref="Result{TValue}"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<Result<TValue>> ToResultAsync<TValue>(
-        this HttpResponseMessage response, JsonSerializerOptions? options = null, CancellationToken token = default)
+        this HttpResponseMessage response, JsonSerializerOptions? options = null, CancellationToken ct = default)
     {
-        return ToResultAsync<TValue>(response, null, options, token);
+        return ToResultAsync<TValue>(response, null, options, ct);
     }
 
     /// <summary>
@@ -109,20 +109,20 @@ public static class HttpResultExtensions
     ///     The <see cref="JsonSerializerOptions"/> for the <typeparamref name="TValue"/>, 
     ///     used when status code is success.
     /// </param>
-    /// <param name="token">The <see cref="CancellationToken"/>.</param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>The <see cref="Result{TValue}"/>.</returns>
     public static async Task<Result<TValue>> ToResultAsync<TValue>(
         this HttpResponseMessage response,
         FailureTypeReader? failureTypeReader, 
         JsonSerializerOptions? options = null,
-        CancellationToken token = default)
+        CancellationToken ct = default)
     {
         // on error, read the content as a problem details or text.
         if (!response.IsSuccessStatusCode) 
-            return await response.ReadErrorStatus(failureTypeReader, token);
+            return await response.ReadErrorStatus(failureTypeReader, ct);
         
         // on success, with value, the value must be deserialized
-        var value = await response.Content.ReadFromJsonAsync<TValue>(options, token);
+        var value = await response.Content.ReadFromJsonAsync<TValue>(options, ct);
 
         return value!;
     }
@@ -173,7 +173,7 @@ public static class HttpResultExtensions
     }
     
     private static async Task<Problems> ReadNonProblemDetailsContent(
-        this HttpResponseMessage response, FailureTypeReader? failureTypeReader, CancellationToken token = default)
+        this HttpResponseMessage response, FailureTypeReader? failureTypeReader, CancellationToken ct = default)
     {
         // if reader is not null, try reads the content as a failure type
         if (failureTypeReader is not null)
@@ -187,7 +187,7 @@ public static class HttpResultExtensions
         string? detail = null;
         if (response.Content.Headers.ContentLength > 0)
         {
-            detail = await response.Content.ReadAsStringAsync(token);
+            detail = await response.Content.ReadAsStringAsync(ct);
         }
 
         detail ??= response.ReasonPhrase ?? response.StatusCode.ToString();
@@ -201,11 +201,11 @@ public static class HttpResultExtensions
     }
 
     private static async Task<Problems> ReadProblemDetails(
-        this HttpResponseMessage response, CancellationToken token)
+        this HttpResponseMessage response, CancellationToken ct)
     {
         var problemDetails = await response.Content.ReadFromJsonAsync(
             ProblemDetailsSerializer.DefaultProblemDetailsExtended,
-            token);
+            ct);
 
         return problemDetails!.ToProblems();
     }

@@ -111,8 +111,10 @@ public readonly struct CreatedResult
     /// <param name="client">The HTTP client to make the request.</param>
     /// <param name="options">Optional, the JSON serializer options.</param>
     /// <typeparam name="TResource">The type of the resource.</typeparam>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="Result{TResource}"/>.</returns>
-    public async Task<Result<TResource>> TryGetResourceAsync<TResource>(HttpClient client, JsonSerializerOptions? options = null)
+    public async Task<Result<TResource>> TryGetResourceAsync<TResource>(
+        HttpClient client, JsonSerializerOptions? options = null, CancellationToken ct = default)
     {
         if (result.HasProblems(out var problems))
             return problems;
@@ -120,7 +122,7 @@ public readonly struct CreatedResult
         if (!HasLocation(out var location))
             return Problems.NotFound("Resource not found, location header is not present.");
         
-        var locateResponse = await client.GetAsync(location);
-        return await locateResponse.ToResultAsync<TResource>();
+        var locateResponse = await client.GetAsync(location, ct);
+        return await locateResponse.ToResultAsync<TResource>(options, ct);
     }
 }

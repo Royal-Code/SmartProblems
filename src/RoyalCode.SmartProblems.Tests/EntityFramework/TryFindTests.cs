@@ -35,7 +35,7 @@ public class TryFindTests
         Assert.Null(problems);
 
         Assert.NotNull(entry.Entity);
-        Assert.Equal(id, entry.Entity.Id);
+        Assert.Equal(id.Value, entry.Entity.Id);
         Assert.Equal("Test2", entry.Entity.Name);
     }
 
@@ -83,7 +83,7 @@ public class TryFindTests
         Assert.Null(problems);
 
         Assert.NotNull(entry.Entity);
-        Assert.Equal(id, entry.Entity.Id);
+        Assert.Equal(id.Value, entry.Entity.Id);
         Assert.Equal("Test2", entry.Entity.Name);
     }
 

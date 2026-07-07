@@ -10,8 +10,9 @@ public abstract class FailureTypeReader
     /// Try to read the failure type from the <paramref name="response"/>.
     /// </summary>
     /// <param name="response">The response to read.</param>
+    /// <param name="ct">The <see cref="CancellationToken"/>.</param>
     /// <returns>
     ///     A <see cref="ReadResult"/> with the problems read from the response, or <see cref="ReadResult.HasBeenRead"/> equals to false.
     /// </returns>
-    public abstract Task<ReadResult> TryReadAsync(HttpResponseMessage response);
+    public abstract Task<ReadResult> TryReadAsync(HttpResponseMessage response, CancellationToken ct = default);
 }
