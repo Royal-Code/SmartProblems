@@ -183,14 +183,12 @@ public static class HttpResultExtensions
                 return result.Problems;
         }
 
-        // when is not problems, try reads the content as string, if the response has content
-        string? detail = null;
-        if (response.Content.Headers.ContentLength > 0)
-        {
-            detail = await response.Content.ReadAsStringAsync(ct);
-        }
+        // when is not problems, try reads the content as string. Content-Length can be null
+        // for streamed/chunked responses, so read and fallback only when the body is empty.
+        var detail = await response.Content.ReadAsStringAsync(ct);
 
-        detail ??= response.ReasonPhrase ?? response.StatusCode.ToString();
+        if (string.IsNullOrEmpty(detail))
+            detail = response.ReasonPhrase ?? response.StatusCode.ToString();
         
         // create a message with the status code and the content as message
         return new Problem()

@@ -76,10 +76,18 @@ public static class ValidationsExtensions
     /// <returns>The <see cref="Result"/> converted.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result ToResult(this ValidationResult result)
-    {   
-        return result.IsValid
-            ? Result.Ok()
-            : result.Errors.ToProblems();
+    {
+        if (result.IsValid)
+            return Result.Ok();
+
+        var problems = result.Errors.ToProblems();
+        return problems.Count is not 0
+            ? problems
+            : new Problem
+            {
+                Category = Options.Category,
+                Detail = Options.FallbackProblemDetail
+            };
     }
 
     /// <summary>

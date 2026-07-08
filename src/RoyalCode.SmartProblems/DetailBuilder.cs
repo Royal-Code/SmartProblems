@@ -140,10 +140,29 @@ public readonly ref struct DetailBuilder
     public Problem NotAllowed() => Build(ProblemCategory.NotAllowed);
 
     /// <summary>
-    /// Create a problem from the BussinessRuleViolation category with the details of this builder.
+    /// Create a problem from the CustomProblem category with the details of this builder.
     /// </summary>
     /// <returns>A new instance of the problem.</returns>
-    public Problem Custom() => Build(ProblemCategory.CustomProblem);
+    public Problem Custom()
+    {
+        var problem = Problems.Custom(Details, TypeId!, Property);
+        problem.Extensions = Extensions;
+        return problem;
+    }
+
+    /// <summary>
+    /// Create a problem from the CustomProblem category using the type name as type id.
+    /// </summary>
+    /// <typeparam name="TProblem">The type that identifies the custom problem.</typeparam>
+    /// <returns>A new instance of the problem.</returns>
+    public Problem Custom<TProblem>()
+    {
+        var builder = TypeId is null
+            ? WithTypeId(GetTypeId<TProblem>())
+            : this;
+
+        return builder.Custom();
+    }
 
     /// <summary>
     /// Create the problem instance.
@@ -160,5 +179,12 @@ public readonly ref struct DetailBuilder
             TypeId = TypeId,
             Extensions = Extensions
         };
+    }
+
+    private static string GetTypeId<TProblem>()
+    {
+        var name = typeof(TProblem).Name;
+        var arityIndex = name.IndexOf('`');
+        return arityIndex is -1 ? name : name[..arityIndex];
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using FluentValidation;
+using System.Globalization;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -302,6 +303,67 @@ public class FluentValidationTests
         Assert.True(okResult.IsSuccess);
         Assert.True(badResult.HasProblems(out var problems));
         Assert.Equal(2, problems!.Count);
+    }
+
+    [Fact]
+    public void Validation_ToResult_WithOnlyWarnings_MustBeFailureWithFallbackProblem()
+    {
+        // Arrange
+        var previousCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = new CultureInfo("en-US");
+
+        try
+        {
+            var validator = new InlineValidator<SimpleClass>();
+            validator.RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithSeverity(Severity.Warning);
+
+            // Act
+            var validation = validator.Validate(new SimpleClass { Name = "", Age = 20 });
+            var result = validation.ToResult();
+
+            // Assert
+            Assert.False(validation.IsValid);
+            Assert.True(result.HasProblems(out var problems));
+            Assert.NotNull(problems);
+            Assert.Single(problems);
+            Assert.Equal(ProblemCategory.InvalidParameter, problems[0].Category);
+            Assert.Equal("Validation failed.", problems[0].Detail);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousCulture;
+        }
+    }
+
+    [Fact]
+    public void Validation_ToResult_WithOnlyWarnings_UsesLocalizedFallbackProblem()
+    {
+        // Arrange
+        var previousCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
+
+        try
+        {
+            var validator = new InlineValidator<SimpleClass>();
+            validator.RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithSeverity(Severity.Warning);
+
+            // Act
+            var result = validator.Validate(new SimpleClass { Name = "", Age = 20 }).ToResult();
+
+            // Assert
+            Assert.True(result.HasProblems(out var problems));
+            Assert.NotNull(problems);
+            Assert.Single(problems);
+            Assert.Equal("A validação falhou.", problems[0].Detail);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousCulture;
+        }
     }
 
     [Fact]

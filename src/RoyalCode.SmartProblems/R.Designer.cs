@@ -77,6 +77,15 @@ namespace RoyalCode.SmartProblems {
                 return ResourceManager.GetString("CopyToArgumentErrorMessage", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The result was not initialized. Do not use default(Result&lt;T&gt;); create a successful or failed result explicitly..
+        /// </summary>
+        internal static string DefaultResultNotInitialized {
+            get {
+                return ResourceManager.GetString("DefaultResultNotInitialized", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to The record for &apos;{0}&apos; was not found.

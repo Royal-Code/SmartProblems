@@ -8,6 +8,8 @@ namespace FluentValidation;
 /// </summary>
 public sealed class ValidationToProblemOptions
 {
+    private string? fallbackProblemDetail;
+
     /// <summary>
     /// The <see cref="ProblemCategory"/> used to convert FluentValidation errors to <see cref="Problem"/>.
     /// </summary>
@@ -32,4 +34,19 @@ public sealed class ValidationToProblemOptions
     /// </para>
     /// </summary>
     public string ErrorCodeExtensionField { get; set; } = "error_code";
+
+    /// <summary>
+    /// <para>
+    ///     Detail used when a <see cref="FluentValidation.Results.ValidationResult"/> is invalid,
+    ///     but no <see cref="Problem"/> is produced after filtering validation failures.
+    /// </para>
+    /// <para>
+    ///     This can happen, for example, when the validation result contains only warning or info failures.
+    /// </para>
+    /// </summary>
+    public string FallbackProblemDetail
+    {
+        get => fallbackProblemDetail ?? R.FallbackProblemDetail;
+        set => fallbackProblemDetail = value ?? throw new ArgumentNullException(nameof(value));
+    }
 }

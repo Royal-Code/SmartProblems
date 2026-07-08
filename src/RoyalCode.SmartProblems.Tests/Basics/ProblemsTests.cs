@@ -271,6 +271,50 @@ public class ProblemsTests
     }
 
     [Fact]
+    public void Problems_Detail_Custom_Must_HaveTypeId()
+    {
+        // Act
+        var act = new Action(() => Problems.Detail("Message").Custom());
+
+        // Assert
+        Assert.Throws<ArgumentException>(act);
+    }
+
+    [Fact]
+    public void Problems_Detail_Custom_WithTypeId_Must_CreateProblem()
+    {
+        // Arrange
+        var builder = Problems.Detail("Message")
+            .WithTypeId("my-type")
+            .With("key", "value");
+
+        // Act
+        var problem = builder.Custom();
+
+        // Assert
+        Assert.Equal(ProblemCategory.CustomProblem, problem.Category);
+        Assert.Equal("Message", problem.Detail);
+        Assert.Equal("my-type", problem.TypeId);
+        Assert.NotNull(problem.Extensions);
+        Assert.Equal("value", problem.Extensions["key"]);
+    }
+
+    [Fact]
+    public void Problems_Detail_Custom_Generic_Must_UseTypeNameAsTypeId()
+    {
+        // Arrange
+        var builder = Problems.Detail("Message");
+
+        // Act
+        var problem = builder.Custom<GenericCustomProblem<int>>();
+
+        // Assert
+        Assert.Equal(ProblemCategory.CustomProblem, problem.Category);
+        Assert.Equal("Message", problem.Detail);
+        Assert.Equal("GenericCustomProblem", problem.TypeId);
+    }
+
+    [Fact]
     public void Problems_Implicit_Add_Problem()
     {
         // Arrange
@@ -519,6 +563,10 @@ public class ProblemsTests
         Assert.True(result.HasProblems(out var resultProblems));
         Assert.NotNull(resultProblems);
         Assert.Single(resultProblems);
+    }
+
+    private sealed class GenericCustomProblem<T>
+    {
     }
 }
 

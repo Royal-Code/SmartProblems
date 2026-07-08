@@ -160,7 +160,7 @@ Define domain problems with `typeId` and describe them for ProblemDetails (RFC 9
      "order-on-hold",
      title: "Order on hold",
      description: "Business rule violation",
-     statusCode: System.Net.HttpStatusCode.Conflict));
+     status: System.Net.HttpStatusCode.Conflict));
 ```
 
 ## FluentValidation (optional)
