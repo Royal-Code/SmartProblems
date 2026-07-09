@@ -5,6 +5,8 @@ Serve também como referência para ferramentas de IA (ex.: GitHub Copilot) comp
 
 Projetos alvo: .NET 8, .NET 9 e .NET 10.
 
+Nota para IA e IDEs: este arquivo é um guia de uso e padrões. Para conferir todas as sobrecargas, genéricos, retorno exato e ordem de parâmetros, consulte também a documentação XML das bibliotecas no pacote/IDE, especialmente em `Result`, `Result<TValue>`, `FindResult<TEntity>`, `FindResult<TEntity,TId>` e `AsyncResultExtensions`.
+
 ## 1. Introdução
 
 SmartProblems padroniza o tratamento de resultados e erros de operações em .NET, evitando exceções para fluxo normal e tornando o código previsível e composable.
@@ -44,7 +46,8 @@ Conceitos principais:
 - Conversão para `ProblemDetails`
   - `RoyalCode.SmartProblems.Conversions`: `Problems.ToProblemDetails(options)`.
   - `ProblemDetailsExtended` agrega múltiplos problemas (`errors`, `not_found`, `inner_details`).
-  - Personalização via `ProblemDetailsOptions` e `ProblemDetailsDescriptor`.
+  - Personalização via `ProblemDetailsOptions`, `ProblemDetailsDescriptor`, `ProblemDetailsDescription` e arquivos JSON.
+  - Página HTML de catálogo via `MapProblemDetailsDescriptionPage()`.
 
 - Integrações
   - Entity Framework: `SmartProblemsEFExtensions` com `TryFindAsync`/`TryFindByAsync` e `FindResult`.
@@ -159,7 +162,7 @@ public class User
 DICA: Use a biblioteca RoyalCode.SmartValidation para validação fluente, com RuleSet, e integrada com Problems e Results.
 
 
-### Custom e RFC 9457 (type)
+### Custom, TypeId e RFC 9457 (type)
 
 Em `ProblemDetails` (RFC 9457), o campo `type` deve ser um identificador do tipo de problema (preferencialmente uma URI).
 Recomendações atualizadas do RFC 9457:
@@ -170,22 +173,105 @@ Recomendações atualizadas do RFC 9457:
 - Evite `about:blank` para problemas customizados; descreva tipos próprios com documentação.
 
 Impacto do `Problems.Custom(detail, typeId, property)` na conversão:
-- O `typeId` é mapeado para `ProblemDetails.Type`.
-- Se configurado em `ProblemDetailsOptions.Descriptor`, define `title` e `status` consistentes para o tipo.
-- Sem descrição, será usado um tipo agregado ou padrão conforme contexto.
+- O `typeId` do `Problem` é usado para localizar uma `ProblemDetailsDescription` em `ProblemDetailsOptions.Descriptor`.
+- Se a descrição tem `Type` explícito, esse valor vira `ProblemDetails.Type`.
+- Se a descrição não tem `Type`, a URI é gerada por `BaseAddress + TypeComplement + TypeId`.
+- `ProblemDetails.Title` e `ProblemDetails.Status` vêm da descrição localizada.
+- `ProblemDetails.Detail` vem do `detail` do problema ocorrido; já `ProblemDetailsDescription.Description` serve para documentação/catálogo do tipo.
+- Sem descrição específica para o `typeId`, `CustomProblem` cai no tipo genérico `problem-occurred`, com status padrão 400. Para contrato de API estável, sempre registre uma descrição para cada `typeId` customizado.
+- Quando há vários problemas customizados na mesma resposta, o tipo externo é agregado (`aggregate-problems-details`) e os problemas específicos aparecem nos detalhes agregados.
 
 Exemplo de configuração do tipo no `ProblemDetailsOptions`:
 ```csharp
+using System.Net;
+using RoyalCode.SmartProblems.Descriptions;
+
 var options = new ProblemDetailsOptions();
 options.Descriptor.Add(new ProblemDetailsDescription(
     typeId: "order-on-hold",
     title: "Order on hold",
-    description: "Business rule violation",
-    statusCode: System.Net.HttpStatusCode.Conflict));
+    description: "The order cannot move forward while risk analysis is pending.",
+    status: HttpStatusCode.Conflict));
 
 Problems problem = Problems.Custom("Order is on hold due to risk analysis", "order-on-hold");
-var pd = problem.ToProblemDetails(options); // Type será "tag:problemdetails/.problems#order-on-hold" ou uma URI absoluta se configurada
+var pd = problem.ToProblemDetails(options);
+// Type: "tag:problemdetails/.problems#order-on-hold"
+// Title: "Order on hold"
+// Status: 409
+// Detail: "Order is on hold due to risk analysis"
 ```
+
+Quando o contrato público exige uma URI absoluta, informe o `type` explicitamente:
+```csharp
+options.Descriptor.Add(new ProblemDetailsDescription(
+    typeId: "order-on-hold",
+    type: "https://api.exemplo.com/problems/order-on-hold",
+    title: "Order on hold",
+    description: "The order cannot move forward while risk analysis is pending.",
+    status: HttpStatusCode.Conflict));
+```
+
+### Catálogo e página de descrição dos problemas
+
+Use o pacote `RoyalCode.SmartProblems.ProblemDetails`. Registre as descrições conhecidas pela aplicação com `AddProblemDetailsDescriptions`; elas alimentam a conversão para `ProblemDetails` e a página HTML de documentação.
+
+```csharp
+using System.Net;
+using RoyalCode.SmartProblems.Descriptions;
+
+builder.Services.AddProblemDetailsDescriptions(options =>
+{
+    options.BaseAddress = "https://api.exemplo.com/problems";
+    options.TypeComplement = "/";
+
+    options.Descriptor.Add(new ProblemDetailsDescription(
+        typeId: "order-on-hold",
+        title: "Order on hold",
+        description: "The order cannot move forward while risk analysis is pending.",
+        status: HttpStatusCode.Conflict));
+});
+```
+
+Também é possível carregar descrições por arquivo JSON:
+
+```csharp
+builder.Services.AddProblemDetailsDescriptions(options =>
+{
+    options.DescriptionFiles = ["problem-details.json"];
+});
+```
+
+Formato recomendado do arquivo:
+```json
+[
+  {
+    "typeId": "order-on-hold",
+    "type": "https://api.exemplo.com/problems/order-on-hold",
+    "title": "Order on hold",
+    "description": "The order cannot move forward while risk analysis is pending.",
+    "status": 409
+  }
+]
+```
+
+Depois de registrar as descrições, publique a página de catálogo:
+
+```csharp
+var app = builder.Build();
+
+app.MapProblemDetailsDescriptionPage(); // GET /.problems
+// ou:
+app.MapProblemDetailsDescriptionPage("/docs/problems");
+```
+
+A página é opt-in e lista os tipos conhecidos pelo `ProblemDetailsDescriptor`: categorias padrão, descrições carregadas em JSON e descrições adicionadas em código. Ela mostra `TypeId`, URI final do `type`, título, status e descrição. Se uma descrição não tiver `Type` explícito, a página resolve a URI com `BaseAddress + TypeComplement + TypeId`; quando `BaseAddress` estiver no default da biblioteca, a própria rota da página é usada como base navegável.
+
+Regras para IA ao criar problemas customizados:
+- Use `typeId` curto, estável e válido como parte relativa de URI, preferencialmente em kebab-case (`order-on-hold`, `payment-required`).
+- Registre uma `ProblemDetailsDescription` para cada `typeId` customizado antes de expor a API.
+- Use `type` explícito quando a documentação pública mora em uma URL canônica; use `BaseAddress`/`TypeComplement` quando a própria API publica o catálogo.
+- Escreva `description` como documentação do tipo: quando ocorre, por que ocorre e o que o consumidor pode fazer.
+- Não dependa do fallback `problem-occurred` para erros de domínio públicos.
 
 Converter coleção de problemas para exceção:
 ```csharp
@@ -209,7 +295,16 @@ Composição síncrona e assíncrona:
 var res = ok.Map(v => v.Length);           // Result<int>
 var next = ok.Continue(v => Result.Ok());  // Result
 
-var async = await ok.MapAsync(v => Task.FromResult(v.Length));
+var async = await ok.MapAsync(static v => Task.FromResult(v.Length));
+
+// Async com TParam: param, delegate, ct por último.
+var saved = await ok.ContinueAsync(
+    repository,
+    static async (value, repo, token) =>
+    {
+        await repo.SaveAsync(value, token);
+    },
+    ct);
 
 // branch explícito: Match
 var outRes = ok.Match(
@@ -220,6 +315,31 @@ var outRes = ok.Match(
 var outResAsync = await ok.MatchAsync(
     value => Task.FromResult(Result.Ok()),
     problems => Task.FromResult(problems.AsResult()));
+```
+
+Regra para sobrecargas `Async` com `TParam`:
+- Quando o delegate retorna `Task` ou `Task<T>`, ele recebe `CancellationToken` como último parâmetro.
+- O `CancellationToken` público do método fica por último e tem default: `.MapAsync(param, static (..., token) => ..., ct)`.
+- Não use a forma antiga `.MapAsync(param, ct, delegate)` ou `.ContinueAsync(param, ct, delegate)`.
+- Delegates síncronos com `TParam` continuam sem `CancellationToken`.
+
+Exemplo de `MatchAsync` com `TParam` e `CancellationToken`:
+```csharp
+return await result.MatchAsync(
+    logger,
+    static (value, log, token) =>
+    {
+        token.ThrowIfCancellationRequested();
+        log.LogInformation("Operation succeeded");
+        return Task.FromResult(value);
+    },
+    static (problems, log, token) =>
+    {
+        token.ThrowIfCancellationRequested();
+        log.LogWarning("Operation failed with {Count} problems", problems.Count);
+        return Task.FromResult(string.Empty);
+    },
+    ct);
 ```
 
 Casos de uso reais (serviços, handlers, repositórios):
@@ -250,11 +370,11 @@ public readonly struct UserService
         return Result.Ok();
     }
 
-    public Task<Result> DisableAsync(int id)
+    public async Task<Result> DisableAsync(int id)
     {
-        var findUser = _repo.FindByIdAsync(id);
+        var findUser = await _repo.FindByIdAsync(id);
         if (findUser.NotFound(out var problem))
-            return Task.FromResult((Result)problem); // 404
+            return problem; // 404
         
         findUser.Entity.Disable();
         
@@ -345,12 +465,30 @@ if (entry2.NotFound(out var p))
 
 Composição com `FindResult`:
 ```csharp
-await entry.ContinueAsync(async entity =>
-{
-    // prossiga com a entidade
-    return Result.Ok();
-});
+var result = await entry.ContinueAsync(
+    repository,
+    static async (entity, repo, token) =>
+    {
+        await repo.SaveAsync(entity, token);
+        return Result.Ok();
+    },
+    ct);
 ```
+
+Com `CollectAsync<TParam>` o mesmo padrão vale: `param`, delegate, `ct`.
+
+```csharp
+var result = await entry.CollectAsync(
+    dto,
+    static async (entity, request, token) =>
+    {
+        entity.Update(request.Name);
+        await Task.CompletedTask.WaitAsync(token);
+    },
+    ct);
+```
+
+Não use a ordem antiga `.CollectAsync(dto, ct, static ...)`; o `CancellationToken` do método deve ficar por último.
 
 Além de `NotFound`, o `FindResult` também suporta retornar `InvalidParameter` em cenários onde o identificador/parâmetro informado é inválido para a operação atual.
 Os métodos `HasInvalidParameter(out problem, parameterName)` e sobrecargas de `Continue/Map/ToResult(parameterName)` ajudam a padronizar essa resposta:
@@ -462,12 +600,12 @@ Métodos `HttpResultExtensions.ToResultAsync` desserializam respostas HTTP em `R
 
 Assinaturas principais:
 ```csharp
-Task<Result> ToResultAsync(this HttpResponseMessage response, CancellationToken token = default);
-Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, JsonSerializerOptions? options = null, CancellationToken token = default);
+Task<Result> ToResultAsync(this HttpResponseMessage response, CancellationToken ct = default);
+Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, JsonSerializerOptions? options = null, CancellationToken ct = default);
 Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, CancellationToken ct = default);
 // Com FailureTypeReader para conteúdo de erro não-ProblemDetails
-Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, FailureTypeReader? reader, JsonSerializerOptions? options = null, CancellationToken token = default);
-Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, FailureTypeReader? reader, JsonTypeInfo<T> jsonTypeInfo, CancellationToken ct = default);
+Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, FailureTypeReader? failureTypeReader, JsonSerializerOptions? options = null, CancellationToken ct = default);
+Task<Result<T>> ToResultAsync<T>(this HttpResponseMessage response, FailureTypeReader? failureTypeReader, JsonTypeInfo<T> jsonTypeInfo, CancellationToken ct = default);
 ```
 
 Exemplos reais de consumo com `HttpClient`:
@@ -548,10 +686,15 @@ Boas práticas (RFC 9457):
   - Não sobrescreva campos reservados; use `Extensions` com nomes estáveis e significativos.
 - Use `Result`/`Result<T>` como fluxo de sucesso/falha:
   - Componha com `Map`, `Continue`, `Match`/`MatchAsync` para reduzir boilerplate.
+  - Em sobrecargas `Async` com `TParam` e delegate `Task`, passe `param`, depois o delegate, e `CancellationToken` por último.
   - Evite exceções para casos esperados; retorne problemas nas falhas.
 - Valide entrada e regras de domínio:
   - Modelo com `HasProblems(out Problems?)` ou FluentValidation (`EnsureIsValid`, `ToProblems`).
   - Em APIs, converta problemas para `ProblemDetails` automaticamente via `OkMatch`/`CreatedMatch`/`NoContentMatch`.
+- Documente problemas expostos pela API:
+  - Registre descrições com `AddProblemDetailsDescriptions`, em código ou JSON.
+  - Publique `MapProblemDetailsDescriptionPage()` quando consumidores precisarem consultar o catálogo de tipos.
+  - Para `Problems.Custom`, garanta que todo `typeId` público tenha `title`, `description`, `status` e URI de `type` estáveis.
 - Persistência e buscas:
   - Use `TryFindAsync`/`TryFindByAsync` (EF) e trate `FindResult` com `NotFound`/`HasInvalidParameter`/`ToResult([param])`.
   - Propague campos extras (`id`, `entity`, `property/value`) em `Extensions` para rastreabilidade.
@@ -563,6 +706,8 @@ Boas práticas (RFC 9457):
   - Encadeie propriedades com `ChainProperty(parent[, index])` para apontar origem precisa.
 - Performance:
   - `Result` é `readonly struct`; aproveite composição leve e evite alocações desnecessárias.
+- Assinaturas:
+  - Consulte a documentação XML das libs no IDE/pacote para confirmar overloads, nomes de parâmetros e tipos de retorno antes de gerar código em APIs menos usadas.
 
 ## Resumo
 
@@ -580,11 +725,13 @@ Diretrizes de geração alinhadas às seções 1–7:
   - Use `Property` para apontar o campo e `With(key, value)` para contexto adicional; `ChainProperty(parent[, index])` para caminhos.
 - Resultados e composição
   - Retorne `Result`/`Result<T>` em serviços/handlers; componha com `Map`, `Continue`, `Match` e `MatchAsync`.
+  - Para métodos `Async` com `TParam` e callbacks que retornam `Task`/`Task<T>`, gere chamadas no formato `MetodoAsync(param, static (..., token) => ..., ct)`.
   - Evite exceções para fluxos esperados; converta para problemas e propague via `Result`.
 - APIs Web (servidor)
   - Converta `Result`/`Result<T>` em `OkMatch`, `CreatedMatch` (com `Location`) e `NoContentMatch`.
   - Para Minimal APIs, prefira `app.MapGroup("/group-route").WithExceptionFilter()` e mapeie as rotas no grupo; use o filtro apenas para exceptions inesperadas.
-  - Configure `ProblemDetailsOptions` e descreva `typeId` para problemas customizados; respeite RFC 9457 (`type`, `title`, `status`, `detail`, `instance`).
+  - Configure `ProblemDetailsOptions`, registre descrições com `AddProblemDetailsDescriptions` e exponha `MapProblemDetailsDescriptionPage()` quando a API deve documentar seus tipos.
+  - Descreva todo `typeId` customizado; respeite RFC 9457 (`type`, `title`, `status`, `detail`, `instance`).
 - Entity Framework
   - Use `TryFindAsync`/`TryFindByAsync` para obter `FindResult`; converta para `Result` com `ToResult([param])`.
   - Ao não encontrar, retorne `NotFound` padronizado com `Extensions` (`id`, `entity`, `property/value`).
