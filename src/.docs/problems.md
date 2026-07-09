@@ -421,6 +421,34 @@ Comportamento esperado (vide `MatchApiTests`):
 - Sucesso: 201/200/204 com Location e/ou corpo conforme tipo.
 - Falha: problemas convertidos para `ProblemDetails` com status coerente (404, 400, etc.).
 
+### Filtro de exceções para Minimal API
+
+Use `WithExceptionFilter` na borda HTTP para transformar exceções inesperadas em `ProblemDetails` 500 padronizado. Prefira aplicar o filtro em grupos, para que todas as rotas do grupo compartilhem a mesma política:
+
+```csharp
+var group = app.MapGroup("/api")
+    .WithExceptionFilter();
+
+group.MapGet("/produto/{id:int}", GetProduto);
+group.MapPost("/produto", CriarProduto);
+```
+
+Quando quiser registrar também falhas esperadas retornadas por `OkMatch`, `CreatedMatch` ou `NoContentMatch`, informe um `LogLevel`. O parâmetro `loggerType` define a categoria do logger usado pelo filtro:
+
+```csharp
+var group = app.MapGroup("/api")
+    .WithExceptionFilter(LogLevel.Error, typeof(Program));
+
+group.MapGet("/produto/{id:int}", GetProduto);
+```
+
+Regras para IA ao gerar Minimal APIs:
+- Use `WithExceptionFilter()` em `MapGroup` quando várias rotas compartilham a mesma borda de API.
+- Use o filtro para exceptions inesperadas, falhas de infraestrutura e erros não previstos.
+- Não use `try/catch` nem exception filter para validação esperada, regra de domínio ou recurso não encontrado; retorne `Result`/`Problems` e converta com `OkMatch`, `CreatedMatch` ou `NoContentMatch`.
+- O filtro sempre registra exceptions capturadas como `LogLevel.Error`.
+- O parâmetro `logLevel` controla apenas o log de respostas de erro já modeladas como `MatchErrorResult`.
+
 Boas práticas (RFC 9457):
 - Para `CreatedMatch`, forneça `Location` com URI absoluta ou relativa estável.
 - Títulos (`title`) claros e condizentes com o `type`; descrição (`detail`) objetiva.
@@ -555,6 +583,7 @@ Diretrizes de geração alinhadas às seções 1–7:
   - Evite exceções para fluxos esperados; converta para problemas e propague via `Result`.
 - APIs Web (servidor)
   - Converta `Result`/`Result<T>` em `OkMatch`, `CreatedMatch` (com `Location`) e `NoContentMatch`.
+  - Para Minimal APIs, prefira `app.MapGroup("/group-route").WithExceptionFilter()` e mapeie as rotas no grupo; use o filtro apenas para exceptions inesperadas.
   - Configure `ProblemDetailsOptions` e descreva `typeId` para problemas customizados; respeite RFC 9457 (`type`, `title`, `status`, `detail`, `instance`).
 - Entity Framework
   - Use `TryFindAsync`/`TryFindByAsync` para obter `FindResult`; converta para `Result` com `ToResult([param])`.
