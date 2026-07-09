@@ -1,4 +1,4 @@
-﻿using RoyalCode.SmartProblems.Entities;
+using RoyalCode.SmartProblems.Entities;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -513,16 +513,18 @@ public readonly struct Result<TValue>
     /// <param name="param">The parameter passed to the functions.</param>
     /// <param name="onSuccess">The function to execute when the result is a success.</param>
     /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>
     ///     The result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<TResult> MatchAsync<TResult, TParam>(
         TParam param,
-        Func<TValue, TParam, Task<TResult>> onSuccess,
-        Func<Problems, TParam, Task<TResult>> onFailure)
+        Func<TValue, TParam, CancellationToken, Task<TResult>> onSuccess,
+        Func<Problems, TParam, CancellationToken, Task<TResult>> onFailure,
+        CancellationToken ct = default)
     {
-        return IsSuccess ? onSuccess(value, param) : onFailure(problems, param);
+        return IsSuccess ? onSuccess(value, param, ct) : onFailure(problems, param, ct);
     }
 
     /// <summary>
@@ -535,16 +537,18 @@ public readonly struct Result<TValue>
     /// <param name="param">The parameter passed to the functions.</param>
     /// <param name="onSuccess">The function to execute when the result is a success.</param>
     /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>
     ///     The result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<TResult> MatchAsync<TResult, TParam>(
         TParam param,
-        Func<TValue, TParam, Task<TResult>> onSuccess,
-        Func<Problems, TParam, TResult> onFailure)
+        Func<TValue, TParam, CancellationToken, Task<TResult>> onSuccess,
+        Func<Problems, TParam, TResult> onFailure,
+        CancellationToken ct = default)
     {
-        return IsSuccess ? onSuccess(value, param) : Task.FromResult(onFailure(problems, param));
+        return IsSuccess ? onSuccess(value, param, ct) : Task.FromResult(onFailure(problems, param));
     }
 
     /// <summary>
@@ -557,16 +561,18 @@ public readonly struct Result<TValue>
     /// <param name="param">The parameter passed to the success function.</param>
     /// <param name="onSuccess">The function to execute when the result is a success.</param>
     /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>
     ///     The result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<TResult> MatchAsync<TResult, TParam>(
         TParam param,
-        Func<TValue, TParam, Task<TResult>> onSuccess,
-        Func<Problems, Task<TResult>> onFailure)
+        Func<TValue, TParam, CancellationToken, Task<TResult>> onSuccess,
+        Func<Problems, CancellationToken, Task<TResult>> onFailure,
+        CancellationToken ct = default)
     {
-        return IsSuccess ? onSuccess(value, param) : onFailure(problems);
+        return IsSuccess ? onSuccess(value, param, ct) : onFailure(problems, ct);
     }
 
     /// <summary>
@@ -579,16 +585,18 @@ public readonly struct Result<TValue>
     /// <param name="param">The parameter passed to the success function.</param>
     /// <param name="onSuccess">The function to execute when the result is a success.</param>
     /// <param name="onFailure">The function to execute when the result is a failure.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>
     ///     The result of the executed function.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<TResult> MatchAsync<TResult, TParam>(
         TParam param,
-        Func<TValue, TParam, Task<TResult>> onSuccess,
-        Func<Problems, TResult> onFailure)
+        Func<TValue, TParam, CancellationToken, Task<TResult>> onSuccess,
+        Func<Problems, TResult> onFailure,
+        CancellationToken ct = default)
     {
-        return IsSuccess ? onSuccess(value, param) : Task.FromResult(onFailure(problems));
+        return IsSuccess ? onSuccess(value, param, ct) : Task.FromResult(onFailure(problems));
     }
 
     #endregion
@@ -689,23 +697,6 @@ public readonly struct Result<TValue>
     /// <typeparam name="TOther">The new type of the value.</typeparam>
     /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
     /// <param name="param">The parameter passed to the function.</param>
-    /// <param name="map">A function to map the value.</param>
-    /// <returns>
-    ///     A new result with the mapped value, when the result is a success, otherwise the result with the problems.
-    /// </returns>
-    public async ValueTask<Result<TOther>> MapAsync<TOther, TParam>(TParam param, Func<TValue, TParam, Task<TOther>> map)
-    {
-        return IsSuccess ? await map(value, param) : new Result<TOther>(problems);
-    }
-
-    /// <summary>
-    /// <para>
-    ///     Map a new value to a result when the result is a success.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="TOther">The new type of the value.</typeparam>
-    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
-    /// <param name="param">The parameter passed to the function.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="map">A function to map the value.</param>
     /// <returns>
@@ -713,8 +704,8 @@ public readonly struct Result<TValue>
     /// </returns>
     public async ValueTask<Result<TOther>> MapAsync<TOther, TParam>(
         TParam param,
-        CancellationToken ct,
-        Func<TValue, TParam, CancellationToken, Task<TOther>> map)
+        Func<TValue, TParam, CancellationToken, Task<TOther>> map,
+        CancellationToken ct = default)
     {
         return IsSuccess ? await map(value, param, ct) : new Result<TOther>(problems);
     }
@@ -743,26 +734,6 @@ public readonly struct Result<TValue>
     /// <typeparam name="TOther">The new type of the value.</typeparam>
     /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
     /// <param name="param">The parameter passed to the function.</param>
-    /// <param name="map">A function to map the value.</param>
-    /// <returns>
-    ///     The new result of the function, when the result is a success,
-    ///     a new result with the problems, otherwise.
-    /// </returns>
-    public async ValueTask<Result<TOther>> MapAsync<TOther, TParam>(
-        TParam param, 
-        Func<TValue, TParam, Task<Result<TOther>>> map)
-    {
-        return IsSuccess ? await map(value, param) : new Result<TOther>(problems);
-    }
-
-    /// <summary>
-    /// <para>
-    ///     Map to a new result when the result is a success.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="TOther">The new type of the value.</typeparam>
-    /// <typeparam name="TParam">The type of the parameter passed to the function.</typeparam>
-    /// <param name="param">The parameter passed to the function.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="map">A function to map the value.</param>
     /// <returns>
@@ -771,8 +742,8 @@ public readonly struct Result<TValue>
     /// </returns>
     public async ValueTask<Result<TOther>> MapAsync<TOther, TParam>(
         TParam param,
-        CancellationToken ct,
-        Func<TValue, TParam, CancellationToken, Task<Result<TOther>>> map)
+        Func<TValue, TParam, CancellationToken, Task<Result<TOther>>> map,
+        CancellationToken ct = default)
     {
         return IsSuccess ? await map(value, param, ct) : new Result<TOther>(problems);
     }
@@ -900,32 +871,14 @@ public readonly struct Result<TValue>
     /// </summary>
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="param">The parameter to pass to the action.</param>
-    /// <param name="action">The action to execute.</param>
-    /// <returns>The same result.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> ContinueAsync<TParam>(TParam param, Func<TValue, TParam, Task> action)
-    {
-        if (IsSuccess)
-            await action(value, param);
-
-        return this;
-    }
-
-    /// <summary>
-    /// <para>
-    ///     Execute an action when the result is a success.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
-    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result<TValue>> ContinueAsync<TParam>(
         TParam param,
-        CancellationToken ct,
-        Func<TValue, TParam, CancellationToken, Task> action)
+        Func<TValue, TParam, CancellationToken, Task> action,
+        CancellationToken ct = default)
     {
         if (IsSuccess)
             await action(value, param, ct);
@@ -940,38 +893,14 @@ public readonly struct Result<TValue>
     /// </summary>
     /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
     /// <param name="param">The parameter to pass to the action.</param>
-    /// <param name="action">The action to execute.</param>
-    /// <returns>The same result or a new with the problems.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public async ValueTask<Result<TValue>> ContinueAsync<TParam>(
-        TParam param,
-        Func<TValue, TParam, Task<Result>> action)
-    {
-        if (IsSuccess)
-        {
-            var actionResult = await action(value, param);
-            if (actionResult.HasProblems(out var actionProblems))
-                return actionProblems;
-        }
-
-        return this;
-    }
-
-    /// <summary>
-    /// <para>
-    ///     Execute an action when the result is a success.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="TParam">The type of the parameter of the action.</typeparam>
-    /// <param name="param">The parameter to pass to the action.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="action">The action to execute.</param>
     /// <returns>The same result or a new with the problems.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<Result<TValue>> ContinueAsync<TParam>(
         TParam param,
-        CancellationToken ct,
-        Func<TValue, TParam, CancellationToken, Task<Result>> action)
+        Func<TValue, TParam, CancellationToken, Task<Result>> action,
+        CancellationToken ct = default)
     {
         if (IsSuccess)
         {

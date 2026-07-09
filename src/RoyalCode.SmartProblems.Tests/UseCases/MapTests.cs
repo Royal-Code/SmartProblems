@@ -54,8 +54,8 @@ public class MapTests
         var result = await service.CreateFoo(1)
             .Validate(validator)
             .Map(f => new FooBarContainer { Foo = f })
-            .ContinueAsync(service, async (c, s) => c.Bar = await s.FindBar(c.Foo))
-            .ContinueAsync(service, async (c, s) => await s.ProcessBar(c.Bar).ContinueAsync(c, (baz, cx) => cx.Baz = baz));
+            .ContinueAsync(service, async (c, s, _) => c.Bar = await s.FindBar(c.Foo))
+            .ContinueAsync(service, async (c, s, _) => await s.ProcessBar(c.Bar).ContinueAsync(c, (baz, cx) => cx.Baz = baz));
         
         // Assert
         var hasContainer = result.HasValue(out var container);

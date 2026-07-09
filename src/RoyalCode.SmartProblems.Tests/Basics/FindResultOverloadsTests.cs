@@ -48,12 +48,12 @@ public class FindResultOverloadsTests
         CancellationToken captured = default;
 
         // Act
-        var result = await findResult.ContinueAsync(5, token, (foo, value, ct) =>
+        var result = await findResult.ContinueAsync(5, (foo, value, ct) =>
         {
             captured = ct;
             foo.Value += value;
             return Task.FromResult(Result.Ok());
-        });
+        }, token);
 
         // Assert
         Assert.Equal(token, captured);
@@ -69,11 +69,11 @@ public class FindResultOverloadsTests
         var called = false;
 
         // Act
-        var result = await findResult.ContinueAsync("foo", 5, CancellationToken.None, (foo, value, ct) =>
+        var result = await findResult.ContinueAsync("foo", 5, (foo, value, ct) =>
         {
             called = true;
             return Task.FromResult(Result.Ok());
-        });
+        }, CancellationToken.None);
 
         // Assert
         Assert.False(called);
@@ -91,12 +91,12 @@ public class FindResultOverloadsTests
         CancellationToken captured = default;
 
         // Act
-        var result = await findResult.ContinueAsync(3, token, (foo, value, ct) =>
+        var result = await findResult.ContinueAsync(3, (foo, value, ct) =>
         {
             captured = ct;
             foo.Value += value;
             return Task.FromResult(Result.Ok());
-        });
+        }, token);
 
         // Assert
         Assert.Equal(token, captured);
@@ -112,11 +112,11 @@ public class FindResultOverloadsTests
         var called = false;
 
         // Act
-        var result = await findResult.ContinueAsync("id", 5, CancellationToken.None, (foo, value, ct) =>
+        var result = await findResult.ContinueAsync("id", 5, (foo, value, ct) =>
         {
             called = true;
             return Task.FromResult(Result.Ok());
-        });
+        }, CancellationToken.None);
 
         // Assert
         Assert.False(called);

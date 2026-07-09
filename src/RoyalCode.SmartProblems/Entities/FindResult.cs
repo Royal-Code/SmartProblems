@@ -287,7 +287,10 @@ public readonly struct FindResult<TEntity>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -317,7 +320,11 @@ public readonly struct FindResult<TEntity>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(
+        string parameterName,
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
@@ -412,8 +419,8 @@ public readonly struct FindResult<TEntity>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result<TEntity>> ContinueAsync<TParam>(
         TParam param, 
-        CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem.AsResult<TEntity>();
@@ -449,8 +456,8 @@ public readonly struct FindResult<TEntity>
     public Task<Result<TEntity>> ContinueAsync<TParam>(
         string parameterName,
         TParam param, 
-        CancellationToken ct, 
-        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter.AsResult<TEntity>();
@@ -617,7 +624,10 @@ public readonly struct FindResult<TEntity>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -634,7 +644,11 @@ public readonly struct FindResult<TEntity>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result<TValue>> MapAsync<TValue, TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(
+        string parameterName,
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
@@ -871,7 +885,10 @@ public readonly struct FindResult<TEntity, TId>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -902,7 +919,11 @@ public readonly struct FindResult<TEntity, TId>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result> CollectAsync<TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task> receiver)
+    public async Task<Result> CollectAsync<TParam>(
+        string parameterName,
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;
@@ -964,8 +985,8 @@ public readonly struct FindResult<TEntity, TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task<Result<TEntity>> ContinueAsync<TParam>(
         TParam param,
-        CancellationToken ct,
-        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem.AsResult<TEntity>();
@@ -1000,8 +1021,8 @@ public readonly struct FindResult<TEntity, TId>
     public Task<Result<TEntity>> ContinueAsync<TParam>(
         string parameterName,
         TParam param,
-        CancellationToken ct,
-        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver)
+        Func<TEntity, TParam, CancellationToken, Task<Result>> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter.AsResult<TEntity>();
@@ -1168,7 +1189,10 @@ public readonly struct FindResult<TEntity, TId>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The asynchronous function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result<TValue>> MapAsync<TValue, TParam>(TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver,
+        CancellationToken ct = default)
     {
         if (NotFound(out var notFoundProblem))
             return notFoundProblem;
@@ -1185,7 +1209,11 @@ public readonly struct FindResult<TEntity, TId>
     /// <param name="ct">The cancellation token.</param>
     /// <param name="receiver">The asynchronous function to be executed if the entity was found.</param>
     /// <returns>A <see cref="Result{TValue}"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result<TValue>> MapAsync<TValue, TParam>(string parameterName, TParam param, CancellationToken ct, Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver)
+    public async Task<Result<TValue>> MapAsync<TValue, TParam>(
+        string parameterName,
+        TParam param,
+        Func<TEntity, TParam, CancellationToken, Task<TValue>> receiver,
+        CancellationToken ct = default)
     {
         if (HasInvalidParameter(out var invalidParameter, parameterName))
             return invalidParameter;

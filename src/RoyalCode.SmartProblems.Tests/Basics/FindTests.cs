@@ -971,29 +971,29 @@ public class FindTests
         CancellationToken mapNamedCt = default;
 
         // Act
-        var collectResult = await findResult.CollectAsync(3, token, (foo, value, ct) =>
+        var collectResult = await findResult.CollectAsync(3, (foo, value, ct) =>
         {
             collectCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
-        var collectNamedResult = await findResult.CollectAsync("foo", 4, token, (foo, value, ct) =>
+        var collectNamedResult = await findResult.CollectAsync("foo", 4, (foo, value, ct) =>
         {
             collectNamedCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
-        var mapResult = await findResult.MapAsync<Bar, int>(5, token, (foo, value, ct) =>
+        var mapResult = await findResult.MapAsync<Bar, int>(5, (foo, value, ct) =>
         {
             mapCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
-        var mapNamedResult = await findResult.MapAsync<Bar, int>("foo", 6, token, (foo, value, ct) =>
+        var mapNamedResult = await findResult.MapAsync<Bar, int>("foo", 6, (foo, value, ct) =>
         {
             mapNamedCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         // Assert
         Assert.True(collectResult.IsSuccess);
@@ -1023,29 +1023,29 @@ public class FindTests
         CancellationToken mapNamedCt = default;
 
         // Act
-        var collectResult = await findResult.CollectAsync(8, token, (foo, value, ct) =>
+        var collectResult = await findResult.CollectAsync(8, (foo, value, ct) =>
         {
             collectCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
-        var collectNamedResult = await findResult.CollectAsync("id", 9, token, (foo, value, ct) =>
+        var collectNamedResult = await findResult.CollectAsync("id", 9, (foo, value, ct) =>
         {
             collectNamedCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
-        var mapResult = await findResult.MapAsync<Bar, int>(10, token, (foo, value, ct) =>
+        var mapResult = await findResult.MapAsync<Bar, int>(10, (foo, value, ct) =>
         {
             mapCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
-        var mapNamedResult = await findResult.MapAsync<Bar, int>("id", 11, token, (foo, value, ct) =>
+        var mapNamedResult = await findResult.MapAsync<Bar, int>("id", 11, (foo, value, ct) =>
         {
             mapNamedCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         // Assert
         Assert.True(collectResult.IsSuccess);
@@ -1075,32 +1075,32 @@ public class FindTests
         CancellationToken mapNamedCt = default;
 
         // Act
-        var collectResult = await task.CollectAsync(12, token, (foo, value, ct) =>
+        var collectResult = await task.CollectAsync(12, (foo, value, ct) =>
         {
             collectCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
         task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
-        var collectNamedResult = await task.CollectAsync("foo", 13, token, (foo, value, ct) =>
+        var collectNamedResult = await task.CollectAsync("foo", 13, (foo, value, ct) =>
         {
             collectNamedCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
         task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
-        var mapResult = await task.MapAsync<Foo, Bar, int>(14, token, (foo, value, ct) =>
+        var mapResult = await task.MapAsync<Foo, Bar, int>(14, (foo, value, ct) =>
         {
             mapCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         task = Task.FromResult<FindResult<Foo>>(new Foo { Value = 30 });
-        var mapNamedResult = await task.MapAsync<Foo, Bar, int>("foo", 15, token, (foo, value, ct) =>
+        var mapNamedResult = await task.MapAsync<Foo, Bar, int>("foo", 15, (foo, value, ct) =>
         {
             mapNamedCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         // Assert
         Assert.True(collectResult.IsSuccess);
@@ -1130,32 +1130,32 @@ public class FindTests
         CancellationToken mapNamedCt = default;
 
         // Act
-        var collectResult = await task.CollectAsync<Foo, int, int>(17, token, (foo, value, ct) =>
+        var collectResult = await task.CollectAsync<Foo, int, int>(17, (foo, value, ct) =>
         {
             collectCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
         task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
-        var collectNamedResult = await task.CollectAsync<Foo, int, int>("id", 18, token, (foo, value, ct) =>
+        var collectNamedResult = await task.CollectAsync<Foo, int, int>("id", 18, (foo, value, ct) =>
         {
             collectNamedCt = ct;
             return Task.CompletedTask;
-        });
+        }, token);
 
         task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
-        var mapResult = await task.MapAsync<Foo, int, Bar, int>(19, token, (foo, value, ct) =>
+        var mapResult = await task.MapAsync<Foo, int, Bar, int>(19, (foo, value, ct) =>
         {
             mapCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         task = Task.FromResult(new FindResult<Foo, int>(new Foo { Value = 40 }, 16));
-        var mapNamedResult = await task.MapAsync<Foo, int, Bar, int>("id", 20, token, (foo, value, ct) =>
+        var mapNamedResult = await task.MapAsync<Foo, int, Bar, int>("id", 20, (foo, value, ct) =>
         {
             mapNamedCt = ct;
             return Task.FromResult(new Bar { Value = foo.Value + value });
-        });
+        }, token);
 
         // Assert
         Assert.True(collectResult.IsSuccess);

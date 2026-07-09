@@ -55,12 +55,12 @@ public class FindResultAsyncExtensionsTests
         CancellationToken captured = default;
 
         // Act
-        var result = await task.ContinueAsync(4, token, (foo, value, ct) =>
+        var result = await task.ContinueAsync(4, (foo, value, ct) =>
         {
             captured = ct;
             foo.Value += value;
             return Task.FromResult(Result.Ok());
-        });
+        }, token);
 
         // Assert
         Assert.Equal(token, captured);
@@ -76,11 +76,11 @@ public class FindResultAsyncExtensionsTests
         var called = false;
 
         // Act
-        var result = await task.ContinueAsync("foo", 4, CancellationToken.None, (foo, value, ct) =>
+        var result = await task.ContinueAsync("foo", 4, (foo, value, ct) =>
         {
             called = true;
             return Task.FromResult(Result.Ok());
-        });
+        }, CancellationToken.None);
 
         // Assert
         Assert.False(called);
@@ -118,12 +118,12 @@ public class FindResultAsyncExtensionsTests
         CancellationToken captured = default;
 
         // Act
-        var result = await task.ContinueAsync<Foo, int, int>(5, token, (foo, value, ct) =>
+        var result = await task.ContinueAsync<Foo, int, int>(5, (foo, value, ct) =>
         {
             captured = ct;
             foo.Value += value;
             return Task.FromResult(Result.Ok());
-        });
+        }, token);
 
         // Assert
         Assert.Equal(token, captured);

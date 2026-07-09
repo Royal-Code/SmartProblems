@@ -44,10 +44,10 @@ public static partial class SmartProblemsEFExtensions
         this Result<TEntity> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
-        });
+        }, ct);
     }
 
     /// <summary>
@@ -63,10 +63,10 @@ public static partial class SmartProblemsEFExtensions
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
-        });
+        }, ct);
     }
 
     /// <summary>
@@ -82,10 +82,10 @@ public static partial class SmartProblemsEFExtensions
         this ValueTask<Result<TEntity>> result, DbContext context, CancellationToken ct = default) 
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
+        return result.ContinueAsync(context, static async (entity, ctx, ct) =>
         {
             await ctx.AddAsync(entity, ct);
-        });
+        }, ct);
     }
 
     #endregion
@@ -118,10 +118,10 @@ public static partial class SmartProblemsEFExtensions
     public static ValueTask<Result> SaveChangesAsync(
         this Result result, DbContext context, CancellationToken ct = default)
     {
-        return result.ContinueAsync(context, ct, static async (ctx, ct) =>
+        return result.ContinueAsync(context, static async (ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
-        });
+        }, ct);
     }
 
     /// <summary>
@@ -135,10 +135,10 @@ public static partial class SmartProblemsEFExtensions
     public static Task<Result> SaveChangesAsync(
         this Task<Result> result, DbContext context, CancellationToken ct = default)
     {
-        return result.ContinueAsync(context, ct, static async (ctx, ct) =>
+        return result.ContinueAsync(context, static async (ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
-        });
+        }, ct);
     }
 
     /// <summary>
@@ -169,10 +169,10 @@ public static partial class SmartProblemsEFExtensions
         this Result<TEntity> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, static async (_, ctx, ct) =>
+        return result.ContinueAsync(context, static async (_, ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
-        });
+        }, ct);
     }
 
     /// <summary>
@@ -187,10 +187,10 @@ public static partial class SmartProblemsEFExtensions
         this Task<Result<TEntity>> result, DbContext context, CancellationToken ct = default)
         where TEntity : class
     {
-        return result.ContinueAsync(context, ct, static async (_, ctx, ct) =>
+        return result.ContinueAsync(context, static async (_, ctx, ct) =>
         {
             await ctx.SaveChangesAsync(ct);
-        });
+        }, ct);
     }
 
     #endregion
@@ -212,11 +212,11 @@ public static partial class SmartProblemsEFExtensions
         CancellationToken ct)
         where TEntity : class
     {
-        return task.ContinueAsync(context, ct, static async (entity, ctx, ct) =>
+        return task.ContinueAsync(context, static async (entity, ctx, ct) =>
         {
             ctx.Remove(entity);
             return Result.Ok();
-        });
+        }, ct);
     }
 
     #endregion

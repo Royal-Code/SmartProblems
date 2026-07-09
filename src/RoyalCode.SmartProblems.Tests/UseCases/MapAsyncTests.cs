@@ -31,8 +31,8 @@ public class MapAsyncTests
 
         // Act
         var result = await validator.EnsureIsValid(foo)
-            .MapAsync(service, static async (f, s) => await s.FindBarAsync(f))
-            .MapAsync(service, static async (b, s) => await s.ProcessBar(b));
+            .MapAsync(service, static async (f, s, _) => await s.FindBarAsync(f))
+            .MapAsync(service, static async (b, s, _) => await s.ProcessBar(b));
 
         // Assert
         var hasBaz = result.HasValue(out var baz);
@@ -53,7 +53,7 @@ public class MapAsyncTests
         
         // Act
         var barResult = await result
-            .MapAsync(service, static async (f, s) => await s.FindBarAsync(f))
+            .MapAsync(service, static async (f, s, _) => await s.FindBarAsync(f))
             .MapAsync(b => new Bar { Value = b.Value + 1 });
 
         // Assert
@@ -73,7 +73,7 @@ public class MapAsyncTests
         
         // Act
         var barResult = await result
-            .MapAsync(service, static async (f, s) => await s.FindBar(f))
+            .MapAsync(service, static async (f, s, _) => await s.FindBar(f))
             .MapAsync(b => new Bar { Value = b.Value + 1 });
 
         // Assert
@@ -94,8 +94,8 @@ public class MapAsyncTests
 
         // Act
         var bazResult = await result
-            .MapAsync(service, static async (f, s) => await s.CreateBarAsync(f))
-            .MapAsync(service, static async (b, s) => await s.ProcessBarAsync(b));
+            .MapAsync(service, static async (f, s, _) => await s.CreateBarAsync(f))
+            .MapAsync(service, static async (b, s, _) => await s.ProcessBarAsync(b));
 
         // Assert
         var hasBaz = bazResult.HasValue(out var baz);
@@ -114,8 +114,8 @@ public class MapAsyncTests
 
         // Act
         var bazResult = await result
-            .MapAsync(service, static async (f, s) => await s.CreateBar(f))
-            .MapAsync(service, static async (b, s) => await s.ProcessBar(b));
+            .MapAsync(service, static async (f, s, _) => await s.CreateBar(f))
+            .MapAsync(service, static async (b, s, _) => await s.ProcessBar(b));
 
         // Assert
         var hasBaz = bazResult.HasValue(out var baz);
