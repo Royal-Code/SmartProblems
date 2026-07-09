@@ -33,6 +33,68 @@ public sealed class ContactsDbContext(DbContextOptions<ContactsDbContext> option
 			builder.HasIndex(c => c.Email)
 				.IsUnique();
 		});
+
+		modelBuilder.Entity<Country>(builder =>
+		{
+			builder.ToTable("countries");
+
+			builder.HasKey(c => c.Id);
+			builder.Property(c => c.Id).ValueGeneratedOnAdd();
+
+			builder.Property(c => c.Name)
+				.HasMaxLength(100)
+				.IsRequired();
+
+			builder.Property(c => c.Code)
+				.HasMaxLength(100)
+				.IsRequired();
+		});
+
+		modelBuilder.Entity<Country>(builder =>
+		{
+			builder.ToTable("countries");
+
+			builder.HasKey(c => c.Id);
+			builder.Property(c => c.Id).ValueGeneratedOnAdd();
+
+			builder.HasMany(c => c.States)
+				.WithOne()
+				.HasForeignKey(s => s.CountryId)
+				.IsRequired();
+		});
+
+		modelBuilder.Entity<State>(builder =>
+		{
+			builder.ToTable("states");
+
+			builder.HasKey(s => s.Id);
+			builder.Property(s => s.Id).ValueGeneratedOnAdd();
+
+			builder.Property(s => s.Name)
+				.HasMaxLength(100)
+				.IsRequired();
+
+			builder.Property(s => s.Code)
+				.HasMaxLength(100)
+				.IsRequired();
+
+			builder.HasMany(s => s.Cities)
+				.WithOne()
+				.HasForeignKey(c => c.StateId)
+				.IsRequired();
+		});
+
+		modelBuilder.Entity<City>(builder =>
+		{
+			builder.ToTable("cities");
+
+			builder.HasKey(c => c.Id);
+			builder.Property(c => c.Id).ValueGeneratedOnAdd();
+
+			builder.Property(c => c.Name)
+				.HasMaxLength(100)
+				.IsRequired();
+		});
 	}
 }
 

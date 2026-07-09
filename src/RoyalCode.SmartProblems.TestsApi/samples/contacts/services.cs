@@ -109,3 +109,21 @@ public sealed class ContactsService(ContactsDbContext db)
 		return find.ToResult();
 	}
 }
+
+public sealed class CountryService(ContactsDbContext db)
+{
+    public async Task<Result<Country>> GetByIdAsync(int id, CancellationToken ct = default)
+    {
+        var find = await db.Set<Country>().TryFindAsync(id, ct);
+
+        return find.ToResult();
+    }
+
+    public async Task<Result<State>> GetStateByIdAsync(Id<Country, int> countryId, Id<State, int> stateId, CancellationToken ct = default)
+    {
+        var find = await db.Set<State>()
+			.TryFindAsync(stateId, ct);
+
+        return find.ToResult();
+    }
+}

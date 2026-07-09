@@ -44,3 +44,76 @@ public sealed class Contact
 		UpdatedAt = DateTimeOffset.UtcNow;
 	}
 }
+
+public class Country
+{
+    private List<State> _states = [];
+
+    public int Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Code { get; private set; } = string.Empty;
+    public virtual IReadOnlyList<State> States => _states;
+    protected Country() { }
+    public Country(string name, string code)
+    {
+        Name = name;
+        Code = code;
+    }
+    public void AddState(State state)
+    {
+        _states.Add(state);
+    }
+    public void RemoveState(State state)
+    {
+        _states.Remove(state);
+    }
+    public State? GetStateById(int stateId)
+    {
+        return _states.FirstOrDefault(s => s.Id == stateId);
+    }
+}
+
+public class State
+{
+    private List<City> _cities = [];
+
+    public int Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Code { get; private set; } = string.Empty;
+    public int CountryId { get; private set; }
+    public virtual Country Country { get; private set; } = null!;
+    public virtual IReadOnlyList<City> Cities => _cities;
+    protected State() { }
+    public State(string name, string code, int countryId)
+    {
+        Name = name;
+        Code = code;
+        CountryId = countryId;
+    }
+    public void AddCity(City city)
+    {
+        _cities.Add(city);
+    }
+    public void RemoveCity(City city)
+    {
+        _cities.Remove(city);
+    }
+    public City? GetCityById(int cityId)
+    {
+        return _cities.FirstOrDefault(c => c.Id == cityId);
+    }
+}
+
+public class City
+{
+    public int Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public int StateId { get; private set; }
+    public virtual State State { get; private set; } = null!;
+    protected City() { }
+    public City(string name, int stateId)
+    {
+        Name = name;
+        StateId = stateId;
+    }
+}

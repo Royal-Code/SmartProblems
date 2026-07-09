@@ -42,12 +42,12 @@ public static partial class SmartProblemsEFExtensions
     /// <returns>A reference to the entity found or a problem if not found.</returns>
     public static async Task<FindResult<TEntity, TId>> TryFindAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TEntity, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TId>(
         this DbSet<TEntity> set,
-        Id<TEntity, TId> id,
+        TId id,
         CancellationToken ct = default)
         where TEntity : class
     {
-        var entity = await set.FindAsync([id.Value], cancellationToken: ct);
-        return new FindResult<TEntity, TId>(entity, id.Value);
+        var entity = await set.FindAsync([id], cancellationToken: ct);
+        return new FindResult<TEntity, TId>(entity, id);
     }
 
     /// <summary>
