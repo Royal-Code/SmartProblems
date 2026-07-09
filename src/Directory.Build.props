@@ -20,6 +20,8 @@
 	<PropertyGroup>
 		<EFVer>$(AspNetVer)</EFVer>
 		<FluentValidationVer>12.1.1</FluentValidationVer>
+		<OpenApiVer>2.7.5</OpenApiVer>
+		<SqliteDriverVer>3.53.3</SqliteDriverVer>
 		<SwashbuckleVer>10.1.0</SwashbuckleVer>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0'">

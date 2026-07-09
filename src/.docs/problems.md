@@ -553,7 +553,7 @@ Boas práticas (RFC 9457):
   - Modelo com `HasProblems(out Problems?)` ou FluentValidation (`EnsureIsValid`, `ToProblems`).
   - Em APIs, converta problemas para `ProblemDetails` automaticamente via `OkMatch`/`CreatedMatch`/`NoContentMatch`.
 - Persistência e buscas:
-  - Use `TryFindAsync`/`TryFindByAsync` (EF) e trate `FindResult` com `NotFound`/`ToResult([param])`.
+  - Use `TryFindAsync`/`TryFindByAsync` (EF) e trate `FindResult` com `NotFound`/`HasInvalidParameter`/`ToResult([param])`.
   - Propague campos extras (`id`, `entity`, `property/value`) em `Extensions` para rastreabilidade.
 - Cliente HTTP:
   - Consuma com `ToResultAsync` (valor ou problemas) e trate `application/problem+json` corretamente.

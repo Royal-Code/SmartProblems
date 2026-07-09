@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVer)" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SqliteDriverVer)" />
 	</ItemGroup>
 
 	<ItemGroup>
