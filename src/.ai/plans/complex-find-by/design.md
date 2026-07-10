@@ -8,6 +8,7 @@
 > `OrElse` e comportamento definido para `propertyName` duplicado.
 > 2ª — exemplos com `Id<,>.Value`, regra de rootedness (parser do legado e `By` do builder),
 > testes diretos da factory no core e validação de `propertyName` no `FindCriterion` + factory defensiva.
+> 3ª — `byName` whitespace tratado como "não especificado" na resolução via `DisplayNames`.
 
 ## 1. Problemas de hoje
 
@@ -153,7 +154,10 @@ public readonly struct FindCriterion
     /// <summary>Value used in the filter.</summary>
     public object? Value { get; }
 
-    /// <summary>Display name; when null, resolved via <see cref="DisplayNames"/> at problem generation.</summary>
+    /// <summary>
+    /// Display name; when null or whitespace, resolved via <see cref="DisplayNames"/> at problem
+    /// generation (whitespace is treated as "unspecified" to avoid a blank name in the detail message).
+    /// </summary>
     public string? ByName { get; }
 }
 ```
@@ -173,8 +177,10 @@ Comportamento:
 - `1` critério → comportamento atual (`R.EntityNotFoundBy`);
 - `N` critérios → novo recurso `R.EntityNotFoundByMany` com pares `"{byName} '{value}'"` unidos por `", "`,
   mais `.With("entity", ...)` e um `.With(propertyName, value)` por critério;
-- `ByName == null` → resolve via `DisplayNames.Instance.GetDisplayName(typeof(TEntity), propertyName)`
-  (lazy: só no caminho not-found, como hoje);
+- **`ByName` ausente**: `null` **ou whitespace** (`string.IsNullOrWhiteSpace`) contam como "não
+  especificado" → resolve via `DisplayNames.Instance.GetDisplayName(typeof(TEntity), propertyName)`
+  (lazy: só no caminho not-found, como hoje). Evita `detail` com nome em branco quando o chamador
+  passa `byName: " "` por engano;
 - **ordem**: o span chega na ordem de declaração (responsabilidade do chamador — o builder garante, §4.2)
   e o `detail` lista todos os pares nessa ordem;
 - **`propertyName` duplicado (comportamento definido)**: o `detail` sempre mostra **todos** os pares,
