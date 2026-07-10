@@ -85,7 +85,7 @@ public class FooBarService
 
 public class User
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     public int Age { get; set; }
 

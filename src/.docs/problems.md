@@ -42,6 +42,7 @@ Conceitos principais:
   - Composição: `Collect`, `Continue`, `Map` (+ `Async`).
   - Conversão: `ToResult([parameterName])`.
   - Fábrica: `FindResult<TEntity>.Problem(byName, propertyName, propertyValue)`.
+  - Fábrica multi-critério: `FindResult<TEntity>.Problem(ReadOnlySpan<FindCriterion>)`.
 
 - Conversão para `ProblemDetails`
   - `RoyalCode.SmartProblems.Conversions`: `Problems.ToProblemDetails(options)`.
@@ -50,7 +51,7 @@ Conceitos principais:
   - Página HTML de catálogo via `MapProblemDetailsDescriptionPage()`.
 
 - Integrações
-  - Entity Framework: `SmartProblemsEFExtensions` com `TryFindAsync`/`TryFindByAsync` e `FindResult`.
+  - Entity Framework: `SmartProblemsEFExtensions` com `TryFindAsync`/`TryFindByAsync`, `FindByCriteria` e `FindResult`.
   - FluentValidation: `ValidationsExtensions` (`ToProblems`, `HasProblems`, `EnsureIsValid`, `Validate`/`ValidateAsync`).
   - HTTP/ASP.NET: utilitários para converter para `ProblemDetails` e resultados de API.
 
@@ -124,6 +125,15 @@ Extensões e propriedades encadeadas:
 ```csharp
 p400.With("attempt", 1).ChainProperty("User", 0); // User[0].name
 p422.With("policy", "minimum-total");
+```
+
+### Convertendo Problems para exceção
+
+Quando for necessário atravessar uma fronteira que ainda espera exceptions, converta a coleção de problemas em exceção com `ToException(...)`:
+
+```csharp
+var ex = (p400 + p422).ToException("Validation errors: {0}");
+throw ex;
 ```
 
 ### Validando classes de forma padronizada
@@ -273,12 +283,6 @@ Regras para IA ao criar problemas customizados:
 - Escreva `description` como documentação do tipo: quando ocorre, por que ocorre e o que o consumidor pode fazer.
 - Não dependa do fallback `problem-occurred` para erros de domínio públicos.
 
-Converter coleção de problemas para exceção:
-```csharp
-var ex = (p400 + p422).ToException("Validation errors: {0}");
-throw ex;
-```
-
 ## 4. Exemplos de uso: Result
 
 Construção e verificação:
@@ -417,35 +421,42 @@ r1 += r2; // combina problemas
 
 ## 5. Exemplos para Entidades (Id, FindResult, TryFindAsync)
 
-A extensão de Entity Framework fornece métodos `TryFindAsync` e `TryFindByAsync` que retornam um `FindResult<TEntity>`.
+A extensão de Entity Framework fornece métodos `TryFindAsync`, `TryFindByAsync` e `FindByCriteria` que retornam um `FindResult<TEntity>`.
 Esse tipo encapsula o resultado da busca: a entidade encontrada (`Entity`) ou um problema padronizado quando não encontrada.
 
-- `TryFindAsync(DbContext, Id<TEntity,TId>)` e `TryFindAsync(DbSet<TEntity>, Id<TEntity,TId>)`:
+- `TryFindAsync(DbContext, Id<TEntity,TId>)`, `TryFindAsync(DbSet<TEntity>, TId)` e `TryFindAsync(DbSet<TEntity>, Id<TEntity,TId>)`:
   - Quando a entidade não existe, gera um `Problem` com categoria `NotFound` (HTTP 404) e mensagem bem definida.
-  - Campos extras adicionados em `Extensions`:
-    - `id`: o valor do identificador usado na busca.
-    - `entity`: o nome da entidade (ex.: `TestEntity`).
+  - Ao receber `Id<TEntity,TId>`, o valor usado na busca e no problema é `id.Value`, não o wrapper `Id`.
+  - Campos extras adicionados em `Extensions`: `id` e `entity`.
 
-- `TryFindByAsync(DbContext/DbSet, Expression<Func<TEntity,bool>>)` e sobrecargas com nomes:
-  - Quando o filtro não encontra a entidade, gera `Problem` `NotFound` com detalhe incluindo o display name da entidade e o nome/valor do campo.
-  - Campos extras em `Extensions`:
-    - `<PropertyName>` ou alias informado (ex.: `Name` ou `name`): valor usado no filtro.
-    - `entity`: nome da entidade.
+- `TryFindByAsync(DbContext/DbSet, Expression<Func<TEntity,bool>>)`:
+  - Executa o filtro com `FirstOrDefaultAsync`.
+  - Se não encontrar, tenta gerar uma mensagem rica analisando o predicado.
+  - Só gera critérios automáticos para expressões `&&` compostas por igualdades (`==`) em que um lado é membro direto da entidade (`e => e.Name`) e o outro lado é valor constante/capturado.
+  - Qualquer expressão ambígua ou potencialmente enganosa degrada para a mensagem genérica `The record for 'Entity' was not found`.
 
-Uso típico:
+- `FindByCriteria()`:
+  - Use quando a busca tem dois ou mais critérios, chave composta, filtros condicionais, ou quando você quer informar os valores diretamente sem depender da análise automática da expressão.
+  - Pode começar em `DbContext`, `DbSet<TEntity>` ou `IQueryable<TEntity>` já customizado com `Include`, `AsNoTracking` etc.
+  - Cada chamada `By` retorna uma nova instância; para montar filtros condicionais, reatribua a variável.
+
+Uso típico por id:
 ```csharp
-// Buscar por Id
-Id<TestEntity,int> id = 4;
-var entry = await db.TestEntities.TryFindAsync(id);
+Id<TestEntity, int> id = 4;
+var entry = await db.TestEntities.TryFindAsync(id, ct);
+
 if (entry.NotFound(out var problem))
 {
     // problem.Detail: "The record of 'The Entity for Tests' with id '4' was not found"
     // problem.Extensions: { id: 4, entity: "TestEntity" }
-    return problem; // como Result/Problems ou ProblemDetails
+    return problem;
 }
+```
 
-// Buscar por propriedade
-var byName = await db.TestEntities.TryFindByAsync(e => e.Name == "Test4");
+Uso por propriedade simples:
+```csharp
+var byName = await db.TestEntities.TryFindByAsync(e => e.Name == "Test4", ct);
+
 if (byName.NotFound(out var problemByName))
 {
     // problemByName.Detail: "The record of 'The Entity for Tests' with Name 'Test4' was not found"
@@ -454,9 +465,102 @@ if (byName.NotFound(out var problemByName))
 }
 ```
 
-Quando possui nomes customizados (ex.: título do campo, alias e valor), use a sobrecarga:
+Busca composta recomendada com `FindByCriteria`:
 ```csharp
-var entry2 = await db.TryFindByAsync<TestEntity>(e => e.Name == "Test4", displayName: "Name", alias: "name", value: "Test4");
+var city = await db.FindByCriteria<City>()
+    .By(c => c.StateId, stateId)
+    .By(c => c.Name, name)
+    .TryFindAsync(ct);
+
+if (city.NotFound(out var problem))
+{
+    // Detail: "The record of 'City' with StateId '42', Name 'Blumenau' was not found"
+    // Extensions: { entity: "City", StateId: 42, Name: "Blumenau" }
+    return problem;
+}
+```
+
+Começando a partir de um `IQueryable` customizado:
+```csharp
+var city = await db.Set<City>()
+    .AsNoTracking()
+    .Include(c => c.State)
+    .FindByCriteria()
+    .By(c => c.StateId, stateId, "State")
+    .By(c => c.Name, name)
+    .TryFindAsync(ct);
+```
+
+Filtros condicionais: como `FindCriteria<TEntity>` é imutável, sempre reatribua:
+```csharp
+var criteria = db.FindByCriteria<City>()
+    .By(c => c.StateId, stateId);
+
+if (!string.IsNullOrWhiteSpace(name))
+    criteria = criteria.By(c => c.Name, name);
+
+var city = await criteria.TryFindAsync(ct);
+```
+
+Quando um critério precisa de lógica além de igualdade (`StartsWith`, range, `OR`), use a sobrecarga com predicado e dados explícitos para o problema:
+```csharp
+var city = await db.FindByCriteria<City>()
+    .By(c => c.StateId, stateId)
+    .By(c => c.Name.StartsWith(prefix), byName: "Name", propertyName: "Name", value: prefix)
+    .TryFindAsync(ct);
+```
+
+Também é possível criar um problema multi-critério diretamente com `FindCriterion`:
+```csharp
+FindCriterion[] criteria =
+[
+    new("StateId", stateId, "State"),
+    new("Name", name)
+];
+
+FindResult<City> notFound = FindResult<City>.Problem(criteria);
+```
+
+Regras de `FindCriterion` e `FindResult<TEntity>.Problem(criteria)`:
+- Critérios são listados na ordem recebida.
+- Com um único critério, a mensagem mantém o formato legado de `Problem(byName, propertyName, value)`.
+- Com múltiplos critérios, o detalhe lista todos: `State '42', Name 'Blumenau'`.
+- `ByName` nulo ou em branco é resolvido por `DisplayNames`, respeitando `DisplayNameAttribute`.
+- `FindCriterion` rejeita `propertyName` nulo/vazio; `default(FindCriterion)` é ignorado pela fábrica multi-critério.
+- Se todos os critérios forem inválidos/ignorados, a mensagem cai para o `NotFound` genérico.
+- Em `Extensions`, se a mesma `propertyName` aparecer mais de uma vez, a última vence.
+
+Sobre a análise automática de `TryFindByAsync(predicate)`:
+```csharp
+// Gera mensagem rica multi-critério:
+await db.TryFindByAsync<City>(c => c.StateId == stateId && c.Name == name, ct);
+
+// Também funciona com a igualdade invertida:
+await db.TryFindByAsync<City>(c => name == c.Name, ct);
+
+// Degrada para mensagem genérica: "!=" não afirma que a entidade tem aquele valor.
+await db.TryFindByAsync<City>(c => c.Name != "Blumenau", ct);
+
+// Degrada para genérica: OR não pode ser descrito como lista simples de critérios AND.
+await db.TryFindByAsync<City>(c => c.Name == "A" || c.Name == "B", ct);
+
+// Degrada para genérica: cadeia profunda ou comparação entre membros da entidade.
+await db.TryFindByAsync<City>(c => c.State.Name == "SC", ct);
+await db.TryFindByAsync<State>(s => s.Name == s.Code, ct);
+```
+
+A análise do valor nunca compila a expressão nem invoca métodos do predicado, então `track("x")` não é chamado uma segunda vez apenas para montar a mensagem.
+Ela pode, porém, ler novamente getters de objetos capturados, como `request.Name`, para obter o valor usado no detalhe. Se o getter tiver efeito colateral ou valor variável, prefira `FindByCriteria().By(c => c.Name, request.Name)` e capture o valor uma vez antes da busca.
+
+Quando possui nomes customizados em uma chamada direta de `TryFindByAsync`, use a sobrecarga explícita:
+```csharp
+var entry2 = await db.TryFindByAsync<TestEntity>(
+    e => e.Name == "Test4",
+    byName: "Name",
+    propertyName: "name",
+    propertyValue: "Test4",
+    ct);
+
 if (entry2.NotFound(out var p))
 {
     // p.Extensions: { name: "Test4", entity: "TestEntity" }
@@ -697,6 +801,8 @@ Boas práticas (RFC 9457):
   - Para `Problems.Custom`, garanta que todo `typeId` público tenha `title`, `description`, `status` e URI de `type` estáveis.
 - Persistência e buscas:
   - Use `TryFindAsync`/`TryFindByAsync` (EF) e trate `FindResult` com `NotFound`/`HasInvalidParameter`/`ToResult([param])`.
+  - Para buscas com dois ou mais campos, chave composta ou filtros condicionais, prefira `FindByCriteria().By(...).TryFindAsync(ct)`.
+  - Para mensagens `NotFound` multi-critério fora do EF, use `FindCriterion` e `FindResult<TEntity>.Problem(criteria)`.
   - Propague campos extras (`id`, `entity`, `property/value`) em `Extensions` para rastreabilidade.
 - Cliente HTTP:
   - Consuma com `ToResultAsync` (valor ou problemas) e trate `application/problem+json` corretamente.
@@ -734,6 +840,13 @@ Diretrizes de geração alinhadas às seções 1–7:
   - Descreva todo `typeId` customizado; respeite RFC 9457 (`type`, `title`, `status`, `detail`, `instance`).
 - Entity Framework
   - Use `TryFindAsync`/`TryFindByAsync` para obter `FindResult`; converta para `Result` com `ToResult([param])`.
+  - Para `Id<TEntity,TId>`, pode chamar tanto `db.TryFindAsync(id, ct)` quanto `db.Set<TEntity>().TryFindAsync(id, ct)`; o valor real usado é `id.Value`.
+  - Para busca por um campo simples, prefira `TryFindByAsync(e => e.Property == value, ct)` ou a sobrecarga de seletor `TryFindByAsync(e => e.Property, value, ct)`.
+  - Para dois ou mais critérios, chave composta ou filtros condicionais, gere `db.FindByCriteria<TEntity>().By(...).By(...).TryFindAsync(ct)`.
+  - Lembre que `FindCriteria<TEntity>.By` retorna nova instância; em filtros condicionais, reatribua `criteria = criteria.By(...)`.
+  - Use a sobrecarga `By(predicate, byName, propertyName, value)` quando o critério tiver `StartsWith`, range, `OR` ou outra lógica que não seja igualdade simples.
+  - Ao gerar mensagens manuais de não encontrado com múltiplos campos, use `FindCriterion[]` e `FindResult<TEntity>.Problem(criteria)`.
+  - Não tente documentar `!=`, `>`, `<`, `||`, membro profundo (`e.State.Name`) ou comparação membro-a-membro (`e.A == e.B`) como se fossem critérios `AND` simples; nesses casos o `TryFindByAsync(predicate)` degrada para `NotFound` genérico ou deve receber dados explícitos.
   - Ao não encontrar, retorne `NotFound` padronizado com `Extensions` (`id`, `entity`, `property/value`).
 - Cliente HTTP
   - Consuma com `ToResultAsync` (valor ou problemas); trate `application/problem+json` e use `FailureTypeReader` para conteúdos não-ProblemDetails.
@@ -742,9 +855,10 @@ Diretrizes de geração alinhadas às seções 1–7:
 - Performance e observabilidade
   - Prefira `Result` (`readonly struct`) para menor alocação; use `With`/`Extensions` para dados de diagnóstico.
 
-Padrões de prompt para Copilot:
+Padrões de prompt para Agentes:
 - “Implemente um serviço que valide entrada com FluentValidation, retorne `Result` e mapeie para `CreatedMatch` com Location.”
 - “Crie uma consulta EF com `TryFindByAsync` por `Name`; retorne `OkMatch<T>` quando encontrado e `ProblemDetails 404` quando não.”
+- “Crie uma busca EF composta com `FindByCriteria`: filtre por `StateId` e `Name`, retorne `FindResult<City>` e documente o `NotFound` com os dois critérios.”
 - “Compose um `Result<Order>` em `Result<OrderDto>` usando `Map` e trate falhas com `Match` → `Problems.AsResult()`.”
 - “Defina um `Problems.Custom` com `typeId` e configure `ProblemDetailsOptions` seguindo RFC 9457 (URI absoluta em `type`).”
 - “Consuma um endpoint com `HttpClient` e `ToResultAsync<T>`; em falha, itere `Problems` e exiba `category`/`detail`.”
