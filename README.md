@@ -1,193 +1,282 @@
 # SmartProblems
 
-SmartProblems standardizes success/failure handling with `Result`/`Result<T>` and error modeling with `Problem`/`Problems`.
-It integrates APIs (ProblemDetails per RFC 9457), EF (`FindResult`/`TryFind*`) and HttpClient (`ToResultAsync`).
+SmartProblems is a small set of .NET libraries for modeling expected failures as
+values instead of exceptions. It gives you `Problem`, `Problems`, `Result`,
+`Result<T>`, `FindResult<T>`, RFC 9457 `ProblemDetails` conversion, Minimal API
+results, Entity Framework helpers, HttpClient deserialization and
+FluentValidation integration.
 
-Target frameworks: .NET 8, .NET 9, .NET 10.
+Use it when application code should say, plainly:
 
-## Packages/Projects
+- this operation succeeded;
+- this operation failed with one or more typed problems;
+- this entity was not found;
+- this API response should become a standard `ProblemDetails` payload.
 
-- Core
-  - `RoyalCode.SmartProblems` (Core: `Problem`, `Problems`, `Result`, `Result<T>`, `FindResult`)
-- Integrations and extensions
-- `RoyalCode.SmartProblems.Conversions` (Conversions to/from extended `ProblemDetails` per RFC 9457)
-  - `RoyalCode.SmartProblems.ProblemDetails` (description and configuration of problem types)
-  - `RoyalCode.SmartProblems.EntityFramework` (methods `TryFind*` and integration with `FindResult`)
-  - `RoyalCode.SmartProblems.Http` (utilities for ASP.NET)
-  - `RoyalCode.SmartProblems.ApiResults` (results for APIs)
-  - `RoyalCode.SmartProblems.FluentValidation` (integration with FluentValidation)
+Unexpected failures are still exceptions. Validation errors, business rules,
+authorization denials, invalid state and "not found" are `Problem` values.
 
-> Note: The names above follow the repository folders/projects. Publish/consume via NuGet according to your strategy.
+## Target Frameworks
 
-## Main Concepts
+The libraries target:
 
-- `Problem`/`Problems`: categorized errors with `detail`, `property`, `extensions`
-- `Result`/`Result<T>`: success/failure results with composition (`Map`, `Continue`, `Match/MatchAsync`)
-- `FindResult<T>`: safe lookups with standardized `NotFound`/`InvalidParameter`
-- Categories: `NotFound`(404), `InvalidParameter`(400), `ValidationFailed`(422), `NotAllowed`(403), `InvalidState`(409), `InternalServerError`(500), `CustomProblem`
+- .NET 8
+- .NET 9
+- .NET 10
 
-## Installation
+The test project currently targets .NET 10.
 
-Add references as needed (Core is mandatory):
+## Packages
 
+Install only the packages needed by the project:
+
+```bash
+dotnet add package RoyalCode.SmartProblems
+dotnet add package RoyalCode.SmartProblems.EntityFramework
+dotnet add package RoyalCode.SmartProblems.ProblemDetails
+dotnet add package RoyalCode.SmartProblems.ApiResults
+dotnet add package RoyalCode.SmartProblems.Http
+dotnet add package RoyalCode.SmartProblems.FluentValidation
 ```
- dotnet add package RoyalCode.SmartProblems
- dotnet add package RoyalCode.SmartProblems.Conversions
- dotnet add package RoyalCode.SmartProblems.ProblemDetails
- dotnet add package RoyalCode.SmartProblems.EntityFramework
- dotnet add package RoyalCode.SmartProblems.Http
- dotnet add package RoyalCode.SmartProblems.ApiResults
- dotnet add package RoyalCode.SmartProblems.FluentValidation
-```
 
-## Quick Start
+Package overview:
 
-Problems and Results:
+| Package | Main use |
+|---|---|
+| `RoyalCode.SmartProblems` | Core types: `Problem`, `Problems`, `Result`, `Result<T>`, `FindResult<T>`, `Id<,>` |
+| `RoyalCode.SmartProblems.EntityFramework` | EF Core extensions: `TryFindAsync`, `TryFindByAsync`, `FindByCriteria`, `AddTo`, `SaveChanges`, `RemoveFromAsync` |
+| `RoyalCode.SmartProblems.ProblemDetails` | RFC 9457 descriptions, options, conversion setup and problem description pages |
+| `RoyalCode.SmartProblems.ApiResults` | Minimal API/MVC response helpers: `OkMatch`, `CreatedMatch`, `NoContentMatch`, `WithExceptionFilter` |
+| `RoyalCode.SmartProblems.Http` | HttpClient extensions: `ToResultAsync` |
+| `RoyalCode.SmartProblems.FluentValidation` | Convert FluentValidation failures to `Problems` |
+| `RoyalCode.SmartProblems.Conversions` | Lower-level conversion types used by `ProblemDetails` and `Http` |
+
+Some extension methods intentionally live in Microsoft namespaces after the
+package is installed:
+
+| Member | Namespace |
+|---|---|
+| EF helpers | `Microsoft.EntityFrameworkCore` |
+| `.OkMatch()`, `.CreatedMatch()`, `.NoContentMatch()` | `Microsoft.AspNetCore.Http` |
+| `WithExceptionFilter`, `MapProblemDetailsDescriptionPage` | `Microsoft.AspNetCore.Builder` |
+| `AddProblemDetailsDescriptions` | `Microsoft.Extensions.DependencyInjection` |
+| `ToResultAsync` | `System.Net.Http` |
+
+## Core Usage
+
+Create problems and return them as results:
 
 ```csharp
- // a simple problem
- var problem = Problems.InvalidParameter("Name is required", "name");
+using RoyalCode.SmartProblems;
 
- // Problems is chainable
- Problems problems = problem + Problems.NotFound("User not found", "userId");
+public Result<Order> Confirm(Order order)
+{
+    if (order.IsCanceled)
+    {
+        return Problems.InvalidState("Canceled orders cannot be confirmed.")
+            .With("orderId", order.Id);
+    }
 
- // Result with value or with problems
- Result<string> ok = "Hello";
- Result<string> fail = problem; // implicit
-
- // Checking
- if (ok.HasValue(out var value))
- {
-     // success
- }
-
- if (fail.HasProblems(out var errs))
- {
-     // handle errors
- }
+    order.Confirm();
+    return order;
+}
 ```
 
-Composition:
+Handle success and failure without exceptions:
 
 ```csharp
- Result<User> GetUser() => Problems.NotFound("User");
+Result<Order> result = service.Confirm(order);
 
- var res = GetUser()
-     .Match(
-         user => Result.Ok(),
-         errs => errs.AsResult());
+if (result.HasProblems(out var problems))
+    return problems;
+
+result.EnsureHasValue(out var confirmed);
 ```
 
-## APIs + ProblemDetails (RFC 9457)
+Common categories and default HTTP status mapping:
 
-Convert `Problems` to `ProblemDetails`:
+| Category | HTTP status |
+|---|---|
+| `InvalidParameter` | 400 |
+| `ValidationFailed` | 422 |
+| `NotAllowed` | 403 |
+| `InvalidState` | 409 |
+| `NotFound` | 404 |
+| `InternalServerError` | 500 |
+| `CustomProblem` | From the registered description |
+
+## Entity Framework
+
+Install `RoyalCode.SmartProblems.EntityFramework` and use
+`Microsoft.EntityFrameworkCore`.
+
+Lookup by strongly typed id:
 
 ```csharp
- using RoyalCode.SmartProblems.Conversions;
+using Microsoft.EntityFrameworkCore;
+using RoyalCode.SmartProblems.Entities;
 
- var options = new ProblemDetailsOptions();
- Problems problems = Problems.InvalidParameter("Invalid", "prop") + Problems.NotFound("Not found");
- var pd = problems.ToProblemDetails(options);
+Id<Order, int> orderId = id;
+FindResult<Order, int> find = await db.TryFindAsync(orderId, ct);
+
+return find.ToResult();
 ```
 
-Support:
-- Aggregation in `ProblemDetailsExtended`
-- Category-to-status mapping
-- `ProblemDetailsOptions` descriptors for custom types (`typeId`)
-
-API Matches for Minimal APIs:
+Lookup by one property:
 
 ```csharp
-// Created (201) with Location or Problems
-return service.Create(input)
-  .Map(dto => new Dto(dto))
-  .CreatedMatch(d => $"/api/items/{d.Id}");
-
-// Ok (200) or ProblemDetails
-return service.Update(id, cmd); // OkMatch
-
-// NoContent (204) or ProblemDetails
-return service.Delete(id); // NoContentMatch
+var find = await db.Orders.TryFindByAsync(o => o.Number == number, ct);
+return find.ToResult();
 ```
 
-## Entity Framework: TryFind/FindResult
-
-Safe lookups with standardized problems:
+Lookup by multiple criteria:
 
 ```csharp
- // by Id
- var entry = await db.TryFindAsync<YourEntity, int>(id);
- if (entry.NotFound(out var notFound))
-     return notFound; // implicit Result/Problems
+var find = await db.FindByCriteria<City>()
+    .By(c => c.StateId, stateId)
+    .By(c => c.Name, name)
+    .TryFindAsync(ct);
 
- // by expression
- var byName = await db.TryFindByAsync<YourEntity>(e => e.Name == name);
- var result = byName.ToResult();
+return find.ToResult();
 ```
 
-Compose with `FindResult<T>`:
+Persist through `Result` pipelines:
 
 ```csharp
- await entry.ContinueAsync(async entity =>
- {
-     // proceed with the entity
-     return Result.Ok();
- });
+return await Product.Create(command)
+    .AddTo(db)
+    .SaveChangesAsync(db, ct);
 ```
 
-## Exception Handling
-
-Create internal error problems with fine control:
+Remove only when the entity is found:
 
 ```csharp
- var p1 = Problems.InternalError(new Exception("boom"));
- var p2 = Problems.InternalError(); // uses default message
-
- // global customization
- Problems.ExceptionOptions.IncludeStackTrace = true;
- Problems.ExceptionHandler = new MyHandler(); // map specific exceptions
+return await db.Products
+    .TryFindByAsync(p => p.Id == id, ct)
+    .RemoveFromAsync(db, ct)
+    .SaveChangesAsync(db, ct);
 ```
 
-## Custom Problems (CustomProblem)
+## Minimal APIs
 
-Define domain problems with `typeId` and describe them for ProblemDetails (RFC 9457):
+Install `RoyalCode.SmartProblems.ApiResults`.
+
+Use `OkMatch<T>`, `CreatedMatch<T>` and `NoContentMatch` to return either the
+success response or a `ProblemDetails` response from the same endpoint.
 
 ```csharp
- var custom = Problems.Custom("Order on hold", typeId: "order-on-hold", property: "status");
+using Microsoft.AspNetCore.Http;
+using RoyalCode.SmartProblems.HttpResults;
 
- var options = new ProblemDetailsOptions();
- options.Descriptor.Add(new ProblemDetailsDescription(
-     "order-on-hold",
-     title: "Order on hold",
-     description: "Business rule violation",
-     status: System.Net.HttpStatusCode.Conflict));
+var group = app.MapGroup("/api/orders")
+    .WithExceptionFilter();
+
+group.MapGet("/{id:int}",
+    async Task<OkMatch<OrderDto>> (int id, OrdersService service, CancellationToken ct)
+        => await service.GetAsync(id, ct));
+
+group.MapPost("/",
+    async Task<CreatedMatch<OrderDto>> (CreateOrder command, OrdersService service, CancellationToken ct)
+        => (await service.CreateAsync(command, ct))
+            .CreatedMatch(order => $"/api/orders/{order.Id}"));
+
+group.MapDelete("/{id:int}",
+    async Task<NoContentMatch> (int id, OrdersService service, CancellationToken ct)
+        => await service.DeleteAsync(id, ct));
 ```
 
-## FluentValidation (optional)
+`WithExceptionFilter` is for unexpected exceptions at the HTTP boundary. Keep
+expected failures in `Result`, `Problem` or `Problems`.
 
-Convert validation errors to `Problems.ValidationFailed`/`InvalidParameter` and return as `ProblemDetails`.
+## ProblemDetails and Problem Type Documentation
 
-## HttpClient: ToResultAsync
+Install `RoyalCode.SmartProblems.ProblemDetails`.
 
-Deserialize responses into `Result`/`Result<T>`:
+Register descriptions for known problem types, especially custom `typeId`
+values, and optionally expose an HTML catalog for consumers.
 
 ```csharp
-var resp = await http.GetAsync("/users/123");
-var result = await resp.ToResultAsync<UserDto>();
-if (result.HasValue(out var user)) { /* success */ }
-else if (result.HasProblems(out var problems)) { /* handle ProblemDetails */ }
+using System.Net;
+using Microsoft.Extensions.DependencyInjection;
+using RoyalCode.SmartProblems.Descriptions;
+
+builder.Services.AddProblemDetailsDescriptions(options =>
+{
+    options.Descriptor.Add(new ProblemDetailsDescription(
+        typeId: "order-on-hold",
+        title: "Order on hold",
+        description: "The order cannot move forward while it is on hold.",
+        status: HttpStatusCode.Conflict));
+});
+
+app.MapProblemDetailsDescriptionPage(); // GET /.problems
 ```
 
-## Usage Tips
+Create a custom problem using the same `typeId`:
 
-- Use `With(key, value)` to attach context data
-- `ChainProperty("parent")` for nested property paths
-- Prefer `Result`/`FindResult` composition over exceptions in expected flows
-- Configure `ProblemDetailsOptions` with absolute `type` URIs (RFC 9457)
+```csharp
+return Problems.Custom(
+    "The order is on hold.",
+    typeId: "order-on-hold",
+    property: "status");
+```
+
+## HttpClient
+
+Install `RoyalCode.SmartProblems.Http`.
+
+`ToResultAsync` reads successful responses as values and failed
+`application/problem+json` responses as `Problems`.
+
+```csharp
+HttpResponseMessage response = await http.GetAsync("/api/orders/123", ct);
+Result<OrderDto> result = await response.ToResultAsync<OrderDto>(ct: ct);
+
+if (result.HasValue(out var order))
+{
+    return order;
+}
+
+return result;
+```
+
+## FluentValidation
+
+Install `RoyalCode.SmartProblems.FluentValidation`.
+
+```csharp
+Result<CreateOrder> valid = await validator.EnsureIsValidAsync(command);
+
+if (valid.HasProblems(out var problems))
+    return problems;
+```
+
+## Documentation
+
+Project documentation lives under `src/.docs`:
+
+- [`src/.docs/problems.md`](src/.docs/problems.md): full guide with examples,
+  conventions, edge cases and recommended patterns.
+- [`src/.docs/problems.ai-rules.md`](src/.docs/problems.ai-rules.md):
+  compact rules for AI-assisted code generation in other repositories.
+- [`src/.docs/smart-problems-validations.md`](src/.docs/smart-problems-validations.md):
+  validation-oriented examples and checklists.
+
+Prefer the XML documentation exposed by the installed packages for exact method
+signatures. The docs above explain the intended usage and composition style.
 
 ## Development
 
-- Multi-target: .NET 8, 9, 10
-- Tests cover Results/Problems, ProblemDetails conversion, EF lookups, Http ToResultAsync, API Matches
+From the repository root:
 
-Contributions welcome.
+```bash
+dotnet test src/RoyalCode.SmartProblems.Tests/RoyalCode.SmartProblems.Tests.csproj
+```
+
+The tests cover the core result types, problem conversion, API results,
+exception filters, Entity Framework helpers, HttpClient conversion,
+FluentValidation integration and problem description pages.
+
+## License
+
+See [`LICENSE`](LICENSE).
