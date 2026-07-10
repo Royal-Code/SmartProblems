@@ -38,7 +38,7 @@ public static partial class SmartProblemsEFExtensions
     /// <param name="result">The result containing the entity.</param>
     /// <param name="context">The DbContext to add the entity to.</param>
     /// <param name="ct">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>The original result.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Result<TEntity>> AddToAsync<TEntity>(
         this Result<TEntity> result, DbContext context, CancellationToken ct = default) 

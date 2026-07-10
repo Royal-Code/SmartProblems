@@ -5,6 +5,10 @@ Serve também como referência para ferramentas de IA (ex.: GitHub Copilot) comp
 
 Projetos alvo: .NET 8, .NET 9 e .NET 10.
 
+> **Para IA/agentes:** se você precisa apenas gerar código correto, use
+> [`problems.ai-rules.md`](problems.ai-rules.md) — imperativo, autocontido, com tabela de pacotes,
+> cheat-sheet de assinaturas e anti-padrões. Este arquivo é o guia longo, com o "porquê".
+>
 > **Verificado contra:** `RoyalCode.SmartProblems` **1.0.0-preview-7.0** (net8.0 / net9.0 / net10.0).
 > Ao alterar a API pública, atualize esta linha junto com o exemplo afetado. Se a versão instalada no
 > seu projeto for outra, a documentação XML do pacote é a fonte da verdade — este arquivo é o guia de
@@ -38,8 +42,9 @@ vários casos — as linhas marcadas com ⚠️ não são dedutíveis a partir d
 |---|---|---|
 | `Problem`, `Problems`, `Result`, `Result<T>` | `RoyalCode.SmartProblems` | `RoyalCode.SmartProblems` |
 | `FindResult<>`, `Id<,>`, `FindCriterion`, `FindCriteria<>`, `DisplayNames` | `RoyalCode.SmartProblems.Entities` | `RoyalCode.SmartProblems` |
-| `TryFindAsync`, `TryFindByAsync`, `FindByCriteria` | ⚠️ `Microsoft.EntityFrameworkCore` | `RoyalCode.SmartProblems.EntityFramework` |
-| `OkMatch`, `OkMatch<T>`, `CreatedMatch<T>`, `NoContentMatch` | ⚠️ `RoyalCode.SmartProblems.HttpResults` | ⚠️ `RoyalCode.SmartProblems.ApiResults` |
+| `TryFindAsync`, `TryFindByAsync`, `FindByCriteria`, `AddTo`, `SaveChanges`, `RemoveFromAsync` | ⚠️ `Microsoft.EntityFrameworkCore` | `RoyalCode.SmartProblems.EntityFramework` |
+| `OkMatch`, `OkMatch<T>`, `CreatedMatch<T>`, `NoContentMatch` (tipos) | ⚠️ `RoyalCode.SmartProblems.HttpResults` | ⚠️ `RoyalCode.SmartProblems.ApiResults` |
+| `.OkMatch()`, `.CreatedMatch()`, `.NoContentMatch()` (extensions) | ⚠️ `Microsoft.AspNetCore.Http` | ⚠️ `RoyalCode.SmartProblems.ApiResults` |
 | `WithExceptionFilter` | ⚠️ `Microsoft.AspNetCore.Builder` | `RoyalCode.SmartProblems.ApiResults` |
 | `ToActionResult` e afins (MVC) | ⚠️ `Microsoft.AspNetCore.Mvc` | `RoyalCode.SmartProblems.ApiResults` |
 | `ToResultAsync`, `FailureTypeReader` | ⚠️ `System.Net.Http` / `RoyalCode.SmartProblems.Http` | `RoyalCode.SmartProblems.Http` |
@@ -51,7 +56,8 @@ vários casos — as linhas marcadas com ⚠️ não são dedutíveis a partir d
 
 Pontos que causam erro de compilação ou pacote faltante com mais frequência:
 
-- `OkMatch` e família estão no pacote **`ApiResults`**, mas no namespace **`HttpResults`**.
+- Os tipos `OkMatch` e família estão no pacote **`ApiResults`**, mas no namespace **`HttpResults`**.
+- Os métodos `.OkMatch()`, `.CreatedMatch()` e `.NoContentMatch()` são extensions em **`Microsoft.AspNetCore.Http`**.
 - `ToResultAsync` é injetado em **`System.Net.Http`** (namespace já implícito com `ImplicitUsings`),
   então "compila sem `using`" — mas exige o pacote `RoyalCode.SmartProblems.Http`. Os tipos auxiliares
   (`FailureTypeReader`) ficam em `RoyalCode.SmartProblems.Http`.
@@ -68,11 +74,12 @@ Pontos que causam erro de compilação ou pacote faltante com mais frequência:
 using RoyalCode.SmartProblems;
 
 // Serviço com EF
-using Microsoft.EntityFrameworkCore;      // TryFindAsync, TryFindByAsync, FindByCriteria
+using Microsoft.EntityFrameworkCore;      // TryFindAsync, FindByCriteria, AddTo, SaveChanges
 using RoyalCode.SmartProblems;            // Result, Problems
 using RoyalCode.SmartProblems.Entities;   // FindResult, Id, FindCriterion
 
 // Minimal API
+using Microsoft.AspNetCore.Http;                 // OkMatch/CreatedMatch/NoContentMatch extension methods
 using Microsoft.AspNetCore.Builder;             // WithExceptionFilter, MapProblemDetailsDescriptionPage
 using Microsoft.Extensions.DependencyInjection; // AddProblemDetailsDescriptions
 using RoyalCode.SmartProblems;
@@ -664,6 +671,35 @@ if (entry2.NotFound(out var p))
 }
 ```
 
+Persistência com helpers EF:
+
+- `AddTo`/`AddToAsync` adiciona a entidade ao `DbContext` somente quando o `Result<TEntity>` tem valor.
+- `SaveChanges`/`SaveChangesAsync` chama `DbContext.SaveChanges` somente quando o `Result` está em sucesso.
+- `RemoveFromAsync` existe para `Task<FindResult<TEntity>>`; remove somente quando a entidade foi encontrada e retorna `Result<TEntity>`.
+- Para `Result<TEntity>` já materializado, prefira `AddTo(db)` quando quiser encadear imediatamente com `SaveChangesAsync`.
+
+Criação:
+```csharp
+return await Product.Create(command)
+    .AddTo(db)
+    .SaveChangesAsync(db, ct);
+```
+
+Criação quando a etapa anterior já é assíncrona:
+```csharp
+return await CreateProductAsync(command, ct)
+    .AddToAsync(db, ct)
+    .SaveChangesAsync(db, ct);
+```
+
+Remoção:
+```csharp
+return await db.Products
+    .TryFindByAsync(p => p.Id == id, ct)
+    .RemoveFromAsync(db, ct)
+    .SaveChangesAsync(db, ct);
+```
+
 Composição com `FindResult`:
 ```csharp
 var result = await entry.ContinueAsync(
@@ -1040,8 +1076,8 @@ e a §8 (erros comuns)** — juntas elas cobrem os erros que não aparecem no In
 
 - Pacotes e `using`
   - Resolva o `using` pela tabela da §1.1; pacote e namespace divergem (`OkMatch` → pacote `ApiResults`,
-    namespace `HttpResults`; `ToResultAsync` → pacote `Http`, namespace `System.Net.Http`;
-    `ToProblemDetails` → pacote `ProblemDetails`, namespace `...Conversions`).
+    tipos em `HttpResults`, extensions em `Microsoft.AspNetCore.Http`; `ToResultAsync` → pacote `Http`,
+    namespace `System.Net.Http`; `ToProblemDetails` → pacote `ProblemDetails`, namespace `...Conversions`).
   - Extensões de EF e ASP.NET Core vivem em namespaces da Microsoft: instalado o pacote, não há `using` novo.
 - Armadilhas obrigatórias (§8)
   - `Problems.InternalError` é `(detail, typeId, property)`, invertido em relação às demais fábricas:
