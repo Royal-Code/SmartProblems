@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SPVer>1.0.0</SPVer>
-		<SPPreview>-preview-6.0</SPPreview>
+		<SPPreview>-preview-7.0</SPPreview>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AspNetVer Condition=" '$(TargetFramework)' == 'net8.0'">8.0.0</AspNetVer>

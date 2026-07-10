@@ -74,6 +74,8 @@ public readonly struct FindCriteria<[DynamicallyAccessedMembers(DynamicallyAcces
         EnsureInitialized();
 
         var member = ValidateSelector(propertySelector);
+        GuardIdWrapperMisuse<TValue>(member);
+
         var equal = Expression.Equal(propertySelector.Body, ExpressionCapture.Capture(value));
         var predicate = Expression.Lambda<Func<TEntity, bool>>(equal, propertySelector.Parameters);
 
@@ -126,6 +128,34 @@ public readonly struct FindCriteria<[DynamicallyAccessedMembers(DynamicallyAcces
             throw new InvalidOperationException(
                 "FindCriteria was not initialized. Do not use default(FindCriteria<TEntity>); " +
                 "start with FindByCriteria(...) on a DbContext, a DbSet<TEntity> or an IQueryable<TEntity>.");
+        }
+    }
+
+    /// <summary>
+    /// <para>
+    ///     Rejects <c>By(e =&gt; e.StateId, someIdWrapper)</c> with an actionable message.
+    /// </para>
+    /// <para>
+    ///     Passing an <see cref="Id{TEntity, TId}"/> as the value compiles: <c>TValue</c> is inferred as the
+    ///     wrapper (there is an implicit conversion from the raw value to it) and the selector body gets a
+    ///     <c>Convert</c> node. It would then fail deep inside <see cref="Expression.Equal(Expression, Expression)"/>
+    ///     with "the binary operator Equal is not defined for the types Id&lt;,&gt;", which says nothing about
+    ///     the actual mistake.
+    /// </para>
+    /// </summary>
+    private static void GuardIdWrapperMisuse<TValue>(MemberExpression member)
+    {
+        // a conversion was needed: the property type and the value type differ.
+        if (member.Type == typeof(TValue))
+            return;
+
+        var valueType = typeof(TValue);
+        if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Id<,>))
+        {
+            throw new ArgumentException(
+                $"Cannot filter '{member.Member.Name}' (of type {member.Type.Name}) by an Id<,> wrapper. " +
+                $"Pass the underlying value instead, e.g. By(e => e.{member.Member.Name}, id.Value).",
+                "value");
         }
     }
 

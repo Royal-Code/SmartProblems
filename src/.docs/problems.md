@@ -5,7 +5,17 @@ Serve também como referência para ferramentas de IA (ex.: GitHub Copilot) comp
 
 Projetos alvo: .NET 8, .NET 9 e .NET 10.
 
-Nota para IA e IDEs: este arquivo é um guia de uso e padrões. Para conferir todas as sobrecargas, genéricos, retorno exato e ordem de parâmetros, consulte também a documentação XML das bibliotecas no pacote/IDE, especialmente em `Result`, `Result<TValue>`, `FindResult<TEntity>`, `FindResult<TEntity,TId>` e `AsyncResultExtensions`.
+> **Verificado contra:** `RoyalCode.SmartProblems` **1.0.0-preview-7.0** (net8.0 / net9.0 / net10.0).
+> Ao alterar a API pública, atualize esta linha junto com o exemplo afetado. Se a versão instalada no
+> seu projeto for outra, a documentação XML do pacote é a fonte da verdade — este arquivo é o guia de
+> uso e de padrões.
+
+Nota para IA e IDEs: este arquivo cobre **quando** e **por que** usar cada API, além das armadilhas que
+o IntelliSense não revela (§8). Para confirmar sobrecargas, genéricos, retorno exato e ordem de parâmetros,
+consulte a documentação XML das bibliotecas no pacote/IDE — especialmente em `Result`, `Result<TValue>`,
+`FindResult<TEntity>`, `FindResult<TEntity,TId>`, `FindCriteria<TEntity>` e `AsyncResultExtensions`.
+Antes de escrever a primeira linha de código, resolva pacote e `using` pela tabela da §1.1: os nomes de
+pacote e de namespace **divergem** em vários casos e não são dedutíveis.
 
 ## 1. Introdução
 
@@ -18,6 +28,65 @@ Conceitos principais:
 - `FindResult<T>` / `FindResult<T, TId>`: resultado de busca, com utilitários para continuar/mapear e converter para `Result`.
 - Conversões para `ProblemDetails` (RFC 9457) para uso em APIs.
 - Extensões para Entity Framework (métodos `TryFind*`).
+
+### 1.1 Pacotes, namespaces e `using`
+
+Resolva isto **antes** de gerar código. O nome do pacote NuGet e o nome do namespace divergem em
+vários casos — as linhas marcadas com ⚠️ não são dedutíveis a partir do tipo.
+
+| Tipo / membro | `using` (namespace) | Pacote NuGet |
+|---|---|---|
+| `Problem`, `Problems`, `Result`, `Result<T>` | `RoyalCode.SmartProblems` | `RoyalCode.SmartProblems` |
+| `FindResult<>`, `Id<,>`, `FindCriterion`, `FindCriteria<>`, `DisplayNames` | `RoyalCode.SmartProblems.Entities` | `RoyalCode.SmartProblems` |
+| `TryFindAsync`, `TryFindByAsync`, `FindByCriteria` | ⚠️ `Microsoft.EntityFrameworkCore` | `RoyalCode.SmartProblems.EntityFramework` |
+| `OkMatch`, `OkMatch<T>`, `CreatedMatch<T>`, `NoContentMatch` | ⚠️ `RoyalCode.SmartProblems.HttpResults` | ⚠️ `RoyalCode.SmartProblems.ApiResults` |
+| `WithExceptionFilter` | ⚠️ `Microsoft.AspNetCore.Builder` | `RoyalCode.SmartProblems.ApiResults` |
+| `ToActionResult` e afins (MVC) | ⚠️ `Microsoft.AspNetCore.Mvc` | `RoyalCode.SmartProblems.ApiResults` |
+| `ToResultAsync`, `FailureTypeReader` | ⚠️ `System.Net.Http` / `RoyalCode.SmartProblems.Http` | `RoyalCode.SmartProblems.Http` |
+| `ToProblemDetails(options)`, `ProblemDetailsExtended` | `RoyalCode.SmartProblems.Conversions` | ⚠️ `RoyalCode.SmartProblems.ProblemDetails` |
+| `ProblemDetailsOptions`, `ProblemDetailsDescription` | `RoyalCode.SmartProblems.Descriptions` | `RoyalCode.SmartProblems.ProblemDetails` |
+| `AddProblemDetailsDescriptions` | ⚠️ `Microsoft.Extensions.DependencyInjection` | `RoyalCode.SmartProblems.ProblemDetails` |
+| `MapProblemDetailsDescriptionPage` | ⚠️ `Microsoft.AspNetCore.Builder` | `RoyalCode.SmartProblems.ProblemDetails` |
+| `EnsureIsValid`, `ToProblems`, `HasProblems` (validator) | ⚠️ `FluentValidation` | `RoyalCode.SmartProblems.FluentValidation` |
+
+Pontos que causam erro de compilação ou pacote faltante com mais frequência:
+
+- `OkMatch` e família estão no pacote **`ApiResults`**, mas no namespace **`HttpResults`**.
+- `ToResultAsync` é injetado em **`System.Net.Http`** (namespace já implícito com `ImplicitUsings`),
+  então "compila sem `using`" — mas exige o pacote `RoyalCode.SmartProblems.Http`. Os tipos auxiliares
+  (`FailureTypeReader`) ficam em `RoyalCode.SmartProblems.Http`.
+- `ToProblemDetails` está no namespace `...Conversions`, porém é entregue pelo pacote
+  **`RoyalCode.SmartProblems.ProblemDetails`** (o pacote `...Conversions` traz a serialização e
+  `ProblemDetailsExtended`, não a conversão a partir de `Problems`).
+- As extensões de EF e de ASP.NET Core usam os namespaces da Microsoft de propósito: instalado o pacote,
+  os métodos aparecem sem `using` novo.
+
+`using` canônicos por cenário:
+
+```csharp
+// Serviço de domínio (sem EF, sem HTTP)
+using RoyalCode.SmartProblems;
+
+// Serviço com EF
+using Microsoft.EntityFrameworkCore;      // TryFindAsync, TryFindByAsync, FindByCriteria
+using RoyalCode.SmartProblems;            // Result, Problems
+using RoyalCode.SmartProblems.Entities;   // FindResult, Id, FindCriterion
+
+// Minimal API
+using Microsoft.AspNetCore.Builder;             // WithExceptionFilter, MapProblemDetailsDescriptionPage
+using Microsoft.Extensions.DependencyInjection; // AddProblemDetailsDescriptions
+using RoyalCode.SmartProblems;
+using RoyalCode.SmartProblems.HttpResults;      // OkMatch, CreatedMatch, NoContentMatch
+using RoyalCode.SmartProblems.Descriptions;     // ProblemDetailsOptions, ProblemDetailsDescription
+
+// Cliente HTTP
+using RoyalCode.SmartProblems;
+using RoyalCode.SmartProblems.Http;       // FailureTypeReader (ToResultAsync já vem de System.Net.Http)
+
+// Validação com FluentValidation
+using FluentValidation;                   // EnsureIsValid, ToProblems
+using RoyalCode.SmartProblems;
+```
 
 ## 2. Funcionalidades Principais
 
@@ -45,7 +114,8 @@ Conceitos principais:
   - Fábrica multi-critério: `FindResult<TEntity>.Problem(ReadOnlySpan<FindCriterion>)`.
 
 - Conversão para `ProblemDetails`
-  - `RoyalCode.SmartProblems.Conversions`: `Problems.ToProblemDetails(options)`.
+  - `Problems.ToProblemDetails(options)`: namespace `RoyalCode.SmartProblems.Conversions`,
+    entregue pelo pacote `RoyalCode.SmartProblems.ProblemDetails` (ver §1.1).
   - `ProblemDetailsExtended` agrega múltiplos problemas (`errors`, `not_found`, `inner_details`).
   - Personalização via `ProblemDetailsOptions`, `ProblemDetailsDescriptor`, `ProblemDetailsDescription` e arquivos JSON.
   - Página HTML de catálogo via `MapProblemDetailsDescriptionPage()`.
@@ -118,6 +188,32 @@ var p500Default = Problems.InternalError(); // usa mensagem padrão configurada
 
 // Custom – descreva seu tipo em ProblemDetails
 var pCustom = Problems.Custom("Order on hold", typeId: "order-on-hold", property: "status");
+```
+
+⚠️ **`InternalError` inverte a ordem de `property` e `typeId`** em relação às demais fábricas.
+Não é um erro de compilação — é um erro silencioso que altera o `type` do `ProblemDetails`:
+
+```csharp
+// Demais fábricas: (detail, property, typeId)
+Problems.InvalidParameter(string detail, string? property = null, string? typeId = null);
+Problems.ValidationFailed(string detail, string? property = null, string? typeId = null);
+Problems.NotAllowed      (string detail, string? property = null, string? typeId = null);
+Problems.InvalidState    (string detail, string? property = null, string? typeId = null);
+Problems.NotFound        (string detail, string? property = null, string? typeId = null);
+
+// InternalError: (detail, typeId, property)  <-- invertido!
+Problems.InternalError   (string? detail, string? typeId = null, string? property = null);
+
+// Custom exige typeId, na segunda posição
+Problems.Custom          (string detail, string typeId, string? property = null);
+```
+
+```csharp
+// ❌ define typeId = "userId" sem querer
+Problems.InternalError("Falha ao gravar", "userId");
+
+// ✅ sempre use argumento nomeado em InternalError
+Problems.InternalError("Falha ao gravar", property: "userId");
 ```
 
 Extensões e propriedades encadeadas:
@@ -352,18 +448,19 @@ Casos de uso reais (serviços, handlers, repositórios):
 public readonly struct UserService
 {
     private readonly IUserRepository _repo;
-    private readonly IUserValidator _validator;
+    private readonly AbstractValidator<UserInput> _validator; // EnsureIsValid é extensão de AbstractValidator<T>
     private readonly IUserPolicy _policy;
 
     public Result Create(UserInput input)
     {
         // validação de entrada
-        if (input.HasProblems(out var problems))
-            return problems; // 400.
+        // Atenção: cada `out var` precisa de um nome único no mesmo escopo (CS0128).
+        if (input.HasProblems(out var inputProblems))
+            return inputProblems; // 400.
 
         // regra de negócio
-        if (_validator.EnsureIsValid(input).HasProblems(out var problems))
-            return problems; // 400/422 etc.
+        if (_validator.EnsureIsValid(input).HasProblems(out var validationProblems))
+            return validationProblems; // 400/422 etc.
 
         // regra de negócio
         if (!_policy.CanCreate(input))
@@ -780,7 +877,120 @@ Boas práticas (RFC 9457):
 - APIs devem retornar `application/problem+json` para falhas; clientes devem interpretar `type`, `title`, `status`, `detail`, `instance`.
 - Use `type`/`instance` URIs estáveis; evite conflitar extensões com campos reservados.
 
-## 8. Boas Práticas
+## 8. Erros comuns (❌ / ✅)
+
+Armadilhas que o IntelliSense não revela. Todas verificadas contra `1.0.0-preview-7.0`.
+
+### 8.1 `TryFindAsync` tem duas semânticas sob o mesmo nome
+
+`TryFindAsync(id)` usa `FindAsync` do EF: **consulta o change tracker primeiro** e, se a entidade já
+estiver rastreada, retorna sem emitir SQL. `TryFindByAsync(predicado)` e `FindByCriteria()...TryFindAsync(ct)`
+usam `FirstOrDefaultAsync`: **sempre** emitem SQL, e alterações ainda não salvas não afetam o filtro.
+
+```csharp
+// ✅ chave primária: pode resolver pelo change tracker, sem ida ao banco
+var byId = await db.Set<City>().TryFindAsync(cityId, ct);
+
+// ⚠️ sempre emite SQL; não enxerga entidades adicionadas/alteradas e ainda não salvas
+var byName = await db.FindByCriteria<City>().By(c => c.Name, "Nova").TryFindAsync(ct);
+```
+
+Regra: busca por chave primária → `TryFindAsync(id)`. Busca por outros campos → `TryFindByAsync` /
+`FindByCriteria`, assumindo roundtrip.
+
+### 8.2 `By` exige membro direto da entidade
+
+O seletor precisa acessar uma propriedade **do parâmetro da lambda**. Qualquer outra coisa lança
+`ArgumentException` em tempo de execução.
+
+```csharp
+// ❌ ArgumentException: não é membro do parâmetro `c`
+criteria.By(c => outroObjeto.Nome, valor);
+
+// ❌ ArgumentException: cadeia profunda (o display name seria resolvido no tipo errado)
+criteria.By(c => c.State.Name, "SC");
+
+// ✅ membro direto
+criteria.By(c => c.Name, valor);
+
+// ✅ para navegar ou usar lógica além de igualdade, use a sobrecarga de predicado
+criteria.By(c => c.State.Name == "SC", byName: "State", propertyName: "stateName", value: "SC");
+```
+
+### 8.3 `Id<TEntity,TId>` não entra direto em `By`
+
+Cuidado: isto **compila**. Como existe conversão implícita de `int` para `Id<State,int>`, o compilador
+infere `TValue = Id<State,int>` e insere um `Convert` no seletor. O erro só aparece em tempo de execução,
+como `ArgumentException` do próprio builder.
+
+```csharp
+Id<State, int> stateId = 42;
+
+// ❌ compila, mas lança ArgumentException em tempo de execução:
+//    "Cannot filter 'StateId' (of type Int32) by an Id<,> wrapper. Pass the underlying value instead..."
+db.FindByCriteria<City>().By(c => c.StateId, stateId);
+
+// ✅ use o valor
+db.FindByCriteria<City>().By(c => c.StateId, stateId.Value);
+```
+
+Em `TryFindAsync`, ao contrário, o wrapper é aceito nas três sobrecargas e o `id.Value` é usado
+internamente — tanto em `db.TryFindAsync(id, ct)` quanto em `db.Set<T>().TryFindAsync(id, ct)`.
+
+### 8.4 `default(FindCriteria<T>)` e `default(Result<T>)`
+
+`FindCriteria<T>` é struct e detecta o uso não inicializado, lançando `InvalidOperationException`
+com mensagem explicativa em `By` e em `TryFindAsync`. Sempre comece por `FindByCriteria(...)`.
+
+`Result<T>` **não** tem essa guarda: o `default` se comporta como **sucesso com valor nulo**.
+
+```csharp
+// ❌ IsSuccess == true e HasValue devolve true com value == null
+Result<Order> r = default;
+if (r.HasValue(out var order)) { order.Total(); /* NullReferenceException */ }
+
+// ✅ construa explicitamente
+Result<Order> ok = order;
+Result<Order> fail = Problems.NotFound("Order not found", "orderId");
+```
+
+Nunca declare `Result<T>` sem inicializar, nem use `new Result<T>()` sem argumentos.
+
+### 8.5 Acessando o valor: `HasValue`, `HasProblemsOrGetValue` e `EnsureHasValue`
+
+Além de `HasProblems`/`HasValue`, existem duas formas que evitam checagem dupla — e uma que **lança
+exceção**, contrariando a filosofia da biblioteca se usada no fluxo esperado.
+
+```csharp
+// ✅ um único teste, devolve problemas OU valor
+if (result.HasProblemsOrGetValue(out var problems, out var order))
+    return problems;
+// aqui `order` não é nulo
+
+// ✅ variação com a ordem invertida
+if (result.HasValueOrGetProblems(out var value, out var errors)) { /* sucesso */ }
+
+// ⚠️ EnsureHasValue LANÇA InvalidOperationException se houver problemas.
+// Use apenas quando a falha já foi tratada antes e é logicamente impossível aqui.
+result.EnsureHasValue(out var entity);
+
+// ❌ EnsureHasValue não protege contra o `default`: ele só lança quando IsFailure é true.
+// Em default(Result<T>) não há problemas, então `bad` volta nulo silenciosamente (ver §8.4).
+Result<Order> o = default;
+o.EnsureHasValue(out var bad); // bad == null, sem exceção
+```
+
+### 8.6 Ordem de parâmetros de `Problems.InternalError`
+
+Ver §3: `InternalError` é `(detail, typeId, property)`, invertido em relação às demais fábricas.
+Sempre passe `property:` nomeado.
+
+### 8.7 `out var` repetido no mesmo escopo
+
+`HasProblems(out var problems)` duas vezes no mesmo método é erro de compilação (CS0128).
+Dê nomes distintos: `inputProblems`, `validationProblems`.
+
+## 9. Boas Práticas
 
 - Padronize categorias e status HTTP:
   - 404 NotFound, 400 InvalidParameter (entrada), 422 ValidationFailed (semântica), 403 NotAllowed, 409 InvalidState, 500 Internal.
@@ -825,7 +1035,21 @@ O uso de `readonly struct` e APIs inlinadas favorece performance, e as extensõe
 
 ## Instruções para Ferramentas de IA (GitHub Copilot)
 
-Diretrizes de geração alinhadas às seções 1–7:
+Diretrizes de geração alinhadas às seções 1–8. **Antes de gerar código, leia a §1.1 (pacote e `using`)
+e a §8 (erros comuns)** — juntas elas cobrem os erros que não aparecem no IntelliSense.
+
+- Pacotes e `using`
+  - Resolva o `using` pela tabela da §1.1; pacote e namespace divergem (`OkMatch` → pacote `ApiResults`,
+    namespace `HttpResults`; `ToResultAsync` → pacote `Http`, namespace `System.Net.Http`;
+    `ToProblemDetails` → pacote `ProblemDetails`, namespace `...Conversions`).
+  - Extensões de EF e ASP.NET Core vivem em namespaces da Microsoft: instalado o pacote, não há `using` novo.
+- Armadilhas obrigatórias (§8)
+  - `Problems.InternalError` é `(detail, typeId, property)`, invertido em relação às demais fábricas:
+    sempre passe `property:` nomeado.
+  - Nunca produza `default(Result<T>)` nem `new Result<T>()`: reporta sucesso com valor nulo.
+  - Em `FindCriteria.By`, o seletor deve ser membro **direto** do parâmetro, e o valor deve ser o valor
+    cru (`id.Value`), nunca um `Id<,>`.
+  - Cada `out var` precisa de nome único no escopo (CS0128).
 - Problemas e categorias
   - Gere problemas com a categoria correta: `InvalidParameter` (400 entrada), `ValidationFailed` (422 semântica), `NotFound` (404), `InvalidState` (409), `NotAllowed` (403), `InternalServerError` (500), `CustomProblem` (typeId descrito).
   - Use `Property` para apontar o campo e `With(key, value)` para contexto adicional; `ChainProperty(parent[, index])` para caminhos.

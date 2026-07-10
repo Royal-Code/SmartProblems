@@ -210,6 +210,22 @@ public class FindByCriteriaTests
     }
 
     [Fact]
+    public void By_WithIdWrapperAsValue_ThrowsActionableArgumentException()
+    {
+        // Arrange
+        using var fixture = new CityFixture();
+        Id<State, int> stateId = fixture.ScId;
+        var criteria = fixture.Db.FindByCriteria<City>();
+
+        // Act: this compiles — TValue is inferred as Id<State,int> — so the guard must catch it.
+        var ex = Assert.Throws<ArgumentException>(() => criteria.By(c => c.StateId, stateId));
+
+        // Assert: the message must point at the fix, not at Expression.Equal internals.
+        Assert.Contains("id.Value", ex.Message);
+        Assert.Contains("StateId", ex.Message);
+    }
+
+    [Fact]
     public void By_SelectorNotRootedOnParameter_ThrowsArgumentException()
     {
         // Arrange
@@ -217,8 +233,12 @@ public class FindByCriteriaTests
         var other = new City("Other", 999);
         var criteria = fixture.Db.FindByCriteria<City>();
 
-        // Act & Assert
+        // Act & Assert: not a member of the lambda parameter at all.
         Assert.Throws<ArgumentException>(() => criteria.By(c => other.Name, "x"));
+
+        // Act & Assert: a deep chain is not a direct member either (its display name would be
+        // resolved against City instead of State).
+        Assert.Throws<ArgumentException>(() => criteria.By(c => c.State.Name, "SC"));
     }
 
     [Fact]
