@@ -109,6 +109,81 @@ public readonly struct FindResult<TEntity>
             .With(propertyName, propertyValue);
     }
 
+    /// <summary>
+    /// <para>
+    ///     Creates a new <see cref="FindResult{TEntity}"/> for when the entity is not found, using
+    ///     multiple search criteria to generate a category problem <see cref="ProblemCategory.NotFound"/>.
+    /// </para>
+    /// <para>
+    ///     With a single valid criterion, the message matches <see cref="Problem(string, string, object?)"/>.
+    ///     With more than one, every criterion is listed, in the given order, joined by commas.
+    ///     With none, a generic not-found message is used.
+    /// </para>
+    /// <para>
+    ///     A criterion with a null, empty or whitespace <see cref="FindCriterion.PropertyName"/>
+    ///     (as in <c>default(FindCriterion)</c>) is ignored; if all criteria are invalid, this method
+    ///     behaves as if zero criteria were given instead of throwing.
+    /// </para>
+    /// <para>
+    ///     When <see cref="FindCriterion.ByName"/> is null or whitespace, it is resolved via
+    ///     <see cref="DisplayNames"/>. Repeated <see cref="FindCriterion.PropertyName"/> values are all
+    ///     listed in the message, but as extension data keys the last one wins, same as calling
+    ///     <see cref="Problem.With"/> repeatedly with the same key.
+    /// </para>
+    /// </summary>
+    /// <param name="criteria">The criteria used in the search, in declaration order.</param>
+    /// <returns>
+    ///     A new <see cref="FindResult{TEntity}"/> with the problem generated.
+    /// </returns>
+    [SuppressMessage(
+        "Trimming",
+        "IL2087:Target generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.",
+        Justification = "FindResult<TEntity> intentionally has no DAM annotation on TEntity (it would " +
+            "cascade into every generic TEntity extension method over it, e.g. in AsyncResultExtensions). " +
+            "GetDisplayName degrades gracefully when the property can't be reflected (falls back to the " +
+            "raw property name), so a trimmed TEntity only loses the [DisplayName] text, it never breaks.")]
+    public static FindResult<TEntity> Problem(ReadOnlySpan<FindCriterion> criteria)
+    {
+        List<(string ByName, string PropertyName, object? Value)>? valid = null;
+
+        foreach (var criterion in criteria)
+        {
+            if (string.IsNullOrWhiteSpace(criterion.PropertyName))
+                continue;
+
+            var byName = string.IsNullOrWhiteSpace(criterion.ByName)
+                ? DisplayNames.Instance.GetDisplayName(typeof(TEntity), criterion.PropertyName)
+                : criterion.ByName;
+
+            (valid ??= []).Add((byName, criterion.PropertyName, criterion.Value));
+        }
+
+        if (valid is null)
+        {
+            var details = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
+            return Problems.NotFound(details).With("entity", typeof(TEntity).Name);
+        }
+
+        if (valid.Count is 1)
+        {
+            var (byName, propertyName, value) = valid[0];
+            return Problem(byName, propertyName, value);
+        }
+
+        var pairs = new string[valid.Count];
+        for (var i = 0; i < valid.Count; i++)
+            pairs[i] = $"{valid[i].ByName} '{valid[i].Value}'";
+
+        var entityName = DisplayNames.Instance.GetDisplayName(typeof(TEntity));
+        var detail = string.Format(R.EntityNotFoundByMany, entityName, string.Join(", ", pairs));
+        var problem = Problems.NotFound(detail).With("entity", typeof(TEntity).Name);
+
+        foreach (var (_, propertyName, value) in valid)
+            problem = problem.With(propertyName, value);
+
+        return problem;
+    }
+
     #endregion
 
     private readonly Problem? problem;

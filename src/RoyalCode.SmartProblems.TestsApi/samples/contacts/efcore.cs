@@ -58,7 +58,7 @@ public sealed class ContactsDbContext(DbContextOptions<ContactsDbContext> option
 			builder.Property(c => c.Id).ValueGeneratedOnAdd();
 
 			builder.HasMany(c => c.States)
-				.WithOne()
+				.WithOne(s => s.Country)
 				.HasForeignKey(s => s.CountryId)
 				.IsRequired();
 		});
@@ -79,7 +79,7 @@ public sealed class ContactsDbContext(DbContextOptions<ContactsDbContext> option
 				.IsRequired();
 
 			builder.HasMany(s => s.Cities)
-				.WithOne()
+				.WithOne(c => c.State)
 				.HasForeignKey(c => c.StateId)
 				.IsRequired();
 		});

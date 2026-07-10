@@ -9,6 +9,8 @@
 > 2ª — exemplos com `Id<,>.Value`, regra de rootedness (parser do legado e `By` do builder),
 > testes diretos da factory no core e validação de `propertyName` no `FindCriterion` + factory defensiva.
 > 3ª — `byName` whitespace tratado como "não especificado" na resolução via `DisplayNames`.
+> 4ª (pós-implementação) — extração automática restrita a `==`; overload `DbSet` + `Id<,>` (bug pré-existente);
+> garantia do parser reescrita com honestidade sobre getters de propriedades capturadas.
 
 ## 1. Problemas de hoje
 
@@ -69,6 +71,10 @@ Formas não reconhecidas devem degradar para a mensagem genérica `R.EntityNotFo
      `EntityNotFound`: o formato multi-campo ("with A 'x', B 'y'") comunica conjunção e seria
      factualmente errado para OR. Quem precisa de OR com mensagem rica usa o overload explícito
      do builder (§4.2);
+   - **somente `==` gera critério**: o formato da mensagem ("with Name 'X' was not found") afirma que a
+     entidade *tem* aquele valor — falso para `!=`, `>`, `<`, `>=`, `<=` e qualquer outro operador, que
+     produziriam mensagem invertida/distorcida. Esses degradam para a mensagem genérica; quem precisa de
+     mensagem rica com outro operador usa o overload explícito do builder (§4.2);
    - **classificação dos lados de cada igualdade**: o lado "propriedade da entidade" deve ser um
      `MemberExpression` **direto sobre o parâmetro da lambda** (após unwrap de `Convert`); o outro
      lado é o valor. A regra cobre a ordem invertida (`valor == e.Prop`) e elimina ambiguidades:
@@ -85,12 +91,22 @@ Formas não reconhecidas devem degradar para a mensagem genérica `R.EntityNotFo
      subexpressões uma vez na funcletização, quando a query executou. `MethodCallExpression`
      ou qualquer nó não reconhecido no lado do valor → mensagem genérica;
    - **nunca lançar** — qualquer falha ou forma não suportada degrada para `EntityNotFound`;
-   - documentar no XML doc as formas suportadas, sem prometer expressões arbitrárias
-     (o builder é o caminho sancionado para mensagens ricas: recebe os valores em mãos,
-     sem avaliação de expressão alguma).
+   - **garantia precisa (não "não executa código do usuário")**: o parser não compila a expressão nem
+     invoca métodos, mas **lê getters** de propriedades capturadas — é o que faz
+     `e => e.Email == request.Email` render mensagem rica, caso de uso central que não pode degradar.
+     Um getter com efeito colateral (ou não idempotente) é lido **uma vez a mais** do que a query
+     precisou. Documentar essa fronteira no XML doc, sem prometer expressões arbitrárias;
+     o builder é o caminho sancionado para mensagens ricas — recebe os valores em mãos, sem
+     avaliação de expressão alguma.
 2. **Parametrizar** o `TryFindByAsync(propertySelector, value)` existente com closure capture (§4.4).
    Sem mudança de comportamento; o SQL passa de literal a parâmetro.
-3. (Opcional) Overloads one-shot para 2 campos (`TryFindByAsync(s1, v1, s2, v2, ct)`) — açúcar; o builder cobre N.
+3. **Overload faltante `TryFindAsync(this DbSet<TEntity>, Id<TEntity, TId>, ct)`** (bug pré-existente,
+   descoberto na implementação): só existia a versão `TryFindAsync(this DbSet<TEntity>, TId id, ct)`.
+   Passando um `Id<,>`, a inferência resolve `TId = Id<TEntity, TId>` e entrega o **wrapper inteiro** ao
+   `FindAsync`, que o EF rejeita por incompatibilidade de tipo da chave. O `DbContext` já tinha o overload
+   correto. O novo overload vence a resolução por ser mais específico que o parâmetro de tipo nu — sem
+   ambiguidade, e a chamada com `TId` cru (`set.TryFindAsync(42, ct)`) segue ligando ao overload antigo.
+4. (Opcional) Overloads one-shot para 2 campos (`TryFindByAsync(s1, v1, s2, v2, ct)`) — açúcar; o builder cobre N.
 
 ## 3. Nova API — visão de uso
 
@@ -416,8 +432,13 @@ No mesmo projeto (já referencia o pacote EF), usando `Country`/`State`/`City`:
 11. Regressão (§2.1): `TryFindByAsync` com predicado composto (`AndAlso`) não lança mais e gera mensagem multi-campo;
 12. `OrElse` no predicado → degrada para mensagem genérica `EntityNotFound` (não lança);
 13. `e.A == e.B` e cadeia profunda (`e.State.Name == x`) → sem critério extraível → mensagem genérica (all-or-nothing);
-14. Chamada de método no lado do valor → mensagem genérica **sem re-executar** o método
-    (contador de invocações permanece 1 após o caminho not-found).
+14. Chamada de método no lado do valor → mensagem genérica **sem invocar** o método
+    (contador de invocações permanece 1 após o caminho not-found);
+15. Operadores não-igualdade (`!=`, `>`) → mensagem genérica (jamais afirmar o oposto do que foi filtrado);
+16. Propriedade capturada no lado do valor (`c.Name == request.Name`) → mensagem rica **e** getter lido
+    novamente (fixa a fronteira documentada em §2.1: lê getters, não invoca métodos);
+17. `set.TryFindAsync(Id<TEntity, TId>)` liga ao overload correto: `extensions["id"]` é o valor cru
+    (`int`), não o wrapper — cobertos pelos `TryFindTests.TryFindAsync_UsingSet_Must_*` existentes.
 
 ## 8. Fora de escopo / futuro
 

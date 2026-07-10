@@ -113,7 +113,16 @@ namespace RoyalCode.SmartProblems {
                 return ResourceManager.GetString("EntityNotFoundById", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to The record of &apos;{0}&apos; with {1} was not found.
+        /// </summary>
+        internal static string EntityNotFoundByMany {
+            get {
+                return ResourceManager.GetString("EntityNotFoundByMany", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error has occurred.
         /// </summary>
