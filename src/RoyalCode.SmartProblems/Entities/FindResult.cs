@@ -184,9 +184,47 @@ public readonly struct FindResult<TEntity>
         return problem;
     }
 
+    /// <summary>
+    /// <para>
+    ///     Creates a new <see cref="FindResult{TEntity}"/> for a search projected from another entity:
+    ///     the result carries a DTO (<typeparamref name="TEntity"/>), but the record searched is the
+    ///     original entity <typeparamref name="TSource"/>.
+    /// </para>
+    /// <para>
+    ///     When the value is null, the problems are generated lazily naming the entity
+    ///     (<typeparamref name="TSource"/>) instead of the DTO, with the correct category for both
+    ///     <see cref="NotFound"/> and <see cref="HasInvalidParameter"/>. A criterion without
+    ///     <see cref="FindCriterion.ByName"/> has its display name resolved against the entity via
+    ///     <see cref="DisplayNames"/>.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TSource">The type of the original entity searched.</typeparam>
+    /// <param name="value">The projected value, or null when the entity was not found.</param>
+    /// <param name="criteria">The criteria used in the search, in declaration order.</param>
+    /// <returns>A new <see cref="FindResult{TEntity}"/> with the value or the search descriptor.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     If <paramref name="criteria"/> is null.
+    /// </exception>
+    public static FindResult<TEntity> ProjectedFrom<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TSource>(
+        TEntity? value, IReadOnlyList<FindCriterion> criteria)
+        where TSource : class
+    {
+        ArgumentNullException.ThrowIfNull(criteria);
+
+        return value is not null
+            ? new FindResult<TEntity>(value)
+            : new FindResult<TEntity>(FindTarget.Create(typeof(TSource), criteria));
+    }
+
     #endregion
 
     private readonly Problem? problem;
+    private readonly FindTarget? target;
+
+    private FindResult(FindTarget target)
+    {
+        this.target = target;
+    }
 
     /// <summary>
     /// Constructor to create a <see cref="FindResult{TEntity}"/>.
@@ -248,6 +286,12 @@ public readonly struct FindResult<TEntity>
     {
         if (Entity is null)
         {
+            if (target is not null)
+            {
+                problem = target.CreateNotFound();
+                return true;
+            }
+
             var datails = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
             problem = this.problem ?? Problems.NotFound(datails).With("entity", typeof(TEntity).Name);
             return true;
@@ -269,6 +313,12 @@ public readonly struct FindResult<TEntity>
     {
         if (Entity is null)
         {
+            if (target is not null)
+            {
+                problem = target.CreateInvalidParameter(parameterName);
+                return true;
+            }
+
             var datails = string.Format(R.EntityNotFound, DisplayNames.Instance.GetDisplayName(typeof(TEntity)));
             problem = this.problem ?? Problems.InvalidParameter(datails, parameterName).With("entity", typeof(TEntity).Name);
             return true;
@@ -787,7 +837,39 @@ public readonly struct FindResult<TEntity, TId>
 
     #endregion
 
+    /// <summary>
+    /// <para>
+    ///     Creates a new <see cref="FindResult{TEntity, TId}"/> for a search by id projected from another
+    ///     entity: the result carries a DTO (<typeparamref name="TEntity"/>), but the record searched is
+    ///     the original entity <typeparamref name="TSource"/>.
+    /// </para>
+    /// <para>
+    ///     When the value is null, the problems are generated lazily naming the entity
+    ///     (<typeparamref name="TSource"/>) instead of the DTO, with the correct category for both
+    ///     <see cref="NotFound"/> and <see cref="HasInvalidParameter"/>.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TSource">The type of the original entity searched.</typeparam>
+    /// <param name="value">The projected value, or null when the entity was not found.</param>
+    /// <param name="id">The identifier used in the search.</param>
+    /// <returns>A new <see cref="FindResult{TEntity, TId}"/> with the value or the search descriptor.</returns>
+    public static FindResult<TEntity, TId> ProjectedFrom<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TSource>(
+        TEntity? value, TId id)
+        where TSource : class
+    {
+        return value is not null
+            ? new FindResult<TEntity, TId>(value, id)
+            : new FindResult<TEntity, TId>(id, FindTarget.Create(typeof(TSource), []));
+    }
+
     private readonly TId id;
+    private readonly FindTarget? target;
+
+    private FindResult(TId id, FindTarget target)
+    {
+        this.id = id;
+        this.target = target;
+    }
 
     /// <summary>
     /// Creates a new <see cref="FindResult{TEntity, TId}"/> from an entity and an identifier.
@@ -833,11 +915,11 @@ public readonly struct FindResult<TEntity, TId>
         {
             var datails = string.Format(
                 R.EntityNotFoundById,
-                DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
+                target?.DisplayName ?? DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
                 id);
 
             problem = Problems.NotFound(datails)
-                .With("entity", typeof(TEntity).Name)
+                .With("entity", target?.TypeName ?? typeof(TEntity).Name)
                 .With("id", id);
 
             return true;
@@ -861,11 +943,11 @@ public readonly struct FindResult<TEntity, TId>
         {
             var datails = string.Format(
                 R.EntityNotFoundById,
-                DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
+                target?.DisplayName ?? DisplayNames.Instance.GetDisplayName(typeof(TEntity)),
                 id);
 
             problem = Problems.InvalidParameter(datails, parameterName)
-                .With("entity", typeof(TEntity).Name)
+                .With("entity", target?.TypeName ?? typeof(TEntity).Name)
                 .With("id", id);
 
             return true;

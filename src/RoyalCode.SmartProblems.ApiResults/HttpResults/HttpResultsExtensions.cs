@@ -154,4 +154,40 @@ public static partial class HttpResultsExtensions
     {
         return new OkMatch<T>(result);
     }
+
+    /// <summary>
+    /// Convert the <see cref="Result"/> to <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch"/>.
+    /// </summary>
+    /// <param name="result">The operation result.</param>
+    /// <param name="location">Optional location, for the <c>Location</c> header, of a resource to monitor the accepted request.</param>
+    /// <returns>The <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch"/> for the response.</returns>
+    public static AcceptedMatch AcceptedMatch(this Result result, string? location = null)
+    {
+        return new AcceptedMatch(result, location);
+    }
+
+    /// <summary>
+    /// Convert the <see cref="Result{TValue}"/> to <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="result">The operation result.</param>
+    /// <param name="location">Optional location, for the <c>Location</c> header, of a resource to monitor the accepted request.</param>
+    /// <returns>The <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch{T}"/> for the response.</returns>
+    public static AcceptedMatch<T> AcceptedMatch<T>(this Result<T> result, string? location = null)
+    {
+        return new AcceptedMatch<T>(result, location);
+    }
+
+    /// <summary>
+    /// Convert the <see cref="Result{TValue}"/> to <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch{T}"/>,
+    /// with the location created from the success value.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="result">The operation result.</param>
+    /// <param name="locationFunction">The function to create the location from the success value.</param>
+    /// <returns>The <see cref="RoyalCode.SmartProblems.HttpResults.AcceptedMatch{T}"/> for the response.</returns>
+    public static AcceptedMatch<T> AcceptedMatch<T>(this Result<T> result, Func<T, string?> locationFunction)
+    {
+        return new AcceptedMatch<T>(result, locationFunction);
+    }
 }
